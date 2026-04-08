@@ -22,8 +22,8 @@
       object-fit: cover;
     }
 
-    #fondo-normal { z-index: 2; }
-    #fondo-glitch  { z-index: 1; }
+    #fondo-normal { z-index: 2; } /* importante pq de esto depende que vaya lo del glitchh */
+    #fondo-glitch  { z-index: 1; } /* glitch */
 
     #overlay {
       position: fixed;
@@ -144,16 +144,42 @@
   <script>
 
     var fondoNormal = document.getElementById("fondo-normal");
+    var esAlonso = false; // variable para saber en que personaje estamos
 
-    // efecto glitch aleatorio
+    // reloj de 200ms para efectos de glitch cortos y aleatorios (5 veces por segundo)
     setInterval(function () {
+      // 30% de probabilidad de que ocurra un glitch
       if (Math.random() < 0.3) {
-        fondoNormal.style.display = "none";
+        fondoNormal.style.display = "none"; // oculta la foto de enfrente para mostrar el gif de fondo
+        
+        // cronometro de 100ms para volver a mostrar la foto y acabar el parpadeo rapidisimo
         setTimeout(function () {
           fondoNormal.style.display = "block";
         }, 100);
       }
     }, 200);
+
+    // reloj maestro que suena cada 13 segundos exactamente
+    setInterval(function() {
+      // oculta la imagen frontal instantaneamente para mostrar el gif y empezar la transicion
+      fondoNormal.style.display = "none";
+      
+      // pausa de 150ms para que el jugador vea el gif
+      setTimeout(function() {
+        // cambiamos el src a escondidas mientras la pantalla esta rota
+        if (esAlonso) {
+          fondoNormal.src = "assets/imagenes/menu/menu con german sin efecto glicth.png";
+          esAlonso = false;
+        } else {
+          fondoNormal.src = "assets/imagenes/menu/ALONSO MENU.jpg";
+          esAlonso = true;
+        }
+        
+        // volvemos a mostrar la imagen frontal ya con el nuevo personaje
+        fondoNormal.style.display = "block";
+      }, 150); 
+      
+    }, 13000);
 
 
     function nuevaPartida() {
