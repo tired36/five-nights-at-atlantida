@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Historia - Noche 1</title>
+  <style>
+    body {
+      background-color: black;
+      background-image: url('assets/imagenes/escenarios/sala3/SALA 3 OSCURA.jpeg');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      background-attachment: fixed;
+      color: white;
+      font-family: monospace;
+      text-align: center;
+      padding-top: 50px;
+      margin: 0;
+      /* Animación de aparición suave */
+      animation: fadeIn 2s;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    .lore-container {
+      max-width: 800px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 30px;
+      padding-bottom: 50px;
+    }
+    .lore-image {
+      max-width: 100%;
+      height: auto;
+      border: 2px solid white;
+      box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+    }
+    .audio-container {
+      margin-top: 20px;
+      background: rgba(255, 255, 255, 0.1);
+      padding: 15px;
+      border-radius: 10px;
+      border: 1px dashed white;
+    }
+    button {
+      padding: 15px 30px;
+      font-size: 22px;
+      background: transparent;
+      color: white;
+      border: 2px solid white;
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      transition: all 0.3s ease;
+    }
+    button:hover {
+      background: white;
+      color: black;
+      box-shadow: 0 0 20px white;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="lore-container">
+    <h2>LEER ANTES DE EMPEZAR...</h2>
+    <!-- Imagen de la carta/lore -->
+    <img src="assets/imagenes/lore/CARTA DE DESAPARECIDO.png" alt="Información de la noche" class="lore-image">
+
+  
+
+    <!-- Botón para ir por fin al juego -->
+    <button onclick="window.location.href='juego_noche1.html'">Continuar</button>
+  </div>
+<script>
+   // musica de fondo
+    var musicaFondo = new Audio("assets/musica/tension carta.mp3");
+    musicaFondo.volume = 0.5;
+    
+    musicaFondo.play().catch(function(e) {});
+
+    // forzar q se repita manualmente 
+    musicaFondo.addEventListener("ended", function() {
+      musicaFondo.currentTime = 0;
+      musicaFondo.play().catch(function(e){});
+    });
+</script>
+</body>
+</html>
