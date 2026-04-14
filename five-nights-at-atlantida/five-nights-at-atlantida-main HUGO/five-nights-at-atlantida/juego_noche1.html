@@ -223,8 +223,12 @@
     let currentCam = 1;
     let linternaEncedida = false;
 
+    // variables para el reloj
+    let horaLocal = 0;
+
     // Referencias al DOM
     const btnCamara = document.querySelector('.btn-camara');
+    const textoHora = document.querySelector('.hora-texto');
     const overlay = document.getElementById('cameras-overlay');
     const camView = document.getElementById('camera-view');
     const btnCerrar = document.getElementById('btn-cerrar-camara');
@@ -290,6 +294,20 @@
         linternaEncedida = false; 
         updateCameraView(); 
     });
+
+    // logica para avanzar la hora
+    // pasa una hora en el juego cada 60 segundos
+    setInterval(function() {
+      horaLocal++;
+      if (horaLocal === 6) {
+        // ganar la primera noche
+        alert("has ganado la primera noche!");
+        window.location.href = "menu.html";
+      } else {
+        // actualizamos el texto en pantalla
+        textoHora.innerText = horaLocal + ":00 AM";
+      }
+    }, 60000); // 60000 milisegundos = 1 minuto
   </script>
 
 </body>
