@@ -6,36 +6,38 @@
   <style>
     body {
       margin: 0;
-      padding: 0;
-      background-color: black;
-      background-image: url('assets/imagenes/escenarios/sala_principal/sala principal.png');
-      background-size: cover;
-      background-position: center;
-      background-repeat: no-repeat;
-      overflow: hidden; /* Evita scrolls */
+      background: black url('assets/imagenes/escenarios/sala_principal/sala principal.png') center/cover no-repeat;
       height: 100vh;
       width: 100vw;
+      overflow: hidden;
       user-select: none;
     }
 
-    #ui-container {
+    /* textos de ui fijos en esquina superior derecha */
+    .ui-texto {
       position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      pointer-events: none; /* Para que clics pasen al fondo si es necesario */
+      right: 30px;
+      color: white;
+      font-family: monospace;
+      font-size: 18px;
+      z-index: 10;
+    }
+    #texto-hora   { top: 20px; font-size: 24px; }
+    #texto-noche  { top: 50px; }
+    #texto-energia{ top: 80px; }
+
+    /* botones principales en la parte inferior */
+    #ui-botones {
+      position: absolute;
+      bottom: 20px;
+      left: 0; width: 100%;
       display: flex;
-      justify-content: space-between;
-      align-items: flex-end;
-      padding: 20px;
-      box-sizing: border-box;
+      justify-content: space-around;
       z-index: 10;
     }
 
-    .btn-style {
-      pointer-events: auto; /* Reactivar clic para botones */
-      background-color: rgba(255, 255, 255, 0.2);
+    .btn {
+      background: rgba(255,255,255,0.2);
       border: 2px solid white;
       color: white;
       padding: 15px 30px;
@@ -43,327 +45,241 @@
       font-family: monospace;
       cursor: pointer;
       text-transform: uppercase;
-      transition: background-color 0.3s;
+      transition: background 0.3s;
+      width: 300px;
     }
+    .btn:hover { background: rgba(255,255,255,0.6); color: black; }
 
-    .btn-style:hover {
-      background-color: rgba(255, 255, 255, 0.6);
-      color: black;
-    }
-
-    .btn-camara {
-      width: 400px;
-      margin: 0 auto;
-    }
-
-    .hora-texto {
-      position: absolute;
-      top: 20px;
-      right: 30px;
-      color: white;
-      font-family: monospace;
-      font-size: 24px;
-      z-index: 10;
-    }
-
-    .noche-texto {
-      position: absolute;
-      top: 50px;
-      right: 30px;
-      color: white;
-      font-family: monospace;
-      font-size: 18px;
-      z-index: 10;
-    }
-
-    .energia-texto {
-      position: absolute;
-      top: 80px;
-      right: 30px;
-      color: white;
-      font-family: monospace;
-      font-size: 18px;
-      z-index: 10;
-    }
-
-    /* Overlay Cámaras */
-    #cameras-overlay {
+    /* pantalla de camaras: cubre toda la pantalla */
+    #camaras {
       display: none;
       position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-color: #111;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: #111;
       z-index: 20;
     }
 
-    #camera-view {
-      width: 100%;
-      height: 100%;
-      background-size: cover;
-      background-position: center;
-      background-repeat: no-repeat;
-      cursor: crosshair; /* Indica que se puede interactuar */
+    /* imagen de la camara activa */
+    #vista-camara {
+      width: 100%; height: 100%;
+      background: center/cover no-repeat;
+      cursor: crosshair;
     }
 
-    /* Efecto de estática/filtro para cámaras */
-    .cam-efectos {
+    /* efecto scanlines encima de la imagen */
+    #scanlines {
       position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      pointer-events: none; /* No bloquear clics hacia el camera-view */
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      pointer-events: none;
       background: repeating-linear-gradient(
         0deg,
-        rgba(0, 0, 0, 0.15) 0px,
-        rgba(0, 0, 0, 0.15) 2px,
-        transparent 2px,
-        transparent 4px
+        rgba(0,0,0,0.15) 0px, rgba(0,0,0,0.15) 2px,
+        transparent 2px, transparent 4px
       );
     }
 
-    #instruccion-linterna {
-        position: absolute;
-        top: 20px;
-        left: 20px;
-        color: white;
-        font-family: monospace;
-        font-size: 16px;
-        background: rgba(0,0,0,0.5);
-        padding: 10px;
-        border: 1px dotted white;
-        pointer-events: none;
+    #instruccion {
+      position: absolute;
+      top: 20px; left: 20px;
+      color: white;
+      font-family: monospace;
+      font-size: 16px;
+      background: rgba(0,0,0,0.5);
+      padding: 10px;
+      border: 1px dotted white;
+      pointer-events: none;
+      z-index: 25;
     }
 
-    #camera-map {
+    /* botones de seleccion de camara */
+    #lista-camaras {
       position: absolute;
-      bottom: 120px;
-      right: 30px;
+      bottom: 120px; right: 30px;
       display: flex;
       flex-direction: column;
       gap: 15px;
+      z-index: 25;
     }
 
-    .btn-cam-select {
-      background-color: #333;
+    .btn-cam {
+      background: #333;
       border: 1px solid white;
       color: white;
       padding: 10px 20px;
       font-family: monospace;
       font-size: 16px;
       cursor: pointer;
-      transition: background-color 0.2s;
     }
+    .btn-cam:hover  { background: #555; }
+    .btn-cam.activo { background: white; color: black; font-weight: bold; }
 
-    .btn-cam-select:hover {
-      background-color: #555;
-    }
-
-    .btn-cam-select.active {
-      background-color: #fff;
-      color: #000;
-      font-weight: bold;
-    }
-
-    #btn-cerrar-camara {
+    #btn-bajar-cam {
       position: absolute;
-      bottom: 30px;
-      left: 50%;
+      bottom: 30px; left: 50%;
       transform: translateX(-50%);
       width: 400px;
+      z-index: 25;
     }
-
   </style>
 </head>
 <body>
 
-  <div class="hora-texto">12:00 AM</div>
-  <div class="noche-texto">Noche 1</div>
-  <div class="energia-texto">energia: 100%</div>
+  <!-- video del porton bajando (invisible hasta que se use) -->
+  <video id="video-puerta" src="assets/videos/video_porton_bajando.mp4" playsinline
+    style="display:none; position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover; z-index:5; pointer-events:none;">
+  </video>
 
-  <div id="ui-container">
-    <button class="btn-style btn-camara">Subir Camaras</button>
+  <!-- ui de textos -->
+  <div id="texto-hora"    class="ui-texto">12:00 AM</div>
+  <div id="texto-noche"   class="ui-texto">Noche 1</div>
+  <div id="texto-energia" class="ui-texto">energia: 100%</div>
+
+  <!-- botones de la pantalla principal -->
+  <div id="ui-botones">
+    <button class="btn" id="btn-puerta"  onclick="togglePuerta()">Cerrar Puerta</button>
+    <button class="btn" id="btn-camaras" onclick="abrirCamaras()">Subir Camaras</button>
   </div>
 
-  <!-- Sistema de Cámaras Overlay -->
-  <div id="cameras-overlay">
-    <!-- El contenedor que tendrá la imagen de fondo -->
-    <div id="camera-view"></div>
-    <div class="cam-efectos"></div>
-    
-    <div id="instruccion-linterna">Mantén clic en la pantalla para usar la linterna</div>
+  <!-- pantalla de camaras -->
+  <div id="camaras">
+    <div id="vista-camara"></div>
+    <div id="scanlines"></div>
+    <div id="instruccion">Manten clic en la pantalla para usar la linterna</div>
 
-    <div id="camera-map">
-      <button class="btn-cam-select active" data-cam="1">CAM 1</button>
-      <button class="btn-cam-select" data-cam="2">CAM 2</button>
-      <button class="btn-cam-select" data-cam="3">CAM 3</button>
-      <button class="btn-cam-select" data-cam="4">CAM 4</button>
-      <button class="btn-cam-select" data-cam="5">CAM 5</button>
+    <div id="lista-camaras">
+      <button class="btn-cam activo" onclick="cambiarCam(1)">CAM 1</button>
+      <button class="btn-cam"        onclick="cambiarCam(2)">CAM 2</button>
+      <button class="btn-cam"        onclick="cambiarCam(3)">CAM 3</button>
+      <button class="btn-cam"        onclick="cambiarCam(4)">CAM 4</button>
+      <button class="btn-cam"        onclick="cambiarCam(5)">CAM 5</button>
     </div>
 
-    <button id="btn-cerrar-camara" class="btn-style">Bajar Camaras</button>
+    <button class="btn" id="btn-bajar-cam" onclick="cerrarCamaras()">Bajar Camaras</button>
   </div>
 
   <script>
-    // Configuración de las cámaras y sus imágenes
-    const cameras = {
-      1: {
-        oscura: "assets/imagenes/escenarios/sala1/sala oscura 1.jpeg",
-        linterna: "assets/imagenes/escenarios/sala1/SALA LINTERNA 1.jpeg"
-      },
-      2: {
-        oscura: "assets/imagenes/escenarios/sala2/sala 2 oscura.png",
-        linterna: "assets/imagenes/escenarios/sala2/sala 2 linterna.png"
-      },
-      3: {
-        oscura: "assets/imagenes/escenarios/sala3/SALA 3 OSCURA.jpeg",
-        linterna: "assets/imagenes/escenarios/sala3/SALA 3 OSCURA LINTERNA.jpeg"
-      },
-      4: {
-        oscura: "assets/imagenes/escenarios/sala4/SALA 4 OSCURA.png",
-        linterna: "assets/imagenes/escenarios/sala4/sala 4 linterna.png"
-      },
-      5: {
-        oscura: "assets/imagenes/escenarios/sala5/sala 5 oscura.png",
-        linterna: "assets/imagenes/escenarios/sala5/sala 5 linterna.png"
-      }
+    // imagenes de cada camara: oscura (normal) y con linterna
+    var camaras = {
+      1: { oscura: "assets/imagenes/escenarios/sala1/sala oscura 1.jpeg",  linterna: "assets/imagenes/escenarios/sala1/SALA LINTERNA 1.jpeg" },
+      2: { oscura: "assets/imagenes/escenarios/sala2/sala 2 oscura.png",   linterna: "assets/imagenes/escenarios/sala2/sala 2 linterna.png" },
+      3: { oscura: "assets/imagenes/escenarios/sala3/SALA 3 OSCURA.jpeg",  linterna: "assets/imagenes/escenarios/sala3/SALA 3 OSCURA LINTERNA.jpeg" },
+      4: { oscura: "assets/imagenes/escenarios/sala4/SALA 4 OSCURA.png",   linterna: "assets/imagenes/escenarios/sala4/sala 4 linterna.png" },
+      5: { oscura: "assets/imagenes/escenarios/sala5/sala 5 oscura.png",   linterna: "assets/imagenes/escenarios/sala5/sala 5 linterna.png" }
     };
 
-    let currentCam = 1;
-    let linternaEncedida = false;
+    var camActual    = 1;
+    var linterna     = false;
+    var puertaCerrada = false;
+    var animandoPuerta = false;
+    var hora         = 0;
+    var energia      = 100;
 
-    // variables para el reloj
-    let horaLocal = 0;
+    var vistaCam     = document.getElementById("vista-camara");
+    var panelCamaras = document.getElementById("camaras");
+    var videoPuerta  = document.getElementById("video-puerta");
+    var btnPuerta    = document.getElementById("btn-puerta");
+    var textoHora    = document.getElementById("texto-hora");
+    var textoEnergia = document.getElementById("texto-energia");
 
-    // variables de energia
-    let energia = 100;
-
-    // referencias al dom
-    const btnCamara = document.querySelector('.btn-camara');
-    const textoHora = document.querySelector('.hora-texto');
-    const textoEnergia = document.querySelector('.energia-texto');
-    const overlay = document.getElementById('cameras-overlay');
-    const camView = document.getElementById('camera-view');
-    const btnCerrar = document.getElementById('btn-cerrar-camara');
-    const camSelectores = document.querySelectorAll('.btn-cam-select');
-
-    // funcion para actualizar la vista de camara
-    function updateCameraView() {
-      const currentImgs = cameras[currentCam];
-      // segun el estado de la linterna se muestra la imagen clara o la oscura
-      camView.style.backgroundImage = `url('${linternaEncedida ? currentImgs.linterna : currentImgs.oscura}')`;
+    // actualiza la imagen de la camara segun linterna on/off
+    function actualizarCamara() {
+      var img = linterna ? camaras[camActual].linterna : camaras[camActual].oscura;
+      vistaCam.style.backgroundImage = "url('" + img + "')";
     }
 
-    // abrir monitor
-    btnCamara.addEventListener('click', () => {
-      // si no hay energia, no abrir
-      if (energia > 0) {
-        overlay.style.display = 'block';
-        updateCameraView();
+    function cambiarCam(num) {
+      camActual = num;
+      linterna = false;
+      // marcar boton activo
+      document.querySelectorAll(".btn-cam").forEach(function(b) { b.classList.remove("activo"); });
+      document.querySelectorAll(".btn-cam")[num - 1].classList.add("activo");
+      actualizarCamara();
+    }
+
+    function abrirCamaras() {
+      if (energia <= 0) return;
+      panelCamaras.style.display = "block";
+      actualizarCamara();
+    }
+
+    function cerrarCamaras() {
+      panelCamaras.style.display = "none";
+      linterna = false;
+    }
+
+    // linterna: mantener clic / touch
+    vistaCam.addEventListener("mousedown",  function() { if (energia > 0) { linterna = true;  actualizarCamara(); } });
+    vistaCam.addEventListener("mouseup",    function() { linterna = false; actualizarCamara(); });
+    vistaCam.addEventListener("mouseleave", function() { linterna = false; actualizarCamara(); });
+    vistaCam.addEventListener("touchstart", function(e) { e.preventDefault(); if (energia > 0) { linterna = true;  actualizarCamara(); } });
+    vistaCam.addEventListener("touchend",   function(e) { e.preventDefault(); linterna = false; actualizarCamara(); });
+
+    // cierra/abre la puerta y reproduce el video al cerrar
+    function togglePuerta() {
+      if (energia <= 0 || animandoPuerta) return;
+
+      if (!puertaCerrada) {
+        animandoPuerta = true;
+        btnPuerta.innerText = "Cerrando...";
+        videoPuerta.style.display = "block";
+        videoPuerta.currentTime = 0;
+        videoPuerta.play();
+        videoPuerta.onended = function() {
+          videoPuerta.style.display = "none";
+          document.body.style.backgroundImage = "url('assets/imagenes/escenarios/sala_principal/sala principal porton.png')";
+          puertaCerrada = true;
+          animandoPuerta = false;
+          btnPuerta.innerText = "Abrir Puerta";
+        };
+      } else {
+        document.body.style.backgroundImage = "url('assets/imagenes/escenarios/sala_principal/sala principal.png')";
+        puertaCerrada = false;
+        btnPuerta.innerText = "Cerrar Puerta";
       }
-    });
+    }
 
-    // cerrar monitor
-    btnCerrar.addEventListener('click', () => {
-      overlay.style.display = 'none';
-      linternaEncedida = false; // resetear linterna al bajar monitor
-    });
-
-    // cambiar de camara usando botones
-    camSelectores.forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        // quitar estado activo de todos los botones
-        camSelectores.forEach(b => b.classList.remove('active'));
-        // anadir estado activo solo al que hicimos click
-        e.target.classList.add('active');
-        
-        // actualizar la camara que estamos viendo
-        currentCam = e.target.getAttribute('data-cam');
-        linternaEncedida = false; // apagamos linterna al cambiar
-        updateCameraView();
-      });
-    });
-
-    // control de linterna pc
-    camView.addEventListener('mousedown', () => { 
-        if (energia > 0) {
-            linternaEncedida = true; 
-            updateCameraView(); 
-        }
-    });
-    camView.addEventListener('mouseup', () => { 
-        linternaEncedida = false; 
-        updateCameraView(); 
-    });
-    camView.addEventListener('mouseleave', () => { 
-        linternaEncedida = false; 
-        updateCameraView(); 
-    });
-
-    // control tactil movil
-    camView.addEventListener('touchstart', (e) => { 
-        e.preventDefault();
-        if (energia > 0) {
-            linternaEncedida = true; 
-            updateCameraView(); 
-        }
-    });
-    camView.addEventListener('touchend', (e) => { 
-        e.preventDefault(); 
-        linternaEncedida = false; 
-        updateCameraView(); 
-    });
-
-    // sistema de energia
+    // gasto de energia cada segundo
     setInterval(function() {
-      if (energia > 0) {
-        let gasto = 0.05; // gasto pasivo base
-        
-        // si ves las camaras gasta mas
-        if (overlay.style.display === 'block') {
-          gasto += 0.1; 
-        }
-        // si tienes la linterna activada gasta todavia mas
-        if (linternaEncedida) {
-          gasto += 0.2; 
-        }
+      if (energia <= 0) return;
 
-        energia -= gasto;
-        
-        if (energia <= 0) {
-          energia = 0;
-          apagarTodo();
-        }
-        
-        // actualizar ui quitando decimales
-        textoEnergia.innerText = "energia: " + Math.floor(energia) + "%";
-      }
+      var gasto = 0.05;
+      if (panelCamaras.style.display === "block") gasto += 0.1;
+      if (linterna)      gasto += 0.2;
+      if (puertaCerrada) gasto += 0.3;
+
+      energia -= gasto;
+      if (energia < 0) energia = 0;
+
+      textoEnergia.innerText = "energia: " + Math.floor(energia) + "%";
+
+      if (energia <= 0) apagarTodo();
     }, 1000);
 
-    // funcion cuando te quedas sin bateria
+    // apagon al quedarse sin energia
     function apagarTodo() {
-      overlay.style.display = 'none';
-      linternaEncedida = false;
-      btnCamara.style.display = 'none'; // ocultar boton camaras
-      // apagar luces de la oficina
-      document.body.style.backgroundImage = 'none';
-      document.body.style.backgroundColor = 'black';
+      panelCamaras.style.display = "none";
+      videoPuerta.style.display = "none";
+      videoPuerta.pause();
+      linterna = false;
+      puertaCerrada = false;
+      document.getElementById("btn-puerta").style.display = "none";
+      document.getElementById("btn-camaras").style.display = "none";
+      document.body.style.backgroundImage = "none";
+      document.body.style.backgroundColor = "black";
     }
 
-    // logica para avanzar la hora
+    // avance del reloj: 1 hora cada minuto real, a las 6AM se gana
     setInterval(function() {
-      horaLocal++;
-      if (horaLocal === 6) {
-        // gano la noche
+      hora++;
+      if (hora >= 6) {
         alert("has ganado la primera noche!");
         window.location.href = "menu.html";
       } else {
-        // actualizar el texto
-        textoHora.innerText = horaLocal + ":00 AM";
+        textoHora.innerText = hora + ":00 AM";
       }
-    }, 60000); // cada minuto
+    }, 60000);
   </script>
 
 </body>

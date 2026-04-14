@@ -1,77 +1,61 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <title>Intro</title>
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-    }
+    * { margin: 0; padding: 0; }
+    body { background: #000; overflow: hidden; }
+    video { width: 100%; height: 100%; object-fit: cover; display: block; }
 
-    html,
-    body {
-      width: 100%;
-      height: 100%;
-      background: #000;
-      overflow: hidden;
-    }
-
-    video {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
-    }
     #start-overlay {
       position: absolute;
       top: 0; left: 0; width: 100%; height: 100%;
-      background: #000; color: #cc0000;
-      font-family: 'Courier New', Courier, monospace;
+      background: #000;
+      color: #cc0000;
+      font-family: monospace;
       font-size: 2.5rem;
-      display: flex; justify-content: center; align-items: center;
-      z-index: 10; cursor: pointer;
-      text-transform: uppercase; letter-spacing: 5px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 5px;
       text-shadow: 2px 2px 20px #ff0000;
-      transition: opacity 1.5s ease;
+      transition: opacity 1.5s;
       user-select: none;
+      z-index: 10;
     }
   </style>
 </head>
-
 <body>
+
   <div id="start-overlay">Haz clic para comenzar</div>
 
   <video autoplay>
-    <source src="assets/videos/intro.mp4" type="video/mp4" />
+    <source src="assets/videos/intro.mp4" type="video/mp4">
   </video>
 
   <script>
     var video = document.querySelector("video");
-    // fix para el bloqueo de google chrome
-    
-    function startVideo() {
-      var overlay = document.getElementById("start-overlay");
-      if (overlay) {
-        overlay.style.opacity = "0";
-        setTimeout(() => overlay.remove(), 1500); // tiempo para la opacidad
-      }
-      
-      video.play().catch(e => {});
-      document.removeEventListener("keydown", startVideo);
-      document.removeEventListener("click", startVideo);
+    var overlay = document.getElementById("start-overlay");
+
+    // el video no puede arrancar sin interaccion del usuario en chrome
+    function empezar() {
+      overlay.style.opacity = "0";
+      setTimeout(function() { overlay.remove(); }, 1500);
+      video.play().catch(function() {});
+      document.removeEventListener("click", empezar);
+      document.removeEventListener("keydown", empezar);
     }
 
-    document.addEventListener("keydown", startVideo);
-    document.addEventListener("click", startVideo);
+    document.addEventListener("click", empezar);
+    document.addEventListener("keydown", empezar);
 
-    
-    video.addEventListener("ended", function () {
-      window.location.href = "menu.html"; 
+    video.addEventListener("ended", function() {
+      window.location.href = "menu.html";
     });
   </script>
 
 </body>
-
 </html>
