@@ -76,6 +76,16 @@
       z-index: 10;
     }
 
+    .energia-texto {
+      position: absolute;
+      top: 80px;
+      right: 30px;
+      color: white;
+      font-family: monospace;
+      font-size: 18px;
+      z-index: 10;
+    }
+
     /* Overlay Cámaras */
     #cameras-overlay {
       display: none;
@@ -171,9 +181,10 @@
 
   <div class="hora-texto">12:00 AM</div>
   <div class="noche-texto">Noche 1</div>
+  <div class="energia-texto">energia: 100%</div>
 
   <div id="ui-container">
-    <button class="btn-style btn-camara">Subir Cámaras</button>
+    <button class="btn-style btn-camara">Subir Camaras</button>
   </div>
 
   <!-- Sistema de Cámaras Overlay -->
@@ -192,7 +203,7 @@
       <button class="btn-cam-select" data-cam="5">CAM 5</button>
     </div>
 
-    <button id="btn-cerrar-camara" class="btn-style">Bajar Cámaras</button>
+    <button id="btn-cerrar-camara" class="btn-style">Bajar Camaras</button>
   </div>
 
   <script>
@@ -226,53 +237,61 @@
     // variables para el reloj
     let horaLocal = 0;
 
-    // Referencias al DOM
+    // variables de energia
+    let energia = 100;
+
+    // referencias al dom
     const btnCamara = document.querySelector('.btn-camara');
     const textoHora = document.querySelector('.hora-texto');
+    const textoEnergia = document.querySelector('.energia-texto');
     const overlay = document.getElementById('cameras-overlay');
     const camView = document.getElementById('camera-view');
     const btnCerrar = document.getElementById('btn-cerrar-camara');
     const camSelectores = document.querySelectorAll('.btn-cam-select');
 
-    // Función para actualizar la vista de cámara
+    // funcion para actualizar la vista de camara
     function updateCameraView() {
       const currentImgs = cameras[currentCam];
-      // Según el estado de la linterna se muestra la imagen clara o la oscura
+      // segun el estado de la linterna se muestra la imagen clara o la oscura
       camView.style.backgroundImage = `url('${linternaEncedida ? currentImgs.linterna : currentImgs.oscura}')`;
     }
 
-    // Abrir monitor
+    // abrir monitor
     btnCamara.addEventListener('click', () => {
-      overlay.style.display = 'block';
-      updateCameraView();
+      // si no hay energia, no abrir
+      if (energia > 0) {
+        overlay.style.display = 'block';
+        updateCameraView();
+      }
     });
 
-    // Cerrar monitor
+    // cerrar monitor
     btnCerrar.addEventListener('click', () => {
       overlay.style.display = 'none';
       linternaEncedida = false; // resetear linterna al bajar monitor
     });
 
-    // Cambiar de cámara usando botones
+    // cambiar de camara usando botones
     camSelectores.forEach(btn => {
       btn.addEventListener('click', (e) => {
-        // Quitar estado activo de todos los botones
+        // quitar estado activo de todos los botones
         camSelectores.forEach(b => b.classList.remove('active'));
-        // Añadir estado activo solo al que hicimos click
+        // anadir estado activo solo al que hicimos click
         e.target.classList.add('active');
         
-        // Actualizar la cámara que estamos viendo
+        // actualizar la camara que estamos viendo
         currentCam = e.target.getAttribute('data-cam');
         linternaEncedida = false; // apagamos linterna al cambiar
         updateCameraView();
       });
     });
 
-    // --- Control de linterna (Presionar pantalla para alumbrar) ---
-    // Para PC (Ratón)
+    // control de linterna pc
     camView.addEventListener('mousedown', () => { 
-        linternaEncedida = true; 
-        updateCameraView(); 
+        if (energia > 0) {
+            linternaEncedida = true; 
+            updateCameraView(); 
+        }
     });
     camView.addEventListener('mouseup', () => { 
         linternaEncedida = false; 
@@ -283,11 +302,13 @@
         updateCameraView(); 
     });
 
-    // Para Móvil (Pantalla Táctil)
+    // control tactil movil
     camView.addEventListener('touchstart', (e) => { 
-        e.preventDefault(); // prevenir comportamientos por defecto del tactil
-        linternaEncedida = true; 
-        updateCameraView(); 
+        e.preventDefault();
+        if (energia > 0) {
+            linternaEncedida = true; 
+            updateCameraView(); 
+        }
     });
     camView.addEventListener('touchend', (e) => { 
         e.preventDefault(); 
@@ -295,19 +316,54 @@
         updateCameraView(); 
     });
 
+    // sistema de energia
+    setInterval(function() {
+      if (energia > 0) {
+        let gasto = 0.05; // gasto pasivo base
+        
+        // si ves las camaras gasta mas
+        if (overlay.style.display === 'block') {
+          gasto += 0.1; 
+        }
+        // si tienes la linterna activada gasta todavia mas
+        if (linternaEncedida) {
+          gasto += 0.2; 
+        }
+
+        energia -= gasto;
+        
+        if (energia <= 0) {
+          energia = 0;
+          apagarTodo();
+        }
+        
+        // actualizar ui quitando decimales
+        textoEnergia.innerText = "energia: " + Math.floor(energia) + "%";
+      }
+    }, 1000);
+
+    // funcion cuando te quedas sin bateria
+    function apagarTodo() {
+      overlay.style.display = 'none';
+      linternaEncedida = false;
+      btnCamara.style.display = 'none'; // ocultar boton camaras
+      // apagar luces de la oficina
+      document.body.style.backgroundImage = 'none';
+      document.body.style.backgroundColor = 'black';
+    }
+
     // logica para avanzar la hora
-    // pasa una hora en el juego cada 60 segundos
     setInterval(function() {
       horaLocal++;
       if (horaLocal === 6) {
-        // ganar la primera noche
+        // gano la noche
         alert("has ganado la primera noche!");
         window.location.href = "menu.html";
       } else {
-        // actualizamos el texto en pantalla
+        // actualizar el texto
         textoHora.innerText = horaLocal + ":00 AM";
       }
-    }, 60000); // 60000 milisegundos = 1 minuto
+    }, 60000); // cada minuto
   </script>
 
 </body>
