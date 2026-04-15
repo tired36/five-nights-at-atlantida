@@ -458,13 +458,13 @@
     }
 
     // =============================================
-    // movimiento de german: cada 60s tiene 40% de avanzar
+    // movimiento de german: cada 10s tiene 30% de avanzar
     // ruta: sala1 -> sala2 -> sala3 -> sala4 -> oficina
     // al llegar a sala4 y la puerta esta cerrada, se va a sala aleatoria
     // =============================================
     setInterval(function() {
       if (germanRetenido || energia <= 0) return;
-      if (Math.random() > 0.4) return; // 60% de no hacer nada
+      if (Math.random() > 0.3) return; // 70% de no hacer nada
 
       var siguiente = germanPos + 1;
 
@@ -492,7 +492,7 @@
       actualizarAlertas();
       if (panelCamaras.style.display === "block") actualizarCamara();
 
-    }, 60000);
+    }, 10000);
 
     // =============================================
     // puerta: cierre con video y apertura
