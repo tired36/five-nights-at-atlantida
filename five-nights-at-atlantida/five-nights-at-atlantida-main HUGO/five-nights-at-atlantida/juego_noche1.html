@@ -6,7 +6,7 @@
   <style>
     body {
       margin: 0;
-      background: black url('assets/imagenes/escenarios/sala_principal/sala principal.png') center/cover no-repeat;
+      background: black url('assets/imagenes/escenarios/sala_principal/oficina.png') center/cover no-repeat;
       height: 100vh;
       width: 100vw;
       overflow: hidden;
@@ -162,11 +162,11 @@
   <script>
     // imagenes de cada camara: oscura (normal) y con linterna
     var camaras = {
-      1: { oscura: "assets/imagenes/escenarios/sala1/sala oscura 1.jpeg",  linterna: "assets/imagenes/escenarios/sala1/SALA LINTERNA 1.jpeg" },
-      2: { oscura: "assets/imagenes/escenarios/sala2/sala 2 oscura.png",   linterna: "assets/imagenes/escenarios/sala2/sala 2 linterna.png" },
-      3: { oscura: "assets/imagenes/escenarios/sala3/SALA 3 OSCURA.jpeg",  linterna: "assets/imagenes/escenarios/sala3/SALA 3 OSCURA LINTERNA.jpeg" },
-      4: { oscura: "assets/imagenes/escenarios/sala4/SALA 4 OSCURA.png",   linterna: "assets/imagenes/escenarios/sala4/sala 4 linterna.png" },
-      5: { oscura: "assets/imagenes/escenarios/sala5/sala 5 oscura.png",   linterna: "assets/imagenes/escenarios/sala5/sala 5 linterna.png" }
+      1: { oscura: "assets/imagenes/escenarios/sala1/sala1_oscura.jpeg",  linterna: "assets/imagenes/escenarios/sala1/sala1_linterna.jpeg" },
+      2: { oscura: "assets/imagenes/escenarios/sala2/sala2_oscura.png",   linterna: "assets/imagenes/escenarios/sala2/sala2_linterna.png" },
+      3: { oscura: "assets/imagenes/escenarios/sala3/sala3_oscura.jpeg",  linterna: "assets/imagenes/escenarios/sala3/sala3_linterna.jpeg" },
+      4: { oscura: "assets/imagenes/escenarios/sala4/sala4_oscura.png",   linterna: "assets/imagenes/escenarios/sala4/sala4_linterna.png" },
+      5: { oscura: "assets/imagenes/escenarios/sala5/sala5_oscura.png",   linterna: "assets/imagenes/escenarios/sala5/sala5_linterna.png" }
     };
 
     var camActual    = 1;
@@ -228,13 +228,13 @@
         videoPuerta.play();
         videoPuerta.onended = function() {
           videoPuerta.style.display = "none";
-          document.body.style.backgroundImage = "url('assets/imagenes/escenarios/sala_principal/sala principal porton.png')";
+          document.body.style.backgroundImage = "url('assets/imagenes/escenarios/sala_principal/oficina_porton.png')";
           puertaCerrada = true;
           animandoPuerta = false;
           btnPuerta.innerText = "Abrir Puerta";
         };
       } else {
-        document.body.style.backgroundImage = "url('assets/imagenes/escenarios/sala_principal/sala principal.png')";
+        document.body.style.backgroundImage = "url('assets/imagenes/escenarios/sala_principal/oficina.png')";
         puertaCerrada = false;
         btnPuerta.innerText = "Cerrar Puerta";
       }
