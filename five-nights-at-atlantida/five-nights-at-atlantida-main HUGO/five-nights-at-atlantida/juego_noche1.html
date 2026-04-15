@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8">
   <title>Partida - Noche 1</title>
@@ -22,22 +23,33 @@
       font-size: 18px;
       z-index: 10;
     }
-    #texto-hora   { top: 20px; font-size: 24px; }
-    #texto-noche  { top: 50px; }
-    #texto-energia{ top: 80px; }
+
+    #texto-hora {
+      top: 20px;
+      font-size: 24px;
+    }
+
+    #texto-noche {
+      top: 50px;
+    }
+
+    #texto-energia {
+      top: 80px;
+    }
 
     /* botones principales abajo */
     #ui-botones {
       position: absolute;
       bottom: 20px;
-      left: 0; width: 100%;
+      left: 0;
+      width: 100%;
       display: flex;
       justify-content: space-around;
       z-index: 10;
     }
 
     .btn {
-      background: rgba(255,255,255,0.2);
+      background: rgba(255, 255, 255, 0.2);
       border: 2px solid white;
       color: white;
       padding: 15px 30px;
@@ -48,21 +60,28 @@
       transition: background 0.3s;
       width: 300px;
     }
-    .btn:hover { background: rgba(255,255,255,0.6); color: black; }
+
+    .btn:hover {
+      background: rgba(255, 255, 255, 0.6);
+      color: black;
+    }
 
     /* pantalla de camaras */
     #camaras {
       display: none;
       position: absolute;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
       background: #111;
       z-index: 20;
     }
 
     /* imagen de camara */
     #vista-camara {
-      width: 100%; height: 100%;
+      width: 100%;
+      height: 100%;
       background: center/cover no-repeat;
       cursor: crosshair;
     }
@@ -70,23 +89,24 @@
     /* scanlines */
     #scanlines {
       position: absolute;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
       pointer-events: none;
-      background: repeating-linear-gradient(
-        0deg,
-        rgba(0,0,0,0.15) 0px, rgba(0,0,0,0.15) 2px,
-        transparent 2px, transparent 4px
-      );
+      background: repeating-linear-gradient(0deg,
+          rgba(0, 0, 0, 0.15) 0px, rgba(0, 0, 0, 0.15) 2px,
+          transparent 2px, transparent 4px);
     }
 
     #instruccion {
       position: absolute;
-      top: 20px; left: 20px;
+      top: 20px;
+      left: 20px;
       color: white;
       font-family: monospace;
       font-size: 16px;
-      background: rgba(0,0,0,0.5);
+      background: rgba(0, 0, 0, 0.5);
       padding: 10px;
       border: 1px dotted white;
       pointer-events: none;
@@ -96,7 +116,8 @@
     /* botones de camara */
     #lista-camaras {
       position: absolute;
-      bottom: 120px; right: 30px;
+      bottom: 120px;
+      right: 30px;
       display: flex;
       flex-direction: column;
       gap: 15px;
@@ -119,7 +140,8 @@
 
     #btn-bajar-cam {
       position: absolute;
-      bottom: 30px; left: 50%;
+      bottom: 30px;
+      left: 50%;
       transform: translateX(-50%);
       width: 400px;
       z-index: 25;
@@ -199,6 +221,7 @@
     #pantalla-gameover button:hover { background: white; color: black; }
   </style>
 </head>
+
 <body>
 
   <!-- video del porton bajando -->
@@ -210,13 +233,13 @@
   <audio id="audio-german" src="assets/musica/german_audio.mp4" preload="auto"></audio>
 
   <!-- ui de textos -->
-  <div id="texto-hora"    class="ui-texto">12:00 AM</div>
-  <div id="texto-noche"   class="ui-texto">Noche 1</div>
+  <div id="texto-hora" class="ui-texto">12:00 AM</div>
+  <div id="texto-noche" class="ui-texto">Noche 1</div>
   <div id="texto-energia" class="ui-texto">energia: 100%</div>
 
   <!-- botones principales -->
   <div id="ui-botones">
-    <button class="btn" id="btn-puerta"  onclick="togglePuerta()">Cerrar Puerta</button>
+    <button class="btn" id="btn-puerta" onclick="togglePuerta()">Cerrar Puerta</button>
     <button class="btn" id="btn-camaras" onclick="abrirCamaras()">Subir Camaras</button>
   </div>
 
@@ -252,7 +275,6 @@
   </div>
 
   <script>
-
     // =============================================
     // 4 salas: 1, 2 (ex-sala3), 3 (ex-sala4), 4 (ex-sala5)
     // imagenes base sin personaje
@@ -506,7 +528,7 @@
         videoPuerta.style.display = "block";
         videoPuerta.currentTime = 0;
         videoPuerta.play();
-        videoPuerta.onended = function() {
+        videoPuerta.onended = function () {
           videoPuerta.style.display = "none";
           document.body.style.backgroundImage = "url('assets/imagenes/escenarios/sala_principal/oficina_porton.png')";
           puertaCerrada  = true;
@@ -578,4 +600,5 @@
   </script>
 
 </body>
+
 </html>
