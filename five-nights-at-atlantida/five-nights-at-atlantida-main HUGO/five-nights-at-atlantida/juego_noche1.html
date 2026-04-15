@@ -115,6 +115,9 @@
     .btn-cam:hover  { background: #555; }
     .btn-cam.activo { background: white; color: black; font-weight: bold; }
 
+    /* camara donde esta german se resalta en rojo */
+    .btn-cam.german { border-color: #ff4444; color: #ff4444; }
+
     #btn-bajar-cam {
       position: absolute;
       bottom: 30px; left: 50%;
@@ -122,6 +125,64 @@
       width: 400px;
       z-index: 25;
     }
+
+    /* boton para usar el audio de german (solo visible en su camara) */
+    #btn-audio {
+      display: none;
+      position: absolute;
+      top: 20px; right: 20px;
+      z-index: 30;
+      background: rgba(0,60,0,0.85);
+      border: 2px solid #44ff44;
+      color: #44ff44;
+      padding: 12px 22px;
+      font-family: monospace;
+      font-size: 17px;
+      cursor: pointer;
+    }
+    #btn-audio:disabled { border-color: #555; color: #555; cursor: not-allowed; background: #111; }
+
+    /* contador que muestra cuanto tiempo queda de retencion */
+    #contador-retencion {
+      display: none;
+      position: absolute;
+      top: 70px; right: 20px;
+      z-index: 30;
+      color: #44ff44;
+      font-family: monospace;
+      font-size: 15px;
+      background: rgba(0,0,0,0.6);
+      padding: 6px 12px;
+      border: 1px solid #44ff44;
+    }
+
+    /* pantalla de game over */
+    #pantalla-gameover {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.93);
+      z-index: 100;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      font-family: monospace;
+      color: white;
+      text-align: center;
+    }
+    #pantalla-gameover h1 { font-size: 58px; color: #ff2222; margin-bottom: 16px; }
+    #pantalla-gameover p  { font-size: 20px; margin-bottom: 36px; color: #aaa; }
+    #pantalla-gameover button {
+      padding: 14px 38px;
+      font-size: 19px;
+      font-family: monospace;
+      background: transparent;
+      border: 2px solid white;
+      color: white;
+      cursor: pointer;
+    }
+    #pantalla-gameover button:hover { background: white; color: black; }
   </style>
 </head>
 <body>
@@ -130,6 +191,9 @@
   <video id="video-puerta" src="assets/videos/video_porton_bajando.mp4" playsinline
     style="display:none; position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover; z-index:5; pointer-events:none;">
   </video>
+
+  <!-- audio de german que se usa como mecanica de retencion -->
+  <audio id="audio-german" src="assets/musica/german_audio.mp4" preload="auto"></audio>
 
   <!-- ui de textos -->
   <div id="texto-hora"    class="ui-texto">12:00 AM</div>
@@ -148,53 +212,137 @@
     <div id="scanlines"></div>
     <div id="instruccion">Manten clic en la pantalla para usar la linterna</div>
 
+    <!-- boton de audio: solo aparece cuando ves la camara donde esta german -->
+    <button id="btn-audio" onclick="usarAudio()">&#9834; Usar Audio</button>
+    <!-- muestra el tiempo restante de retencion -->
+    <div id="contador-retencion">Reteniendo: <span id="seg-retencion">20</span>s</div>
+
     <div id="lista-camaras">
-      <button class="btn-cam activo" onclick="cambiarCam(1)">CAM 1</button>
-      <button class="btn-cam"        onclick="cambiarCam(2)">CAM 2</button>
-      <button class="btn-cam"        onclick="cambiarCam(3)">CAM 3</button>
-      <button class="btn-cam"        onclick="cambiarCam(4)">CAM 4</button>
-      <button class="btn-cam"        onclick="cambiarCam(5)">CAM 5</button>
+      <button class="btn-cam activo" id="btn-cam-1" onclick="cambiarCam(1)">CAM 1</button>
+      <button class="btn-cam"        id="btn-cam-2" onclick="cambiarCam(2)">CAM 2</button>
+      <button class="btn-cam"        id="btn-cam-3" onclick="cambiarCam(3)">CAM 3</button>
+      <button class="btn-cam"        id="btn-cam-4" onclick="cambiarCam(4)">CAM 4</button>
+      <button class="btn-cam"        id="btn-cam-5" onclick="cambiarCam(5)">CAM 5</button>
     </div>
 
     <button class="btn" id="btn-bajar-cam" onclick="cerrarCamaras()">Bajar Camaras</button>
   </div>
 
+  <!-- pantalla de game over cuando german llega a la oficina -->
+  <div id="pantalla-gameover">
+    <h1>GAME OVER</h1>
+    <p>German ha llegado a tu oficina...</p>
+    <button onclick="window.location.href='menu.html'">Volver al Menu</button>
+  </div>
+
   <script>
-    // imagenes de cada camara: oscura (normal) y con linterna
-    var camaras = {
+
+    // =============================================
+    // imagenes base de cada sala (sin personaje)
+    // =============================================
+    var escenarios = {
       1: { oscura: "assets/imagenes/escenarios/sala1/sala1_oscura.jpeg",  linterna: "assets/imagenes/escenarios/sala1/sala1_linterna.jpeg" },
       2: { oscura: "assets/imagenes/escenarios/sala2/sala2_oscura.png",   linterna: "assets/imagenes/escenarios/sala2/sala2_linterna.png" },
-      3: { oscura: "assets/imagenes/escenarios/sala3/sala3_oscura.jpeg",  linterna: "assets/imagenes/escenarios/sala3/sala3_linterna.jpeg" },
+      3: { oscura: "assets/imagenes/escenarios/sala3/sala3_oscura.jpeg",  linterna: "assets/imagenes/escenarios/sala3/sala3_linterna.png" },
       4: { oscura: "assets/imagenes/escenarios/sala4/sala4_oscura.png",   linterna: "assets/imagenes/escenarios/sala4/sala4_linterna.png" },
       5: { oscura: "assets/imagenes/escenarios/sala5/sala5_oscura.png",   linterna: "assets/imagenes/escenarios/sala5/sala5_linterna.png" }
     };
 
-    var camActual    = 1;
-    var linterna     = false;
-    var puertaCerrada = false;
-    var animandoPuerta = false;
-    var hora         = 0;
-    var energia      = 100;
+    // =============================================
+    // imagenes de german en cada sala donde existen
+    // =============================================
+    var germanImgs = {
+      1: { oscura: "assets/imagenes/escenarios/personajes/sala1/sala1_german_oscura.jpg",  linterna: "assets/imagenes/escenarios/sala1/sala1_linterna.jpeg" },
+      3: { oscura: "assets/imagenes/escenarios/personajes/sala3/sala3_german_oscura.png",  linterna: "assets/imagenes/escenarios/personajes/sala3/sala3_german_linterna.png" },
+      4: { oscura: "assets/imagenes/escenarios/personajes/sala4/sala4_german_oscura.png",  linterna: "assets/imagenes/escenarios/sala4/sala4_linterna.png" },
+      5: { oscura: "assets/imagenes/escenarios/personajes/sala5/sala5_german_oscura.png",  linterna: "assets/imagenes/escenarios/personajes/sala5/sala5_german_linterna.png" }
+    };
 
-    var vistaCam     = document.getElementById("vista-camara");
-    var panelCamaras = document.getElementById("camaras");
-    var videoPuerta  = document.getElementById("video-puerta");
-    var btnPuerta    = document.getElementById("btn-puerta");
-    var textoHora    = document.getElementById("texto-hora");
-    var textoEnergia = document.getElementById("texto-energia");
+    // =============================================
+    // variables de estado del juego
+    // =============================================
+    var camActual      = 1;       // camara que esta viendo el jugador
+    var linterna       = false;   // si la linterna esta encendida
+    var puertaCerrada  = false;   // si la puerta esta cerrada
+    var animandoPuerta = false;   // si el video de cierre esta en curso
+    var hora           = 0;       // horas avanzadas (0 = 12AM, 6 = 6AM)
+    var energia        = 100;     // porcentaje de energia restante
 
-    // actualiza la imagen de la camara segun linterna on/off
-    function actualizarCamara() {
-      var img = linterna ? camaras[camActual].linterna : camaras[camActual].oscura;
-      vistaCam.style.backgroundImage = "url('" + img + "')";
+    // posicion actual de german (1 = sala 1, 6 = ha llegado a la oficina)
+    var germanPos      = 1;
+
+    // si german esta siendo retenido por el audio
+    var germanRetenido = false;
+
+    // si el boton de audio esta en cooldown (no se puede usar)
+    var audioEnCooldown = false;
+
+    // =============================================
+    // referencias a elementos del DOM
+    // =============================================
+    var vistaCam      = document.getElementById("vista-camara");
+    var panelCamaras  = document.getElementById("camaras");
+    var videoPuerta   = document.getElementById("video-puerta");
+    var audioGerman   = document.getElementById("audio-german");
+    var btnPuerta     = document.getElementById("btn-puerta");
+    var textoHora     = document.getElementById("texto-hora");
+    var textoEnergia  = document.getElementById("texto-energia");
+    var btnAudio      = document.getElementById("btn-audio");
+    var contadorRet   = document.getElementById("contador-retencion");
+    var segRetencion  = document.getElementById("seg-retencion");
+    var gameOverDiv   = document.getElementById("pantalla-gameover");
+
+    // =============================================
+    // funcion: devuelve la imagen correcta para mostrar en una sala
+    // si german esta ahi, muestra su imagen; si no, muestra el escenario base
+    // =============================================
+    function getImagen(sala, usarLinterna) {
+      if (sala === germanPos && germanImgs[sala]) {
+        // german esta en esta sala y tenemos su imagen
+        return usarLinterna ? germanImgs[sala].linterna : germanImgs[sala].oscura;
+      }
+      // sala sin german: imagen base
+      return usarLinterna ? escenarios[sala].linterna : escenarios[sala].oscura;
     }
 
+    // =============================================
+    // funcion: actualiza la camara activa en pantalla
+    // =============================================
+    function actualizarCamara() {
+      var img = getImagen(camActual, linterna);
+      vistaCam.style.backgroundImage = "url('" + img + "')";
+
+      // mostrar boton de audio solo si german esta en esta camara y no hay cooldown
+      if (camActual === germanPos && !audioEnCooldown) {
+        btnAudio.style.display = "block";
+        btnAudio.disabled = false;
+      } else {
+        btnAudio.style.display = "none";
+      }
+    }
+
+    // =============================================
+    // funcion: resalta en rojo el boton de la camara donde esta german
+    // =============================================
+    function actualizarAlertas() {
+      for (var i = 1; i <= 5; i++) {
+        var btnCam = document.getElementById("btn-cam-" + i);
+        if (i === germanPos) {
+          btnCam.classList.add("german");
+        } else {
+          btnCam.classList.remove("german");
+        }
+      }
+    }
+
+    // =============================================
+    // funcion: cambiar la camara activa
+    // =============================================
     function cambiarCam(num) {
       camActual = num;
       linterna = false;
-      // marcar boton activo
       document.querySelectorAll(".btn-cam").forEach(function(b) { b.classList.remove("activo"); });
-      document.querySelectorAll(".btn-cam")[num - 1].classList.add("activo");
+      document.getElementById("btn-cam-" + num).classList.add("activo");
       actualizarCamara();
     }
 
@@ -207,6 +355,7 @@
     function cerrarCamaras() {
       panelCamaras.style.display = "none";
       linterna = false;
+      contadorRet.style.display = "none";
     }
 
     // linterna: mantener clic / touch
@@ -216,7 +365,92 @@
     vistaCam.addEventListener("touchstart", function(e) { e.preventDefault(); if (energia > 0) { linterna = true;  actualizarCamara(); } });
     vistaCam.addEventListener("touchend",   function(e) { e.preventDefault(); linterna = false; actualizarCamara(); });
 
-    // cierra/abre la puerta y reproduce el video al cerrar
+    // =============================================
+    // mecanica de audio: retiene a german en su sala actual
+    // - reproduce german_audio.mp4
+    // - german no se mueve durante 20 segundos
+    // - el boton tiene 30 segundos de cooldown tras usarlo
+    // - usar el audio consume un poco mas de energia
+    // =============================================
+    function usarAudio() {
+      if (audioEnCooldown || germanRetenido || energia <= 0) return;
+
+      // reproducir audio
+      audioGerman.currentTime = 0;
+      audioGerman.play();
+
+      // activar retencion
+      germanRetenido = true;
+      audioEnCooldown = true;
+      btnAudio.disabled = true;
+      contadorRet.style.display = "block";
+
+      // cuenta atras de 20 segundos de retencion
+      var segundos = 20;
+      segRetencion.innerText = segundos;
+
+      var intervaloContador = setInterval(function() {
+        segundos--;
+        segRetencion.innerText = segundos;
+        if (segundos <= 0) {
+          // retencion terminada
+          clearInterval(intervaloContador);
+          germanRetenido = false;
+          contadorRet.style.display = "none";
+
+          // cooldown de 30 segundos antes de poder usar el audio otra vez
+          setTimeout(function() {
+            audioEnCooldown = false;
+            actualizarCamara();
+          }, 30000);
+        }
+      }, 1000);
+
+      actualizarCamara();
+    }
+
+    // =============================================
+    // movimiento de german: cada 10 segundos tiene un 40% de avanzar
+    // ruta: sala 1 -> sala 2 -> sala 3 -> sala 4 -> sala 5 -> oficina
+    // =============================================
+    setInterval(function() {
+      // si esta retenido o no hay energia, no se mueve
+      if (germanRetenido || energia <= 0) return;
+
+      // 60% de probabilidad de quedarse quieto
+      if (Math.random() > 0.4) return;
+
+      var siguiente = germanPos + 1;
+
+      // ha llegado a la oficina (posicion 6)
+      if (siguiente > 5) {
+        if (puertaCerrada) {
+          // puerta cerrada: german espera 10 segundos y vuelve a sala 4
+          setTimeout(function() {
+            germanPos = 4;
+            actualizarAlertas();
+            if (panelCamaras.style.display === "block") actualizarCamara();
+          }, 10000);
+        } else {
+          // puerta abierta: game over
+          cerrarCamaras();
+          gameOverDiv.style.display = "flex";
+        }
+        return;
+      }
+
+      // german avanza a la siguiente sala
+      germanPos = siguiente;
+      actualizarAlertas();
+
+      // si el jugador esta mirando las camaras, actualizar la imagen
+      if (panelCamaras.style.display === "block") actualizarCamara();
+
+    }, 10000);
+
+    // =============================================
+    // cierra/abre la puerta con video de animacion
+    // =============================================
     function togglePuerta() {
       if (energia <= 0 || animandoPuerta) return;
 
@@ -240,14 +474,17 @@
       }
     }
 
+    // =============================================
     // gasto de energia cada segundo
+    // =============================================
     setInterval(function() {
       if (energia <= 0) return;
 
-      var gasto = 0.05;
-      if (panelCamaras.style.display === "block") gasto += 0.1;
-      if (linterna)      gasto += 0.2;
-      if (puertaCerrada) gasto += 0.3;
+      var gasto = 0.05;                                                // gasto base siempre
+      if (panelCamaras.style.display === "block") gasto += 0.1;       // camaras abiertas
+      if (linterna)       gasto += 0.2;                               // linterna encendida
+      if (puertaCerrada)  gasto += 0.3;                               // puerta cerrada
+      if (germanRetenido) gasto += 0.15;                              // audio de german activo
 
       energia -= gasto;
       if (energia < 0) energia = 0;
@@ -257,11 +494,14 @@
       if (energia <= 0) apagarTodo();
     }, 1000);
 
+    // =============================================
     // apagon al quedarse sin energia
+    // =============================================
     function apagarTodo() {
       panelCamaras.style.display = "none";
       videoPuerta.style.display = "none";
       videoPuerta.pause();
+      audioGerman.pause();
       linterna = false;
       puertaCerrada = false;
       document.getElementById("btn-puerta").style.display = "none";
@@ -270,7 +510,9 @@
       document.body.style.backgroundColor = "black";
     }
 
-    // avance del reloj: 1 hora cada minuto real, a las 6AM se gana
+    // =============================================
+    // reloj: 1 hora cada minuto real, ganar a las 6AM
+    // =============================================
     setInterval(function() {
       hora++;
       if (hora >= 6) {
@@ -280,6 +522,7 @@
         textoHora.innerText = hora + ":00 AM";
       }
     }, 60000);
+
   </script>
 
 </body>
