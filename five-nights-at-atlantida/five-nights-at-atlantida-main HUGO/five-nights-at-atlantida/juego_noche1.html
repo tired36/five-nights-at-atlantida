@@ -271,6 +271,13 @@
     style="display:none; position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover; z-index:5; pointer-events:none;">
   </video>
 
+  <!-- nuevos elementos para el screamer de german -->
+  <video id="video-screamer" src="assets/videos/german_screamer.mov" playsinline
+    style="display:none; position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover; z-index:90;">
+  </video>
+  <div id="pantalla-flashes" style="display:none; position:absolute; top:0; left:0; width:100%; height:100%; background:white; opacity:0; z-index:95; pointer-events:none;"></div>
+  <audio id="audio-gameover" src="assets/musica/musica_mickey.mp4"></audio>
+
   <!-- audio de german para la mecanica de retencion -->
   <audio id="audio-german" src="assets/musica/german_audio.mp4" preload="auto"></audio>
 
@@ -309,11 +316,15 @@
   <!-- subtitulo estilo netflix -->
   <div id="subtitulo"></div>
 
-  <!-- game over -->
-  <div id="pantalla-gameover">
-    <h1>GAME OVER</h1>
-    <p>German ha llegado a tu oficina...</p>
-    <button onclick="window.location.href='menu.html'">Volver al Menu</button>
+  <!-- game over modificado con la imagen de german de pie -->
+  <div id="pantalla-gameover" style="background-color: black;">
+    <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: url('assets/imagenes/escenarios/personajes/sala_principal/german_de_pie.png') center/contain no-repeat; z-index: -1;"></div>
+    <h1 style="text-shadow: 2px 2px 5px black;">GAME OVER</h1>
+    <p style="text-shadow: 1px 1px 3px black; color: white; font-size: 24px;">german ha entrado a la oficina...</p>
+    <div style="display: flex; gap: 20px; justify-content: center; margin-top: 20px;">
+      <button onclick="window.location.href='juego_noche1.html'" style="background: rgba(0,0,0,0.7);">volver a intentarlo</button>
+      <button onclick="window.location.href='menu.html'" style="background: rgba(0,0,0,0.7);">volver al menu</button>
+    </div>
   </div>
 
   <script>
@@ -372,6 +383,45 @@
     var gameOverDiv = document.getElementById("pantalla-gameover");
     var subtitulo = document.getElementById("subtitulo");
     var subTimer = null;
+
+    // referencias para el screamer
+    var videoScreamer = document.getElementById("video-screamer");
+    var pantallaFlashes = document.getElementById("pantalla-flashes");
+    var audioGameover = document.getElementById("audio-gameover");
+
+    // =============================================
+    // funcion para iniciar el screamer de german
+    // oculta todo, reproduce el video con luces y luego muestra el game over
+    // =============================================
+    function iniciarScreamer() {
+      cerrarCamaras();
+      document.getElementById("ui-botones").style.display = "none";
+      document.getElementById("texto-hora").style.display = "none";
+      document.getElementById("texto-noche").style.display = "none";
+      document.getElementById("texto-energia").style.display = "none";
+      
+      // reproducir screamer
+      videoScreamer.style.display = "block";
+      videoScreamer.currentTime = 0;
+      videoScreamer.play().catch(function(){});
+
+      // luces parpadeantes (flashes blancos)
+      pantallaFlashes.style.display = "block";
+      var parpadeo = setInterval(function() {
+        pantallaFlashes.style.opacity = Math.random() > 0.5 ? "0.6" : "0";
+      }, 50);
+
+      // al terminar el screamer, mostrar game over y reproducir musica
+      videoScreamer.onended = function() {
+        clearInterval(parpadeo);
+        pantallaFlashes.style.display = "none";
+        videoScreamer.style.display = "none";
+        
+        gameOverDiv.style.display = "flex";
+        audioGameover.currentTime = 0;
+        audioGameover.play().catch(function(){});
+      };
+    }
 
     // =============================================
     // muestra un subtitulo estilo netflix durante X segundos
@@ -535,8 +585,13 @@
       // german intenta llegar a la oficina (sala5 = oficina para el)
       if (siguiente > 4) {
         if (puertaCerrada) {
-          // puerta cerrada: german ve que no puede entrar, va a una sala aleatoria
-          mostrarSub("German ha visto que la puerta esta cerrada... se ira a dar una vuelta", 4000);
+          // puerta cerrada: german golpea la puerta y drena energia
+          energia -= 15;
+          if (energia < 0) energia = 0;
+          textoEnergia.innerText = "energia: " + Math.floor(energia) + "%";
+          mostrarSub("German ha golpeado la puerta! Pierdes 15% de energia", 4000);
+          if (energia <= 0) apagarTodo();
+
           var salaRandom = Math.floor(Math.random() * 3) + 1; // 1, 2 o 3
           setTimeout(function () {
             germanPos = salaRandom;
@@ -544,9 +599,8 @@
             if (panelCamaras.style.display === "block") actualizarCamara();
           }, 2000);
         } else {
-          // puerta abierta: game over
-          cerrarCamaras();
-          gameOverDiv.style.display = "flex";
+          // puerta abierta: inicia el screamer de german
+          iniciarScreamer();
         }
         return;
       }
@@ -576,9 +630,14 @@
           puertaCerrada = true;
           animandoPuerta = false;
           btnPuerta.innerText = "Abrir Puerta";
-          // si german esta en sala4 cuando cierras, se va
+          // si german esta en sala4 cuando cierras, se va y golpea la puerta
           if (germanPos === 4) {
-            mostrarSub("German ha visto que la puerta esta cerrada... se ira a dar una vuelta", 4000);
+            energia -= 15;
+            if (energia < 0) energia = 0;
+            textoEnergia.innerText = "energia: " + Math.floor(energia) + "%";
+            mostrarSub("German estaba en la puerta y la golpeo! Pierdes 15% de energia", 4000);
+            if (energia <= 0) apagarTodo();
+
             var salaRandom = Math.floor(Math.random() * 3) + 1;
             setTimeout(function () {
               germanPos = salaRandom;
@@ -601,8 +660,8 @@
       if (energia <= 0) return;
       var gasto = 0.05;
       if (panelCamaras.style.display === "block") gasto += 0.1;
-      if (linterna) gasto += 0.2;
-      if (puertaCerrada) gasto += 0.3;
+      if (linterna)       gasto += 0.2;
+      if (puertaCerrada)  gasto += 0.8; // nerfeado de 0.3 a 0.8
       if (germanRetenido) gasto += 0.15;
       energia -= gasto;
       if (energia < 0) energia = 0;
