@@ -366,6 +366,7 @@
     var segMirandoGerman = 0;
     // el hint solo se muestra una vez para no ser pesado
     var hintAuraMostrado = false;
+    var juegoTerminado = false;
 
     // =============================================
     // referencias DOM
@@ -394,6 +395,8 @@
     // oculta todo, reproduce el video con luces y luego muestra el game over
     // =============================================
     function iniciarScreamer() {
+      if (juegoTerminado) return;
+      juegoTerminado = true;
       cerrarCamaras();
       document.getElementById("ui-botones").style.display = "none";
       document.getElementById("texto-hora").style.display = "none";
@@ -577,7 +580,7 @@
     // al llegar a sala4 y la puerta esta cerrada, se va a sala aleatoria
     // =============================================
     setInterval(function () {
-      if (germanRetenido || energia <= 0) return;
+      if (germanRetenido || energia <= 0 || juegoTerminado) return;
       if (Math.random() > 0.3) return; // 70% de no hacer nada
 
       var siguiente = germanPos + 1;
@@ -657,7 +660,7 @@
     // gasto de energia cada segundo
     // =============================================
     setInterval(function () {
-      if (energia <= 0) return;
+      if (energia <= 0 || juegoTerminado) return;
       var gasto = 0.05;
       if (panelCamaras.style.display === "block") gasto += 0.1;
       if (linterna)       gasto += 0.2;
@@ -689,6 +692,7 @@
     // reloj: 1 hora cada minuto real, ganar a las 6AM
     // =============================================
     setInterval(function () {
+      if (juegoTerminado) return;
       hora++;
       if (hora >= 6) {
         alert("has ganado la primera noche!");
