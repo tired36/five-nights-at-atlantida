@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Partida - Noche 1</title>
+  <style>
+    body {
+      margin: 0;
+      background: black url('assets/imagenes/escenarios/sala_principal/oficina.png') center/cover no-repeat;
+      height: 100vh;
+      width: 100vw;
+      overflow: hidden;
+      user-select: none;
+    }
+
+    /* textos de ui en esquina superior derecha */
+    .ui-texto {
+      position: absolute;
+      right: 30px;
+      color: white;
+      font-family: monospace;
+      font-size: 18px;
+      z-index: 10;
+    }
+
+    #texto-hora {
+      top: 20px;
+      font-size: 24px;
+    }
+
+    #texto-noche {
+      top: 50px;
+    }
+
+    #texto-energia {
+      top: 80px;
+    }
+
+    /* botones principales abajo */
+    #ui-botones {
+      position: absolute;
+      bottom: 20px;
+      left: 0;
+      width: 100%;
+      display: flex;
+      justify-content: space-around;
+      z-index: 10;
+    }
+
+    .btn {
+      background: rgba(255, 255, 255, 0.2);
+      border: 2px solid white;
+      color: white;
+      padding: 15px 30px;
+      font-size: 20px;
+      font-family: monospace;
+      cursor: pointer;
+      text-transform: uppercase;
+      transition: background 0.3s;
+      width: 300px;
+    }
+
+    .btn:hover {
+      background: rgba(255, 255, 255, 0.6);
+      color: black;
+    }
+
+    /* pantalla de camaras */
+    #camaras {
+      display: none;
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #111;
+      z-index: 20;
+    }
+
+    /* imagen de camara */
+    #vista-camara {
+      width: 100%;
+      height: 100%;
+      background: center/cover no-repeat;
+      cursor: crosshair;
+    }
+
+    /* scanlines */
+    #scanlines {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      background: repeating-linear-gradient(0deg,
+          rgba(0, 0, 0, 0.15) 0px, rgba(0, 0, 0, 0.15) 2px,
+          transparent 2px, transparent 4px);
+    }
+
+    #instruccion {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      color: white;
+      font-family: monospace;
+      font-size: 16px;
+      background: rgba(0, 0, 0, 0.5);
+      padding: 10px;
+      border: 1px dotted white;
+      pointer-events: none;
+      z-index: 25;
+    }
+
+    /* botones de camara */
+    #lista-camaras {
+      position: absolute;
+      bottom: 120px;
+      right: 30px;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      z-index: 25;
+    }
+
+    .btn-cam {
+      background: #333;
+      border: 1px solid white;
+      color: white;
+      padding: 10px 20px;
+      font-family: monospace;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    .btn-cam:hover {
+      background: #555;
+    }
+
+    .btn-cam.activo {
+      background: white;
+      color: black;
+      font-weight: bold;
+    }
+
+    /* camara de german resaltada en rojo */
+    .btn-cam.german {
+      border-color: #ff4444;
+      color: #ff4444;
+    }
+
+    #btn-bajar-cam {
+      position: absolute;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 400px;
+      z-index: 25;
+    }
+
+    /* boton de audio de german */
+    #btn-audio {
+      display: none;
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      z-index: 30;
+      background: rgba(0, 60, 0, 0.85);
+      border: 2px solid #44ff44;
+      color: #44ff44;
+      padding: 12px 22px;
+      font-family: monospace;
+      font-size: 17px;
+      cursor: pointer;
+    }
+
+    #btn-audio:disabled {
+      border-color: #555;
+      color: #555;
+      cursor: not-allowed;
+      background: #111;
+    }
+
+    /* contador de retencion */
+    #contador-retencion {
+      display: none;
+      position: absolute;
+      top: 70px;
+      right: 20px;
+      z-index: 30;
+      color: #44ff44;
+      font-family: monospace;
+      font-size: 15px;
+      background: rgba(0, 0, 0, 0.6);
+      padding: 6px 12px;
+      border: 1px solid #44ff44;
+    }
+
+    /* subtitulo estilo netflix: aparece abajo centrado */
+    #subtitulo {
+      display: none;
+      position: fixed;
+      bottom: 80px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 50;
+      background: rgba(0, 0, 0, 0.72);
+      color: white;
+      font-family: monospace;
+      font-size: 17px;
+      padding: 8px 22px;
+      border-radius: 4px;
+      white-space: nowrap;
+      text-align: center;
+      pointer-events: none;
+      transition: opacity 0.4s;
+    }
+
+    /* game over */
+    #pantalla-gameover {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.93);
+      z-index: 100;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      font-family: monospace;
+      color: white;
+      text-align: center;
+    }
+
+    #pantalla-gameover h1 {
+      font-size: 58px;
+      color: #ff2222;
+      margin-bottom: 16px;
+    }
+
+    #pantalla-gameover p {
+      font-size: 20px;
+      margin-bottom: 36px;
+      color: #aaa;
+    }
+
+    #pantalla-gameover button {
+      padding: 14px 38px;
+      font-size: 19px;
+      font-family: monospace;
+      background: transparent;
+      border: 2px solid white;
+      color: white;
+      cursor: pointer;
+    }
+
+    #pantalla-gameover button:hover {
+      background: white;
+      color: black;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- video del porton bajando -->
+  <video id="video-puerta" src="assets/videos/video_porton_bajando.mp4" playsinline
+    style="display:none; position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover; z-index:5; pointer-events:none;">
+  </video>
+
+  <!-- nuevos elementos para el screamer de german -->
+  <video id="video-screamer" src="assets/videos/german_screamer.mov" playsinline
+    style="display:none; position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover; z-index:90;">
+  </video>
+  <div id="pantalla-flashes" style="display:none; position:absolute; top:0; left:0; width:100%; height:100%; background:white; opacity:0; z-index:95; pointer-events:none;"></div>
+  <audio id="audio-gameover" src="assets/musica/musica_mickey.mp4"></audio>
+
+  <!-- audio de german para la mecanica de retencion -->
+  <audio id="audio-german" src="assets/musica/german_audio.mp4" preload="auto"></audio>
+
+  <!-- ui de textos -->
+  <div id="texto-hora" class="ui-texto">12:00 AM</div>
+  <div id="texto-noche" class="ui-texto">Noche 1</div>
+  <div id="texto-energia" class="ui-texto">energia: 100%</div>
+
+  <!-- botones principales -->
+  <div id="ui-botones">
+    <button class="btn" id="btn-puerta" onclick="togglePuerta()">Cerrar Puerta</button>
+    <button class="btn" id="btn-camaras" onclick="abrirCamaras()">Subir Camaras</button>
+  </div>
+
+  <!-- pantalla de camaras -->
+  <div id="camaras">
+    <div id="vista-camara"></div>
+    <div id="scanlines"></div>
+    <div id="instruccion">Manten clic en la pantalla para usar la linterna</div>
+
+    <!-- boton audio: solo visible cuando ves la camara de german -->
+    <button id="btn-audio" onclick="usarAudio()">&#9834; Usar Audio</button>
+    <div id="contador-retencion">Reteniendo: <span id="seg-retencion">20</span>s</div>
+
+    <!-- 4 salas: la sala 2 original ha sido eliminada -->
+    <div id="lista-camaras">
+      <button class="btn-cam activo" id="btn-cam-1" onclick="cambiarCam(1)">CAM 1</button>
+      <button class="btn-cam" id="btn-cam-2" onclick="cambiarCam(2)">CAM 2</button>
+      <button class="btn-cam" id="btn-cam-3" onclick="cambiarCam(3)">CAM 3</button>
+      <button class="btn-cam" id="btn-cam-4" onclick="cambiarCam(4)">CAM 4</button>
+    </div>
+
+    <button class="btn" id="btn-bajar-cam" onclick="cerrarCamaras()">Bajar Camaras</button>
+  </div>
+
+  <!-- subtitulo estilo netflix -->
+  <div id="subtitulo"></div>
+
+  <!-- game over modificado con la imagen de german de pie -->
+  <div id="pantalla-gameover" style="background-color: black;">
+    <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: url('assets/imagenes/escenarios/personajes/sala_principal/german_de_pie.png') center/contain no-repeat; z-index: -1;"></div>
+    <h1 style="text-shadow: 2px 2px 5px black;">GAME OVER</h1>
+    <p style="text-shadow: 1px 1px 3px black; color: white; font-size: 24px;">german ha entrado a la oficina...</p>
+    <div style="display: flex; gap: 20px; justify-content: center; margin-top: 20px;">
+      <button onclick="window.location.href='juego_noche1.html'" style="background: rgba(0,0,0,0.7);">volver a intentarlo</button>
+      <button onclick="window.location.href='menu.html'" style="background: rgba(0,0,0,0.7);">volver al menu</button>
+    </div>
+  </div>
+
+  <script>
+    // =============================================
+    // 4 salas: 1, 2 (ex-sala3), 3 (ex-sala4), 4 (ex-sala5)
+    // imagenes base sin personaje
+    // =============================================
+    var escBase = {
+      1: { osc: "assets/imagenes/escenarios/sala1/sala1_oscura.jpeg", lin: "assets/imagenes/escenarios/sala1/sala1_linterna.jpeg" },
+      2: { osc: "assets/imagenes/escenarios/sala3/sala3_oscura.jpeg", lin: "assets/imagenes/escenarios/sala3/sala3_linterna.png" },
+      3: { osc: "assets/imagenes/escenarios/sala4/sala4_oscura.png", lin: "assets/imagenes/escenarios/sala4/sala4_linterna.png" },
+      4: { osc: "assets/imagenes/escenarios/sala5/sala5_oscura.png", lin: "assets/imagenes/escenarios/sala5/sala5_linterna.png" }
+    };
+
+    // imagenes de german en cada sala (donde existen)
+    var escGerman = {
+      1: { osc: "assets/imagenes/escenarios/personajes/sala1/sala1_german_oscura.jpg", lin: "assets/imagenes/escenarios/personajes/sala1/sala1_linterna_variante.jpg" },
+      2: { osc: "assets/imagenes/escenarios/personajes/sala3/sala3_german_oscura.png", lin: "assets/imagenes/escenarios/personajes/sala3/sala3_german_linterna.png" },
+      3: { osc: "assets/imagenes/escenarios/personajes/sala4/sala4_german_oscura.png", lin: "assets/imagenes/escenarios/personajes/sala4/sala4_german_linterna.png" },
+      4: { osc: "assets/imagenes/escenarios/personajes/sala5/sala5_german_oscura.png", lin: "assets/imagenes/escenarios/personajes/sala5/sala5_german_linterna.png" }
+    };
+
+    // =============================================
+    // estado del juego
+    // =============================================
+    var camActual = 1;
+    var linterna = false;
+    var puertaCerrada = false;
+    var animandoPuerta = false;
+    var hora = 0;
+    var energia = 100;
+
+    // german empieza en sala 1, se mueve 1->2->3->4->oficina
+    var germanPos = 1;
+    var germanRetenido = false;
+    var audioEnCooldown = false;
+
+    // contador de segundos mirando la camara de german (para el aura)
+    var segMirandoGerman = 0;
+    // el hint solo se muestra una vez para no ser pesado
+    var hintAuraMostrado = false;
+    var juegoTerminado = false;
+
+    // =============================================
+    // referencias DOM
+    // =============================================
+    var vistaCam = document.getElementById("vista-camara");
+    var panelCamaras = document.getElementById("camaras");
+    var videoPuerta = document.getElementById("video-puerta");
+    var audioGerman = document.getElementById("audio-german");
+    var btnPuerta = document.getElementById("btn-puerta");
+    var textoHora = document.getElementById("texto-hora");
+    var textoEnergia = document.getElementById("texto-energia");
+    var btnAudio = document.getElementById("btn-audio");
+    var contadorRet = document.getElementById("contador-retencion");
+    var segRet = document.getElementById("seg-retencion");
+    var gameOverDiv = document.getElementById("pantalla-gameover");
+    var subtitulo = document.getElementById("subtitulo");
+    var subTimer = null;
+
+    // referencias para el screamer
+    var videoScreamer = document.getElementById("video-screamer");
+    var pantallaFlashes = document.getElementById("pantalla-flashes");
+    var audioGameover = document.getElementById("audio-gameover");
+
+    // =============================================
+    // funcion para iniciar el screamer de german
+    // oculta todo, reproduce el video con luces y luego muestra el game over
+    // =============================================
+    function iniciarScreamer() {
+      if (juegoTerminado) return;
+      juegoTerminado = true;
+      cerrarCamaras();
+      document.getElementById("ui-botones").style.display = "none";
+      document.getElementById("texto-hora").style.display = "none";
+      document.getElementById("texto-noche").style.display = "none";
+      document.getElementById("texto-energia").style.display = "none";
+      
+      // reproducir screamer
+      videoScreamer.style.display = "block";
+      videoScreamer.currentTime = 0;
+      videoScreamer.play().catch(function(){});
+
+      // luces parpadeantes (flashes blancos)
+      pantallaFlashes.style.display = "block";
+      var parpadeo = setInterval(function() {
+        pantallaFlashes.style.opacity = Math.random() > 0.5 ? "0.6" : "0";
+      }, 50);
+
+      // al terminar el screamer, mostrar game over y reproducir musica
+      videoScreamer.onended = function() {
+        clearInterval(parpadeo);
+        pantallaFlashes.style.display = "none";
+        videoScreamer.style.display = "none";
+        
+        gameOverDiv.style.display = "flex";
+        audioGameover.currentTime = 0;
+        audioGameover.play().catch(function(){});
+      };
+    }
+
+    // =============================================
+    // muestra un subtitulo estilo netflix durante X segundos
+    // =============================================
+    function mostrarSub(texto, duracion) {
+      clearTimeout(subTimer);
+      subtitulo.innerText = texto;
+      subtitulo.style.display = "block";
+      subtitulo.style.opacity = "1";
+      subTimer = setTimeout(function () {
+        subtitulo.style.opacity = "0";
+        setTimeout(function () { subtitulo.style.display = "none"; }, 400);
+      }, duracion || 3000);
+    }
+
+    // =============================================
+    // devuelve la imagen correcta para la sala
+    // si german esta ahi muestra la imagen con el
+    // =============================================
+    function getImg(sala, usarLinterna) {
+      if (sala === germanPos) {
+        return usarLinterna ? escGerman[sala].lin : escGerman[sala].osc;
+      }
+      return usarLinterna ? escBase[sala].lin : escBase[sala].osc;
+    }
+
+    // =============================================
+    // actualiza la imagen de la camara y el boton de audio
+    // =============================================
+    function actualizarCamara() {
+      vistaCam.style.backgroundImage = "url('" + getImg(camActual, linterna) + "')";
+      // mostrar boton audio solo en la camara de german y sin cooldown
+      if (camActual === germanPos && !audioEnCooldown) {
+        btnAudio.style.display = "block";
+        btnAudio.disabled = false;
+      } else {
+        btnAudio.style.display = "none";
+      }
+    }
+
+    // =============================================
+    // resalta en rojo el boton de la camara donde esta german
+    // =============================================
+    function actualizarAlertas() {
+      for (var i = 1; i <= 4; i++) {
+        var b = document.getElementById("btn-cam-" + i);
+        if (i === germanPos) { b.classList.add("german"); }
+        else { b.classList.remove("german"); }
+      }
+    }
+
+    // =============================================
+    // cambiar camara activa
+    // =============================================
+    function cambiarCam(num) {
+      camActual = num;
+      linterna = false;
+      segMirandoGerman = 0; // resetear contador de aura al cambiar
+      document.querySelectorAll(".btn-cam").forEach(function (b) { b.classList.remove("activo"); });
+      document.getElementById("btn-cam-" + num).classList.add("activo");
+      actualizarCamara();
+    }
+
+    function abrirCamaras() {
+      if (energia <= 0) return;
+      panelCamaras.style.display = "block";
+      actualizarCamara();
+    }
+
+    function cerrarCamaras() {
+      panelCamaras.style.display = "none";
+      linterna = false;
+      segMirandoGerman = 0;
+      contadorRet.style.display = "none";
+    }
+
+    // linterna: mantener clic o touch sobre la camara
+    vistaCam.addEventListener("mousedown", function () { if (energia > 0) { linterna = true; actualizarCamara(); } });
+    vistaCam.addEventListener("mouseup", function () { linterna = false; actualizarCamara(); });
+    vistaCam.addEventListener("mouseleave", function () { linterna = false; actualizarCamara(); });
+    vistaCam.addEventListener("touchstart", function (e) { e.preventDefault(); if (energia > 0) { linterna = true; actualizarCamara(); } });
+    vistaCam.addEventListener("touchend", function (e) { e.preventDefault(); linterna = false; actualizarCamara(); });
+
+    // =============================================
+    // aura de german: si llevas 13 segundos seguidos mirando su camara
+    // te quita 5 de energia de golpe y el ciclo se repite
+    // a los 10 segundos muestra un hint (solo la primera vez)
+    // =============================================
+    setInterval(function () {
+      // si no hay camaras abiertas o no miras a german, resetear
+      if (panelCamaras.style.display !== "block" || camActual !== germanPos) {
+        segMirandoGerman = 0;
+        return;
+      }
+
+      segMirandoGerman++;
+
+      // hint de aviso la primera vez, a los 10 segundos
+      if (segMirandoGerman === 10 && !hintAuraMostrado) {
+        hintAuraMostrado = true;
+        mostrarSub("Cuidado... si lo sigues mirando te quitara energia", 3000);
+      }
+
+      // a los 13 segundos: drenar 5 de energia y reiniciar el ciclo
+      if (segMirandoGerman >= 13) {
+        segMirandoGerman = 0;
+        energia -= 5;
+        if (energia < 0) energia = 0;
+        textoEnergia.innerText = "energia: " + Math.floor(energia) + "%";
+        mostrarSub("El aura de German te ha quitado 5 de energia", 2500);
+        if (energia <= 0) apagarTodo();
+      }
+    }, 1000);
+
+    // =============================================
+    // mecanica de audio: retiene a german 20s, cooldown 30s
+    // =============================================
+    function usarAudio() {
+      if (audioEnCooldown || germanRetenido || energia <= 0) return;
+
+      // reproducir audio de german
+      audioGerman.currentTime = 0;
+      audioGerman.play().catch(function () { });
+
+      germanRetenido = true;
+      audioEnCooldown = true;
+      btnAudio.disabled = true;
+      contadorRet.style.display = "block";
+
+      var segundos = 20;
+      segRet.innerText = segundos;
+      var iv = setInterval(function () {
+        segundos--;
+        segRet.innerText = segundos;
+        if (segundos <= 0) {
+          clearInterval(iv);
+          germanRetenido = false;
+          contadorRet.style.display = "none";
+          // cooldown de 30s antes de poder usar el audio de nuevo
+          setTimeout(function () {
+            audioEnCooldown = false;
+            if (panelCamaras.style.display === "block") actualizarCamara();
+          }, 30000);
+        }
+      }, 1000);
+
+      actualizarCamara();
+    }
+
+    // =============================================
+    // movimiento de german: cada 10s tiene 30% de avanzar
+    // ruta: sala1 -> sala2 -> sala3 -> sala4 -> oficina
+    // al llegar a sala4 y la puerta esta cerrada, se va a sala aleatoria
+    // =============================================
+    setInterval(function () {
+      if (germanRetenido || energia <= 0 || juegoTerminado) return;
+      if (Math.random() > 0.3) return; // 70% de no hacer nada
+
+      var siguiente = germanPos + 1;
+
+      // german intenta llegar a la oficina (sala5 = oficina para el)
+      if (siguiente > 4) {
+        if (puertaCerrada) {
+          // puerta cerrada: german golpea la puerta y drena energia
+          energia -= 15;
+          if (energia < 0) energia = 0;
+          textoEnergia.innerText = "energia: " + Math.floor(energia) + "%";
+          mostrarSub("German ha golpeado la puerta! Pierdes 15% de energia", 4000);
+          if (energia <= 0) apagarTodo();
+
+          var salaRandom = Math.floor(Math.random() * 3) + 1; // 1, 2 o 3
+          setTimeout(function () {
+            germanPos = salaRandom;
+            actualizarAlertas();
+            if (panelCamaras.style.display === "block") actualizarCamara();
+          }, 2000);
+        } else {
+          // puerta abierta: inicia el screamer de german
+          iniciarScreamer();
+        }
+        return;
+      }
+
+      // german avanza a la siguiente sala
+      germanPos = siguiente;
+      actualizarAlertas();
+      if (panelCamaras.style.display === "block") actualizarCamara();
+
+    }, 10000);
+
+    // =============================================
+    // puerta: cierre con video y apertura
+    // =============================================
+    function togglePuerta() {
+      if (energia <= 0 || animandoPuerta) return;
+
+      if (!puertaCerrada) {
+        animandoPuerta = true;
+        btnPuerta.innerText = "Cerrando...";
+        videoPuerta.style.display = "block";
+        videoPuerta.currentTime = 0;
+        videoPuerta.play();
+        videoPuerta.onended = function () {
+          videoPuerta.style.display = "none";
+          document.body.style.backgroundImage = "url('assets/imagenes/escenarios/sala_principal/oficina_porton.png')";
+          puertaCerrada = true;
+          animandoPuerta = false;
+          btnPuerta.innerText = "Abrir Puerta";
+          // si german esta en sala4 cuando cierras, se va y golpea la puerta
+          if (germanPos === 4) {
+            energia -= 15;
+            if (energia < 0) energia = 0;
+            textoEnergia.innerText = "energia: " + Math.floor(energia) + "%";
+            mostrarSub("German estaba en la puerta y la golpeo! Pierdes 15% de energia", 4000);
+            if (energia <= 0) apagarTodo();
+
+            var salaRandom = Math.floor(Math.random() * 3) + 1;
+            setTimeout(function () {
+              germanPos = salaRandom;
+              actualizarAlertas();
+              if (panelCamaras.style.display === "block") actualizarCamara();
+            }, 2000);
+          }
+        };
+      } else {
+        document.body.style.backgroundImage = "url('assets/imagenes/escenarios/sala_principal/oficina.png')";
+        puertaCerrada = false;
+        btnPuerta.innerText = "Cerrar Puerta";
+      }
+    }
+
+    // =============================================
+    // gasto de energia cada segundo
+    // =============================================
+    setInterval(function () {
+      if (energia <= 0 || juegoTerminado) return;
+      var gasto = 0.05;
+      if (panelCamaras.style.display === "block") gasto += 0.1;
+      if (linterna)       gasto += 0.2;
+      if (puertaCerrada)  gasto += 0.8; // nerfeado de 0.3 a 0.8
+      if (germanRetenido) gasto += 0.15;
+      energia -= gasto;
+      if (energia < 0) energia = 0;
+      textoEnergia.innerText = "energia: " + Math.floor(energia) + "%";
+      if (energia <= 0) apagarTodo();
+    }, 1000);
+
+    // =============================================
+    // apagon al quedarse sin energia
+    // =============================================
+    function apagarTodo() {
+      panelCamaras.style.display = "none";
+      videoPuerta.style.display = "none";
+      videoPuerta.pause();
+      audioGerman.pause();
+      linterna = false;
+      puertaCerrada = false;
+      document.getElementById("btn-puerta").style.display = "none";
+      document.getElementById("btn-camaras").style.display = "none";
+      document.body.style.backgroundImage = "none";
+      document.body.style.backgroundColor = "black";
+    }
+
+    // =============================================
+    // reloj: 1 hora cada minuto real, ganar a las 6AM
+    // =============================================
+    setInterval(function () {
+      if (juegoTerminado) return;
+      hora++;
+      if (hora >= 6) {
+        alert("has ganado la primera noche!");
+        window.location.href = "menu.html";
+      } else {
+        textoHora.innerText = hora + ":00 AM";
+      }
+    }, 60000);
+
+  </script>
+
+</body>
+
+</html>
