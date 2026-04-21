@@ -1,0 +1,3 @@
+# five-nights-at-atlantida
+
+en este juego pasaras unas noches en atlantida formacion profesional, donde debes aguantar desde las 00:00 hasta las 06:00 sin que te pille German, alonso y la gordita, hay mecanicas de energia, puertas, luces y camaras, el objetivo seria aguantar 5 noches, cada noche tiene distintos personajes, a su vez con distintos comportamientos, rutas, mecanicas para disuadirlos o para interactuar con ellos, haciendo que las primeras noches los conozcas uno a uno, pero en las ultimas tendras que enfrentarte a varios a la vez, haciendolo un juego divertido y desafiante :D 

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Introducción</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body, html {
+      width: 100%;
+      height: 100%;
+      background-color: black;
+      overflow: hidden;
+      font-family: monospace;
+    }
+    video {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    #saltar {
+      position: absolute;
+      bottom: 20px;
+      right: 20px;
+      padding: 10px 20px;
+      font-size: 18px;
+      background: rgba(0, 0, 0, 0.5);
+      color: white;
+      border: 1px solid white;
+      cursor: pointer;
+      z-index: 10;
+      transition: all 0.3s ease;
+    }
+  
+  </style>
+</head>
+<body>
+
+  <video id="video-intro" autoplay>
+    <source src="assets/videos/PERIODICO FNFA.mp4.mov" type="video/mp4">
+  </video>
+  
+ 
+
+  <script>
+    var video = document.getElementById("video-intro");
+
+    function irAlJuego() {
+      // Redirige a la noche 1 que vamos a crear
+      window.location.href = "noche1.html"; 
+    }
+
+    // Cuando el video termine, pasamos a la siguiente pantalla
+    video.addEventListener('ended', function() {
+      irAlJuego();
+    });
+  </script>
+</body>
+</html>
