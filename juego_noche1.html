@@ -272,8 +272,10 @@
   </video>
 
   <!-- nuevos elementos para el screamer de german -->
-  <video id="video-screamer" src="assets/videos/german_screamer.mov" playsinline
+  <video id="video-screamer" playsinline webkit-playsinline
     style="display:none; position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover; z-index:90;">
+    <source src="assets/videos/german_screamer.mp4" type="video/mp4">
+    <source src="assets/videos/german_screamer.mov" type="video/quicktime">
   </video>
   <audio id="audio-gameover" src="assets/musica/musica_mickey.mp4"></audio>
 
@@ -390,6 +392,29 @@
     // referencias para el screamer
     var videoScreamer = document.getElementById("video-screamer");
     var audioGameover = document.getElementById("audio-gameover");
+
+    // =============================================
+    // desbloqueo de media para moviles y navegadores estrictos
+    // =============================================
+    var mediaDesbloqueada = false;
+    function desbloquearMedia() {
+      if (mediaDesbloqueada) return;
+      mediaDesbloqueada = true;
+      [videoScreamer, audioGameover, audioGerman, videoPuerta].forEach(function(m) {
+        if (!m) return;
+        m.muted = true;
+        var p = m.play();
+        if (p !== undefined) {
+          p.then(function() {
+            m.pause();
+            m.muted = false;
+            m.currentTime = 0;
+          }).catch(function(){});
+        }
+      });
+    }
+    document.addEventListener("click", desbloquearMedia, { once: true });
+    document.addEventListener("touchstart", desbloquearMedia, { once: true });
 
     // =============================================
     // funcion para iniciar el screamer de german
