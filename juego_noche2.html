@@ -266,12 +266,12 @@
 <body>
 
   <!-- video del porton bajando -->
-  <video id="video-puerta" src="assets/musica/" playsinline
+  <video id="video-puerta" src="assets/videos/video_porton_bajando.mp4" playsinline webkit-playsinline
     style="display:none; position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover; z-index:5; pointer-events:none;">
   </video>
 
-  <!-- nuevos elementos para el screamer de alonso -->
-  <video id="video-screamer" src="assets/videos/german_screamer.mov" playsinline
+  <!-- screamer de alonso -->
+  <video id="video-screamer" src="assets/videos/screamer.mp4" playsinline webkit-playsinline
     style="display:none; position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover; z-index:90;">
   </video>
   <div id="pantalla-flashes" style="display:none; position:absolute; top:0; left:0; width:100%; height:100%; background:white; opacity:0; z-index:95; pointer-events:none;"></div>
@@ -317,7 +317,7 @@
 
   <!-- game over modificado con la imagen de alonso de pie -->
   <div id="pantalla-gameover" style="background-color: black;">
-    <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: url('assets/imagenes/escenarios/personajes/sala_principal/german_de_pie.png') center/contain no-repeat; z-index: -1;"></div>
+    <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: url('assets/imagenes/escenarios/personajes/sala5/sala5_alonso_oscura.jpg') center/contain no-repeat; z-index: -1;"></div>
     <h1 style="text-shadow: 2px 2px 5px black;">GAME OVER</h1>
     <p style="text-shadow: 1px 1px 3px black; color: white; font-size: 24px;">alonso ha entrado a la oficina...</p>
     <div style="display: flex; gap: 20px; justify-content: center; margin-top: 20px;">
@@ -339,10 +339,11 @@
     };
 
     // imagenes de alonso en cada sala (donde existen)
+    // sala4 no tiene imagen de alonso, se usa imagen base sin personaje
     var escAlonso = {
-      1: { osc: "assets/imagenes/escenarios/personajes/sala1/sala1_alonso_oscura.jpeg", lin: "assets/imagenes/escenarios/personajes/sala1/sala1_linterna_variante.jpg" },
+      1: { osc: "assets/imagenes/escenarios/personajes/sala1/sala1_alonso_oscura.jpeg", lin: "assets/imagenes/escenarios/personajes/sala1/sala1_alonso_linterna.png" },
       2: { osc: "assets/imagenes/escenarios/personajes/sala3/sala3_alonso_oscura.jpeg", lin: "assets/imagenes/escenarios/personajes/sala3/sala3_alonso_linterna.png" },
-      3: { osc: "assets/imagenes/escenarios/personajes/sala4/sala4_german_oscura.png", lin: "assets/imagenes/escenarios/personajes/sala4/sala4_german_linterna.png" },
+      3: { osc: "assets/imagenes/escenarios/sala4/sala4_oscura.png", lin: "assets/imagenes/escenarios/sala4/sala4_linterna.png" },
       4: { osc: "assets/imagenes/escenarios/personajes/sala5/sala5_alonso_oscura.jpg", lin: "assets/imagenes/escenarios/personajes/sala5/sala5_alonso_linterna.jpg" }
     };
 
@@ -388,6 +389,29 @@
     var videoScreamer = document.getElementById("video-screamer");
     var pantallaFlashes = document.getElementById("pantalla-flashes");
     var audioGameover = document.getElementById("audio-gameover");
+
+    // =============================================
+    // desbloqueo de media para moviles y navegadores estrictos
+    // =============================================
+    var mediaDesbloqueada = false;
+    function desbloquearMedia() {
+      if (mediaDesbloqueada) return;
+      mediaDesbloqueada = true;
+      [videoScreamer, audioGameover, audioAlonso, videoPuerta].forEach(function(m) {
+        if (!m) return;
+        m.muted = true;
+        var p = m.play();
+        if (p !== undefined) {
+          p.then(function() {
+            m.pause();
+            m.muted = false;
+            m.currentTime = 0;
+          }).catch(function(){});
+        }
+      });
+    }
+    document.addEventListener("click", desbloquearMedia, { once: true });
+    document.addEventListener("touchstart", desbloquearMedia, { once: true });
 
     // =============================================
     // funcion para iniciar el screamer de alonso
