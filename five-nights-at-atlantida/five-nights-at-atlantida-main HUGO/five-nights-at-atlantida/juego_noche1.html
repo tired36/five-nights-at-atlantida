@@ -275,7 +275,6 @@
   <video id="video-screamer" src="assets/videos/german_screamer.mov" playsinline
     style="display:none; position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover; z-index:90;">
   </video>
-  <div id="pantalla-flashes" style="display:none; position:absolute; top:0; left:0; width:100%; height:100%; background:white; opacity:0; z-index:95; pointer-events:none;"></div>
   <audio id="audio-gameover" src="assets/musica/musica_mickey.mp4"></audio>
 
   <!-- audio de german para la mecanica de retencion -->
@@ -387,7 +386,6 @@
 
     // referencias para el screamer
     var videoScreamer = document.getElementById("video-screamer");
-    var pantallaFlashes = document.getElementById("pantalla-flashes");
     var audioGameover = document.getElementById("audio-gameover");
 
     // =============================================
@@ -408,16 +406,8 @@
       videoScreamer.currentTime = 0;
       videoScreamer.play().catch(function(){});
 
-      // luces parpadeantes (flashes blancos)
-      pantallaFlashes.style.display = "block";
-      var parpadeo = setInterval(function() {
-        pantallaFlashes.style.opacity = Math.random() > 0.5 ? "0.6" : "0";
-      }, 50);
-
       // al terminar el screamer, mostrar game over y reproducir musica
       videoScreamer.onended = function() {
-        clearInterval(parpadeo);
-        pantallaFlashes.style.display = "none";
         videoScreamer.style.display = "none";
         
         gameOverDiv.style.display = "flex";
