@@ -151,7 +151,7 @@
     <h2>SELECCIONAR NOCHE</h2>
     <button class="boton-noche" onclick="iniciarNoche(1)">&#9658; NOCHE 1</button>
     <button class="boton-noche" onclick="iniciarNoche(2)">&#9658; NOCHE 2</button>
-    <button class="boton-noche" onclick="mostrarPopupDesarrollo()">&#9658; NOCHE 3</button>
+    <button class="boton-noche" onclick="iniciarNoche(3)">&#9658; NOCHE 3</button>
     <button class="btn-volver" onclick="volverMenu()">[ Volver al menu ]</button>
   </div>
 
@@ -199,6 +199,7 @@
     function iniciarNoche(num) {
       if (num === 1) window.location.href = "video_intro.html";
       else if (num === 2) window.location.href = "video_intro_noche2.html";
+      else if (num === 3) window.location.href = "video_intro_noche3.html";
       else alert("Iniciando Noche " + num + "...");
     }
 
