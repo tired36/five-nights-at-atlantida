@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Noche 2</title>
+  <style>
+    body {
+      margin: 0;
+      background: black url('assets/imagenes/escenarios/sala3/sala3_oscura.jpeg') center/cover no-repeat;
+      color: white;
+      font-family: monospace;
+      text-align: center;
+      padding-top: 20%;
+      animation: fadeIn 2s;
+    }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+    h1 { font-size: 50px; letter-spacing: 5px; }
+
+    button {
+      margin-top: 30px;
+      padding: 10px 20px;
+      font-size: 20px;
+      background: transparent;
+      color: white;
+      border: 1px solid white;
+      cursor: pointer;
+    }
+    button:hover { background: white; color: black; }
+  </style>
+</head>
+<body>
+
+  <h1>Noche 2</h1>
+  <button onclick="window.location.href='menu.html'">Volver al Menu</button>
+  <button onclick="window.location.href='noche2_lore.html'">Quiero continuar</button>
+
+</body>
+</html>
