@@ -1,23 +1,40 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8">
   <title>Introduccion - Noche 2</title>
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body, html { width: 100%; height: 100%; background: black; overflow: hidden; }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body,
+    html {
+      width: 100%;
+      height: 100%;
+      background: black;
+      overflow: hidden;
+    }
+
     video {
       position: absolute;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
       object-fit: cover;
     }
+
     #saltar {
       position: absolute;
-      bottom: 20px; right: 20px;
+      bottom: 20px;
+      right: 20px;
       padding: 10px 20px;
       font-size: 18px;
-      background: rgba(0,0,0,0.5);
+      background: rgba(0, 0, 0, 0.5);
       color: white;
       border: 1px solid white;
       cursor: pointer;
@@ -25,10 +42,11 @@
     }
   </style>
 </head>
+
 <body>
 
   <video id="video-intro" autoplay>
-    <source src="assets/videos/PERIODICO FNFA.mp4.mov" type="video/mp4">
+    <source src="assets/videos/alonso periodico.mp4" type="video/mp4">
   </video>
 
   <button id="saltar" onclick="irAlJuego()">Saltar</button>
@@ -44,4 +62,5 @@
   </script>
 
 </body>
+
 </html>
