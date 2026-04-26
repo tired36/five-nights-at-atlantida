@@ -317,7 +317,7 @@
 
   <!-- game over modificado con la imagen de german de pie -->
   <div id="pantalla-gameover" style="background-color: black;">
-    <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: url('assets/imagenes/escenarios/personajes/sala_principal/german_de_pie.png') center/contain no-repeat; z-index: -1;"></div>
+    <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: url('assets/imagenes/escenarios/personajes/german/de_pie.png') center/contain no-repeat; z-index: -1;"></div>
     <h1 style="text-shadow: 2px 2px 5px black;">GAME OVER</h1>
     <p style="text-shadow: 1px 1px 3px black; color: white; font-size: 24px;">german ha entrado a la oficina...</p>
     <div style="display: flex; gap: 20px; justify-content: center; margin-top: 20px;">
@@ -328,22 +328,22 @@
 
   <script>
     // =============================================
-    // 4 salas: 1, 2 (ex-sala3), 3 (ex-sala4), 4 (ex-sala5)
+    // 4 salas: 1, 2, 3, 4
     // imagenes base sin personaje
     // =============================================
     var escBase = {
       1: { osc: "assets/imagenes/escenarios/sala1/sala1_oscura.jpeg", lin: "assets/imagenes/escenarios/sala1/sala1_linterna.jpeg" },
-      2: { osc: "assets/imagenes/escenarios/sala3/sala3_oscura.jpeg", lin: "assets/imagenes/escenarios/sala3/sala3_linterna.png" },
-      3: { osc: "assets/imagenes/escenarios/sala4/sala4_oscura.png", lin: "assets/imagenes/escenarios/sala4/sala4_linterna.png" },
-      4: { osc: "assets/imagenes/escenarios/sala5/sala5_oscura.png", lin: "assets/imagenes/escenarios/sala5/sala5_linterna.png" }
+      2: { osc: "assets/imagenes/escenarios/sala2/sala2_oscura.jpeg", lin: "assets/imagenes/escenarios/sala2/sala2_linterna.png" },
+      3: { osc: "assets/imagenes/escenarios/sala3/sala3_oscura.png",  lin: "assets/imagenes/escenarios/sala3/sala3_linterna.png" },
+      4: { osc: "assets/imagenes/escenarios/sala4/sala4_oscura.png",  lin: "assets/imagenes/escenarios/sala4/sala4_linterna.png" }
     };
 
     // imagenes de german en cada sala (donde existen)
     var escGerman = {
-      1: { osc: "assets/imagenes/escenarios/personajes/sala1/sala1_german_oscura.jpg", lin: "assets/imagenes/escenarios/personajes/sala1/sala1_linterna_variante.jpg" },
-      2: { osc: "assets/imagenes/escenarios/personajes/sala3/sala3_german_oscura.png", lin: "assets/imagenes/escenarios/personajes/sala3/sala3_german_linterna.png" },
-      3: { osc: "assets/imagenes/escenarios/personajes/sala4/sala4_german_oscura.png", lin: "assets/imagenes/escenarios/personajes/sala4/sala4_german_linterna.png" },
-      4: { osc: "assets/imagenes/escenarios/personajes/sala5/sala5_german_oscura.png", lin: "assets/imagenes/escenarios/personajes/sala5/sala5_german_linterna.png" }
+      1: { osc: "assets/imagenes/escenarios/personajes/german/sala1_oscura.jpg", lin: "assets/imagenes/escenarios/personajes/german/sala1_linterna.jpg" },
+      2: { osc: "assets/imagenes/escenarios/personajes/german/sala2_oscura.png", lin: "assets/imagenes/escenarios/personajes/german/sala2_linterna.png" },
+      3: { osc: "assets/imagenes/escenarios/personajes/german/sala3_oscura.png", lin: "assets/imagenes/escenarios/personajes/german/sala3_linterna.png" },
+      4: { osc: "assets/imagenes/escenarios/personajes/german/sala4_oscura.png", lin: "assets/imagenes/escenarios/personajes/german/sala4_linterna.png" }
     };
 
     // =============================================
