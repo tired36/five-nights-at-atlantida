@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8">
   <title>Partida - Noche 2</title>
@@ -274,11 +275,22 @@
   <video id="video-screamer" src="assets/videos/screamer.mp4" playsinline webkit-playsinline
     style="display:none; position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover; z-index:90;">
   </video>
-  <div id="pantalla-flashes" style="display:none; position:absolute; top:0; left:0; width:100%; height:100%; background:white; opacity:0; z-index:95; pointer-events:none;"></div>
+
+  <!-- video de ganar -->
+  <video id="video-ganar" src="assets/videos/ganar.mp4" playsinline webkit-playsinline
+    style="display:none; position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover; z-index:100;">
+  </video>
+
+  <div id="pantalla-flashes"
+    style="display:none; position:absolute; top:0; left:0; width:100%; height:100%; background:white; opacity:0; z-index:95; pointer-events:none;">
+  </div>
   <audio id="audio-gameover" src="assets/musica/musica_mickey.mp4"></audio>
 
   <!-- audio de alonso para la mecanica de retencion -->
   <audio id="audio-alonso" src="assets/musica/audioalonso.mp3" preload="auto"></audio>
+
+  <!-- musica de fondo: tension -->
+  <audio id="musica-tension" src="assets/musica/TENSION.mp3" loop></audio>
 
   <!-- ui de textos -->
   <div id="texto-hora" class="ui-texto">12:00 AM</div>
@@ -317,7 +329,9 @@
 
   <!-- game over modificado con la imagen de alonso de pie -->
   <div id="pantalla-gameover" style="background-color: black;">
-    <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: url('assets/imagenes/escenarios/personajes/sala5/sala5_alonso_oscura.jpg') center/contain no-repeat; z-index: -1;"></div>
+    <div
+      style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: url('assets/imagenes/escenarios/personajes/sala5/sala5_alonso_oscura.jpg') center/contain no-repeat; z-index: -1;">
+    </div>
     <h1 style="text-shadow: 2px 2px 5px black;">GAME OVER</h1>
     <p style="text-shadow: 1px 1px 3px black; color: white; font-size: 24px;">alonso ha entrado a la oficina...</p>
     <div style="display: flex; gap: 20px; justify-content: center; margin-top: 20px;">
@@ -384,6 +398,7 @@
     var gameOverDiv = document.getElementById("pantalla-gameover");
     var subtitulo = document.getElementById("subtitulo");
     var subTimer = null;
+    var musicaTension = document.getElementById("musica-tension");
 
     // referencias para el screamer
     var videoScreamer = document.getElementById("video-screamer");
@@ -397,16 +412,21 @@
     function desbloquearMedia() {
       if (mediaDesbloqueada) return;
       mediaDesbloqueada = true;
-      [videoScreamer, audioGameover, audioAlonso, videoPuerta].forEach(function(m) {
+      [videoScreamer, audioGameover, audioAlonso, videoPuerta, musicaTension].forEach(function (m) {
         if (!m) return;
         m.muted = true;
         var p = m.play();
         if (p !== undefined) {
-          p.then(function() {
+          p.then(function () {
             m.pause();
             m.muted = false;
-            m.currentTime = 0;
-          }).catch(function(){});
+            if (m.id === "musica-tension") {
+              m.volume = 0.15;
+              m.play().catch(function () { });
+            } else {
+              m.currentTime = 0;
+            }
+          }).catch(function () { });
         }
       });
     }
@@ -429,23 +449,23 @@
       // reproducir screamer
       videoScreamer.style.display = "block";
       videoScreamer.currentTime = 0;
-      videoScreamer.play().catch(function(){});
+      videoScreamer.play().catch(function () { });
 
       // luces parpadeantes (flashes blancos)
       pantallaFlashes.style.display = "block";
-      var parpadeo = setInterval(function() {
+      var parpadeo = setInterval(function () {
         pantallaFlashes.style.opacity = Math.random() > 0.5 ? "0.6" : "0";
       }, 50);
 
       // al terminar el screamer, mostrar game over y reproducir musica
-      videoScreamer.onended = function() {
+      videoScreamer.onended = function () {
         clearInterval(parpadeo);
         pantallaFlashes.style.display = "none";
         videoScreamer.style.display = "none";
 
         gameOverDiv.style.display = "flex";
         audioGameover.currentTime = 0;
-        audioGameover.play().catch(function(){});
+        audioGameover.play().catch(function () { });
       };
     }
 
@@ -551,13 +571,13 @@
         mostrarSub("Cuidado... si lo sigues mirando te quitara energia", 3000);
       }
 
-      // a los 10 segundos: drenar 8 de energia y reiniciar el ciclo
+      // a los 10 segundos: drenar 5 de energia y reiniciar el ciclo
       if (segMirandoAlonso >= 10) {
         segMirandoAlonso = 0;
-        energia -= 8;
+        energia -= 5;
         if (energia < 0) energia = 0;
         textoEnergia.innerText = "energia: " + Math.floor(energia) + "%";
-        mostrarSub("El aura de Alonso te ha quitado 8 de energia", 2500);
+        mostrarSub("El aura de Alonso te ha quitado 5 de energia", 2500);
         if (energia <= 0) apagarTodo();
       }
     }, 1000);
@@ -612,10 +632,10 @@
       if (siguiente > 4) {
         if (puertaCerrada) {
           // puerta cerrada: alonso golpea la puerta y drena energia
-          energia -= 20;
+          energia -= 15;
           if (energia < 0) energia = 0;
           textoEnergia.innerText = "energia: " + Math.floor(energia) + "%";
-          mostrarSub("Alonso ha golpeado la puerta! Pierdes 20% de energia", 4000);
+          mostrarSub("Alonso ha golpeado la puerta! Pierdes 15% de energia", 4000);
           if (energia <= 0) apagarTodo();
 
           var salaRandom = Math.floor(Math.random() * 3) + 1; // 1, 2 o 3
@@ -658,10 +678,10 @@
           btnPuerta.innerText = "Abrir Puerta";
           // si alonso esta en sala4 cuando cierras, se va y golpea la puerta
           if (alonsoPos === 4) {
-            energia -= 20;
+            energia -= 15;
             if (energia < 0) energia = 0;
             textoEnergia.innerText = "energia: " + Math.floor(energia) + "%";
-            mostrarSub("Alonso estaba en la puerta y la golpeo! Pierdes 20% de energia", 4000);
+            mostrarSub("Alonso estaba en la puerta y la golpeo! Pierdes 15% de energia", 4000);
             if (energia <= 0) apagarTodo();
 
             var salaRandom = Math.floor(Math.random() * 3) + 1;
@@ -684,10 +704,10 @@
     // =============================================
     setInterval(function () {
       if (energia <= 0 || juegoTerminado) return;
-      var gasto = 0.08;
-      if (panelCamaras.style.display === "block") gasto += 0.15;
-      if (linterna)       gasto += 0.25;
-      if (puertaCerrada)  gasto += 1.0; // aumentado de 0.8
+      var gasto = 0.05;
+      if (panelCamaras.style.display === "block") gasto += 0.1;
+      if (linterna) gasto += 0.2;
+      if (puertaCerrada) gasto += 0.6; // nerfeado de 1.0 a 0.6
       if (alonsoRetenido) gasto += 0.2;
       energia -= gasto;
       if (energia < 0) energia = 0;
@@ -703,6 +723,7 @@
       videoPuerta.style.display = "none";
       videoPuerta.pause();
       audioAlonso.pause();
+      musicaTension.pause();
       linterna = false;
       puertaCerrada = false;
       document.getElementById("btn-puerta").style.display = "none";
@@ -718,8 +739,24 @@
       if (juegoTerminado) return;
       hora++;
       if (hora >= 6) {
-        alert("has ganado la segunda noche!");
-        window.location.href = "menu.html";
+        juegoTerminado = true;
+        
+        // ocultar todo
+        cerrarCamaras();
+        document.getElementById("ui-botones").style.display = "none";
+        document.getElementById("texto-hora").style.display = "none";
+        document.getElementById("texto-noche").style.display = "none";
+        document.getElementById("texto-energia").style.display = "none";
+        musicaTension.pause();
+
+        // reproducir video ganar
+        var videoGanar = document.getElementById("video-ganar");
+        videoGanar.style.display = "block";
+        videoGanar.play().catch(function(){});
+
+        videoGanar.onended = function() {
+          window.location.href = "menu.html";
+        };
       } else {
         textoHora.innerText = hora + ":00 AM";
       }

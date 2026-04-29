@@ -275,10 +275,19 @@
   <video id="video-screamer" src="assets/videos/screamer.mp4" playsinline webkit-playsinline
     style="display:none; position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover; z-index:90;">
   </video>
+
+  <!-- video de ganar -->
+  <video id="video-ganar" src="assets/videos/ganar.mp4" playsinline webkit-playsinline
+    style="display:none; position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover; z-index:100;">
+  </video>
+
   <audio id="audio-gameover" src="assets/musica/musica_mickey.mp4"></audio>
 
   <!-- audio de german para la mecanica de retencion -->
   <audio id="audio-german" src="assets/musica/german_audio.mp4" preload="auto"></audio>
+
+  <!-- musica de fondo: tension -->
+  <audio id="musica-tension" src="assets/musica/TENSION.mp3" loop></audio>
 
   <!-- ui de textos -->
   <div id="texto-hora" class="ui-texto">12:00 AM</div>
@@ -383,6 +392,7 @@
     var gameOverDiv = document.getElementById("pantalla-gameover");
     var subtitulo = document.getElementById("subtitulo");
     var subTimer = null;
+    var musicaTension = document.getElementById("musica-tension");
 
     // referencias para el screamer
     var videoScreamer = document.getElementById("video-screamer");
@@ -395,7 +405,7 @@
     function desbloquearMedia() {
       if (mediaDesbloqueada) return;
       mediaDesbloqueada = true;
-      [videoScreamer, audioGameover, audioGerman, videoPuerta].forEach(function(m) {
+      [videoScreamer, audioGameover, audioGerman, videoPuerta, musicaTension].forEach(function(m) {
         if (!m) return;
         m.muted = true;
         var p = m.play();
@@ -403,7 +413,12 @@
           p.then(function() {
             m.pause();
             m.muted = false;
-            m.currentTime = 0;
+            if (m.id === "musica-tension") {
+              m.volume = 0.15;
+              m.play().catch(function(){});
+            } else {
+              m.currentTime = 0;
+            }
           }).catch(function(){});
         }
       });
@@ -541,13 +556,13 @@
         mostrarSub("Cuidado... si lo sigues mirando te quitara energia", 3000);
       }
 
-      // a los 13 segundos: drenar 5 de energia y reiniciar el ciclo
+      // a los 13 segundos: drenar 3 de energia y reiniciar el ciclo
       if (segMirandoGerman >= 13) {
         segMirandoGerman = 0;
-        energia -= 5;
+        energia -= 3;
         if (energia < 0) energia = 0;
         textoEnergia.innerText = "energia: " + Math.floor(energia) + "%";
-        mostrarSub("El aura de German te ha quitado 5 de energia", 2500);
+        mostrarSub("El aura de German te ha quitado 3 de energia", 2500);
         if (energia <= 0) apagarTodo();
       }
     }, 1000);
@@ -602,10 +617,10 @@
       if (siguiente > 4) {
         if (puertaCerrada) {
           // puerta cerrada: german golpea la puerta y drena energia
-          energia -= 15;
+          energia -= 10;
           if (energia < 0) energia = 0;
           textoEnergia.innerText = "energia: " + Math.floor(energia) + "%";
-          mostrarSub("German ha golpeado la puerta! Pierdes 15% de energia", 4000);
+          mostrarSub("German ha golpeado la puerta! Pierdes 10% de energia", 4000);
           if (energia <= 0) apagarTodo();
 
           var salaRandom = Math.floor(Math.random() * 3) + 1; // 1, 2 o 3
@@ -648,10 +663,10 @@
           btnPuerta.innerText = "Abrir Puerta";
           // si german esta en sala4 cuando cierras, se va y golpea la puerta
           if (germanPos === 4) {
-            energia -= 15;
+            energia -= 10;
             if (energia < 0) energia = 0;
             textoEnergia.innerText = "energia: " + Math.floor(energia) + "%";
-            mostrarSub("German estaba en la puerta y la golpeo! Pierdes 15% de energia", 4000);
+            mostrarSub("German estaba en la puerta y la golpeo! Pierdes 10% de energia", 4000);
             if (energia <= 0) apagarTodo();
 
             var salaRandom = Math.floor(Math.random() * 3) + 1;
@@ -674,10 +689,10 @@
     // =============================================
     setInterval(function () {
       if (energia <= 0 || juegoTerminado) return;
-      var gasto = 0.05;
-      if (panelCamaras.style.display === "block") gasto += 0.1;
-      if (linterna)       gasto += 0.2;
-      if (puertaCerrada)  gasto += 0.8; // nerfeado de 0.3 a 0.8
+      var gasto = 0.03;
+      if (panelCamaras.style.display === "block") gasto += 0.07;
+      if (linterna)       gasto += 0.15;
+      if (puertaCerrada)  gasto += 0.4; // nerfeado de 0.8 a 0.4
       if (germanRetenido) gasto += 0.15;
       energia -= gasto;
       if (energia < 0) energia = 0;
@@ -693,6 +708,7 @@
       videoPuerta.style.display = "none";
       videoPuerta.pause();
       audioGerman.pause();
+      musicaTension.pause();
       linterna = false;
       puertaCerrada = false;
       document.getElementById("btn-puerta").style.display = "none";
@@ -708,8 +724,24 @@
       if (juegoTerminado) return;
       hora++;
       if (hora >= 6) {
-        alert("has ganado la primera noche!");
-        window.location.href = "menu.html";
+        juegoTerminado = true;
+        
+        // ocultar todo
+        cerrarCamaras();
+        document.getElementById("ui-botones").style.display = "none";
+        document.getElementById("texto-hora").style.display = "none";
+        document.getElementById("texto-noche").style.display = "none";
+        document.getElementById("texto-energia").style.display = "none";
+        musicaTension.pause();
+
+        // reproducir video ganar
+        var videoGanar = document.getElementById("video-ganar");
+        videoGanar.style.display = "block";
+        videoGanar.play().catch(function(){});
+
+        videoGanar.onended = function() {
+          window.location.href = "menu.html";
+        };
       } else {
         textoHora.innerText = hora + ":00 AM";
       }
