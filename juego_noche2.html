@@ -551,9 +551,13 @@
       videoScreamer.currentTime = 0;
       videoScreamer.play().catch(function () { });
 
-      // parar la musica de la caja si esta sonando
+      // parar la musica de la caja si esta sonando y restaurar audios
       var audioCaja = document.getElementById("audio-caja");
-      if (audioCaja) audioCaja.pause();
+      if (audioCaja) {
+        audioCaja.pause();
+        var todosAudios = document.querySelectorAll('audio');
+        todosAudios.forEach(function (a) { a.muted = false; });
+      }
 
       // luces parpadeantes (flashes blancos)
       pantallaFlashes.style.display = "block";
@@ -883,11 +887,11 @@
     // =============================================
     setInterval(function () {
       if (energia <= 0 || juegoTerminado) return;
-      var gasto = 0.02;
-      if (panelCamaras.style.display === "block") gasto += 0.05;
-      if (linterna) gasto += 0.1;
-      if (puertaCerrada) gasto += 0.3;
-      if (alonsoRetenido) gasto += 0.1;
+      var gasto = 0.01;
+      if (panelCamaras.style.display === "block") gasto += 0.04;
+      if (linterna) gasto += 0.08;
+      if (puertaCerrada) gasto += 0.25;
+      if (alonsoRetenido) gasto += 0.08;
       energia -= gasto;
       if (energia < 0) energia = 0;
       textoEnergia.innerText = "energia: " + Math.floor(energia) + "%";
@@ -904,9 +908,13 @@
       audioAlonso.pause();
       musicaTension.pause();
       
-      // detener musica de la caja
+      // detener musica de la caja y restaurar audios
       var audioCaja = document.getElementById("audio-caja");
-      if (audioCaja) audioCaja.pause();
+      if (audioCaja) {
+        audioCaja.pause();
+        var todosAudios = document.querySelectorAll('audio');
+        todosAudios.forEach(function (a) { a.muted = false; });
+      }
       linterna = false;
       puertaCerrada = false;
       document.getElementById("btn-puerta").style.display = "none";
@@ -1152,9 +1160,6 @@
       }
     }, 20000);
 
-    // =============================================
-    // evento caja de musica de alonso (5 AM)
-    // =============================================
     setInterval(function () {
       if (juegoTerminado || energia <= 0 || hora < 5 || cajaMusicaActiva) return;
       // 50% de probabilidad cada 20 segundos
@@ -1162,6 +1167,16 @@
         var audioCaja = document.getElementById("audio-caja");
         if (audioCaja) {
           cajaMusicaActiva = true;
+
+          // Silenciar todos los demas audios para que solo se oiga la caja
+          var todosAudios = document.querySelectorAll('audio');
+          todosAudios.forEach(function (a) {
+            if (a.id !== "audio-caja") {
+              a.muted = true;
+            }
+          });
+
+          audioCaja.volume = 1.0; // Volumen maximo para la caja
           document.body.classList.add("glitch-caja-activa");
           mostrarSub("¡La caja de música de Alonso está sonando! Se ha vuelto loco...", 5000);
 
@@ -1170,6 +1185,10 @@
 
           audioCaja.onended = function () {
             cajaMusicaActiva = false;
+            // Restaurar el sonido de los demas audios
+            todosAudios.forEach(function (a) {
+              a.muted = false;
+            });
             document.body.classList.remove("glitch-caja-activa");
             mostrarSub("La música se ha detenido...", 3000);
           };
