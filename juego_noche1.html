@@ -144,12 +144,6 @@
       font-weight: bold;
     }
 
-    /* camara de german resaltada en rojo */
-    .btn-cam.german {
-      border-color: #ff4444;
-      color: #ff4444;
-    }
-
     #btn-bajar-cam {
       position: absolute;
       bottom: 30px;
@@ -271,8 +265,12 @@
     style="display:none; position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover; z-index:5; pointer-events:none;">
   </video>
 
+  <div id="pantalla-flashes"
+    style="display:none; position:absolute; top:0; left:0; width:100%; height:100%; background:black; opacity:0; z-index:95; pointer-events:none;">
+  </div>
+
   <!-- screamer de german -->
-  <video id="video-screamer" src="assets/videos/screamer.mp4" playsinline webkit-playsinline
+  <video id="video-screamer" src="assets/videos/SCREAMER GERMAN.mp4" playsinline webkit-playsinline
     style="display:none; position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover; z-index:90;">
   </video>
 
@@ -283,14 +281,39 @@
 
   <audio id="audio-gameover" src="assets/musica/musica_mickey.mp4"></audio>
 
+  <!-- estatica al cerrar camaras -->
+  <div id="pantalla-estatica" 
+    style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background: url('assets/imagenes/menu/glitch.gif') center/cover no-repeat; z-index:150; pointer-events:none; opacity: 0.8;">
+  </div>
+
+  <!-- sombra de alucinacion -->
+  <div id="sombra-alucinacion" 
+    style="display:none; position:absolute; bottom:0; left:10%; width:35%; height:75%; background: url('assets/imagenes/escenarios/personajes/german/de_pie.png') center/contain no-repeat; filter: brightness(0) opacity(0.4) blur(3px); z-index:8; pointer-events:none;">
+  </div>
+
   <!-- audio de german para la mecanica de retencion -->
   <audio id="audio-german" src="assets/musica/german_audio.mp4" preload="auto"></audio>
 
   <!-- musica de fondo: tension -->
   <audio id="musica-tension" src="assets/musica/TENSION.mp3" loop></audio>
 
+  <!-- audio de pasos cuando llega a camara 4 -->
+  <audio id="audio-pasos" src="assets/musica/pasos.mp3" preload="auto"></audio>
+
+  <!-- audio de pasos corriendo para cuando falla la camara -->
+  <audio id="audio-pasos-corriendo" src="assets/musica/PASOS CORRIENDO.mp3" preload="auto"></audio>
+
+  <!-- audio de risa de nino ambiente -->
+  <audio id="audio-risa" src="assets/musica/risa de niño.mp3" preload="auto"></audio>
+
+  <!-- audio de risa de demonio para bloqueo de camara -->
+  <audio id="audio-demonio" src="assets/musica/demonio risa .mp3" preload="auto"></audio>
+
+  <!-- audio de respiracion ambiental -->
+  <audio id="audio-respiracion-amb" src="assets/musica/respiracion profunda.mp3" preload="auto"></audio>
+
   <!-- ui de textos -->
-  <div id="texto-hora" class="ui-texto">12:00 AM</div>
+  <div id="texto-hora" class="ui-texto">12:00 PM</div>
   <div id="texto-noche" class="ui-texto">Noche 1</div>
   <div id="texto-energia" class="ui-texto">energia: 100%</div>
 
@@ -326,11 +349,14 @@
 
   <!-- game over modificado con la imagen de german de pie -->
   <div id="pantalla-gameover" style="background-color: black;">
-    <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: url('assets/imagenes/escenarios/personajes/german/de_pie.png') center/contain no-repeat; z-index: -1;"></div>
+    <div
+      style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: url('assets/imagenes/escenarios/personajes/german/de_pie.png') center/contain no-repeat; z-index: -1;">
+    </div>
     <h1 style="text-shadow: 2px 2px 5px black;">GAME OVER</h1>
-    <p style="text-shadow: 1px 1px 3px black; color: white; font-size: 24px;">german ha entrado a la oficina...</p>
+    <p id="mensaje-gameover" style="text-shadow: 1px 1px 3px black; color: white; font-size: 24px;">german ha entrado a la oficina...</p>
     <div style="display: flex; gap: 20px; justify-content: center; margin-top: 20px;">
-      <button onclick="window.location.href='juego_noche1.html'" style="background: rgba(0,0,0,0.7);">volver a intentarlo</button>
+      <button onclick="window.location.href='juego_noche1.html'" style="background: rgba(0,0,0,0.7);">volver a
+        intentarlo</button>
       <button onclick="window.location.href='menu.html'" style="background: rgba(0,0,0,0.7);">volver al menu</button>
     </div>
   </div>
@@ -343,8 +369,8 @@
     var escBase = {
       1: { osc: "assets/imagenes/escenarios/sala1/sala1_oscura.jpeg", lin: "assets/imagenes/escenarios/sala1/sala1_linterna.jpeg" },
       2: { osc: "assets/imagenes/escenarios/sala2/sala2_oscura.jpeg", lin: "assets/imagenes/escenarios/sala2/sala2_linterna.png" },
-      3: { osc: "assets/imagenes/escenarios/sala3/sala3_oscura.png",  lin: "assets/imagenes/escenarios/sala3/sala3_linterna.png" },
-      4: { osc: "assets/imagenes/escenarios/sala4/sala4_oscura.png",  lin: "assets/imagenes/escenarios/sala4/sala4_linterna.png" }
+      3: { osc: "assets/imagenes/escenarios/sala3/sala3_oscura.png", lin: "assets/imagenes/escenarios/sala3/sala3_linterna.png" },
+      4: { osc: "assets/imagenes/escenarios/sala4/sala4_oscura.png", lin: "assets/imagenes/escenarios/sala4/sala4_linterna.png" }
     };
 
     // imagenes de german en cada sala (donde existen)
@@ -376,6 +402,12 @@
     var hintAuraMostrado = false;
     var juegoTerminado = false;
 
+    // probabilidad de movimiento de german (se aumenta a las 5 AM)
+    var probabilidadGerman = 0.3;
+    var camaraFallo = false;
+    var camaraBloqueada = 0; // camara especifica que queda inservible
+    var camarasDestruidas = false; // fallo global a las 5 AM
+
     // =============================================
     // referencias DOM
     // =============================================
@@ -405,21 +437,21 @@
     function desbloquearMedia() {
       if (mediaDesbloqueada) return;
       mediaDesbloqueada = true;
-      [videoScreamer, audioGameover, audioGerman, videoPuerta, musicaTension].forEach(function(m) {
+      [videoScreamer, audioGameover, audioGerman, videoPuerta, musicaTension, document.getElementById("audio-pasos-corriendo"), document.getElementById("audio-risa"), document.getElementById("audio-demonio"), document.getElementById("audio-respiracion-amb")].forEach(function (m) {
         if (!m) return;
         m.muted = true;
         var p = m.play();
         if (p !== undefined) {
-          p.then(function() {
+          p.then(function () {
             m.pause();
             m.muted = false;
             if (m.id === "musica-tension") {
               m.volume = 0.15;
-              m.play().catch(function(){});
+              m.play().catch(function () { });
             } else {
               m.currentTime = 0;
             }
-          }).catch(function(){});
+          }).catch(function () { });
         }
       });
     }
@@ -430,7 +462,7 @@
     // funcion para iniciar el screamer de german
     // oculta todo, reproduce el video con luces y luego muestra el game over
     // =============================================
-    function iniciarScreamer() {
+    function iniciarScreamer(mensaje) {
       if (juegoTerminado) return;
       juegoTerminado = true;
       cerrarCamaras();
@@ -438,20 +470,57 @@
       document.getElementById("texto-hora").style.display = "none";
       document.getElementById("texto-noche").style.display = "none";
       document.getElementById("texto-energia").style.display = "none";
-      
+
+      // establecer mensaje personalizado si existe
+      if (mensaje) {
+        document.getElementById("mensaje-gameover").innerText = mensaje;
+      } else {
+        document.getElementById("mensaje-gameover").innerText = "german ha entrado a la oficina...";
+      }
+
       // reproducir screamer
       videoScreamer.style.display = "block";
       videoScreamer.currentTime = 0;
-      videoScreamer.play().catch(function(){});
+      videoScreamer.play().catch(function () { });
 
       // al terminar el screamer, mostrar game over y reproducir musica
-      videoScreamer.onended = function() {
+      videoScreamer.onended = function () {
         videoScreamer.style.display = "none";
-        
+
         gameOverDiv.style.display = "flex";
         audioGameover.currentTime = 0;
-        audioGameover.play().catch(function(){});
+        audioGameover.play().catch(function () { });
       };
+    }
+
+    // =============================================
+    // parpadeo de luces en la oficina (se mantiene mientras este en CAM 4)
+    // =============================================
+    var intervalParpadeo = null;
+    function actualizarEfectosCam4() {
+      var flash = document.getElementById("pantalla-flashes");
+      if (!flash) return;
+      if (germanPos === 4) {
+        if (!intervalParpadeo) {
+          flash.style.display = "block";
+          intervalParpadeo = setInterval(function () {
+            flash.style.opacity = (flash.style.opacity === "0" || flash.style.opacity === "") ? "0.4" : "0";
+          }, 100);
+          // reproducir audio de pasos al llegar
+          var audioPasos = document.getElementById("audio-pasos");
+          if (audioPasos) {
+            audioPasos.currentTime = 0;
+            audioPasos.play().catch(function () { });
+          }
+        }
+      } else {
+        if (intervalParpadeo) {
+          clearInterval(intervalParpadeo);
+          intervalParpadeo = null;
+          flash.style.display = "none";
+          flash.style.opacity = "0";
+        }
+      }
     }
 
     // =============================================
@@ -483,6 +552,20 @@
     // actualiza la imagen de la camara y el boton de audio
     // =============================================
     function actualizarCamara() {
+      if (camaraFallo) {
+        vistaCam.style.backgroundImage = "url('assets/imagenes/menu/glitch.gif')";
+        vistaCam.style.filter = "none";
+        btnAudio.style.display = "none";
+        return;
+      }
+      if (camaraBloqueada === camActual) {
+        vistaCam.style.backgroundImage = "url('assets/imagenes/menu/glitch.gif')";
+        vistaCam.style.backgroundColor = "black";
+        vistaCam.style.filter = "brightness(0.1) contrast(1.5)"; 
+        btnAudio.style.display = "none";
+        return;
+      }
+      vistaCam.style.filter = "none";
       vistaCam.style.backgroundImage = "url('" + getImg(camActual, linterna) + "')";
       // mostrar boton audio solo en la camara de german y sin cooldown
       if (camActual === germanPos && !audioEnCooldown) {
@@ -496,13 +579,7 @@
     // =============================================
     // resalta en rojo el boton de la camara donde esta german
     // =============================================
-    function actualizarAlertas() {
-      for (var i = 1; i <= 4; i++) {
-        var b = document.getElementById("btn-cam-" + i);
-        if (i === germanPos) { b.classList.add("german"); }
-        else { b.classList.remove("german"); }
-      }
-    }
+
 
     // =============================================
     // cambiar camara activa
@@ -517,12 +594,19 @@
     }
 
     function abrirCamaras() {
-      if (energia <= 0) return;
+      if (energia <= 0 || camarasDestruidas) return;
       panelCamaras.style.display = "block";
       actualizarCamara();
     }
 
     function cerrarCamaras() {
+      // flash de estatica al bajar camaras para generar inseguridad
+      var estatica = document.getElementById("pantalla-estatica");
+      if (estatica) {
+        estatica.style.display = "block";
+        setTimeout(function () { estatica.style.display = "none"; }, 200);
+      }
+
       panelCamaras.style.display = "none";
       linterna = false;
       segMirandoGerman = 0;
@@ -556,13 +640,13 @@
         mostrarSub("Cuidado... si lo sigues mirando te quitara energia", 3000);
       }
 
-      // a los 13 segundos: drenar 3 de energia y reiniciar el ciclo
+      // a los 13 segundos: drenar 1 de energia y reiniciar el ciclo
       if (segMirandoGerman >= 13) {
         segMirandoGerman = 0;
-        energia -= 3;
+        energia -= 1;
         if (energia < 0) energia = 0;
         textoEnergia.innerText = "energia: " + Math.floor(energia) + "%";
-        mostrarSub("El aura de German te ha quitado 3 de energia", 2500);
+        mostrarSub("El aura de German te ha quitado 1 de energia", 2500);
         if (energia <= 0) apagarTodo();
       }
     }, 1000);
@@ -609,7 +693,7 @@
     // =============================================
     setInterval(function () {
       if (germanRetenido || energia <= 0 || juegoTerminado) return;
-      if (Math.random() > 0.3) return; // 70% de no hacer nada
+      if (Math.random() > probabilidadGerman) return; 
 
       var siguiente = germanPos + 1;
 
@@ -617,16 +701,16 @@
       if (siguiente > 4) {
         if (puertaCerrada) {
           // puerta cerrada: german golpea la puerta y drena energia
-          energia -= 10;
+          energia -= 5;
           if (energia < 0) energia = 0;
           textoEnergia.innerText = "energia: " + Math.floor(energia) + "%";
-          mostrarSub("German ha golpeado la puerta! Pierdes 10% de energia", 4000);
+          mostrarSub("German ha golpeado la puerta! Pierdes 5% de energia", 4000);
           if (energia <= 0) apagarTodo();
 
           var salaRandom = Math.floor(Math.random() * 3) + 1; // 1, 2 o 3
           setTimeout(function () {
             germanPos = salaRandom;
-            actualizarAlertas();
+            actualizarEfectosCam4();
             if (panelCamaras.style.display === "block") actualizarCamara();
           }, 2000);
         } else {
@@ -638,7 +722,7 @@
 
       // german avanza a la siguiente sala
       germanPos = siguiente;
-      actualizarAlertas();
+      actualizarEfectosCam4();
       if (panelCamaras.style.display === "block") actualizarCamara();
 
     }, 10000);
@@ -663,16 +747,16 @@
           btnPuerta.innerText = "Abrir Puerta";
           // si german esta en sala4 cuando cierras, se va y golpea la puerta
           if (germanPos === 4) {
-            energia -= 10;
+            energia -= 5;
             if (energia < 0) energia = 0;
             textoEnergia.innerText = "energia: " + Math.floor(energia) + "%";
-            mostrarSub("German estaba en la puerta y la golpeo! Pierdes 10% de energia", 4000);
+            mostrarSub("German estaba en la puerta y la golpeo! Pierdes 5% de energia", 4000);
             if (energia <= 0) apagarTodo();
 
             var salaRandom = Math.floor(Math.random() * 3) + 1;
             setTimeout(function () {
               germanPos = salaRandom;
-              actualizarAlertas();
+              actualizarEfectosCam4();
               if (panelCamaras.style.display === "block") actualizarCamara();
             }, 2000);
           }
@@ -689,11 +773,11 @@
     // =============================================
     setInterval(function () {
       if (energia <= 0 || juegoTerminado) return;
-      var gasto = 0.03;
-      if (panelCamaras.style.display === "block") gasto += 0.07;
-      if (linterna)       gasto += 0.15;
-      if (puertaCerrada)  gasto += 0.4; // nerfeado de 0.8 a 0.4
-      if (germanRetenido) gasto += 0.15;
+      var gasto = 0.01;
+      if (panelCamaras.style.display === "block") gasto += 0.02;
+      if (linterna) gasto += 0.05;
+      if (puertaCerrada) gasto += 0.5; 
+      if (germanRetenido) gasto += 0.05;
       energia -= gasto;
       if (energia < 0) energia = 0;
       textoEnergia.innerText = "energia: " + Math.floor(energia) + "%";
@@ -715,6 +799,11 @@
       document.getElementById("btn-camaras").style.display = "none";
       document.body.style.backgroundImage = "none";
       document.body.style.backgroundColor = "black";
+
+      // ahora al quedarse sin energia, inicia el screamer con mensaje personalizado
+      setTimeout(function() {
+        iniciarScreamer("te has quedado sin energia...");
+      }, 1000); // pequeña pausa dramática en la oscuridad antes del susto
     }
 
     // =============================================
@@ -725,7 +814,7 @@
       hora++;
       if (hora >= 6) {
         juegoTerminado = true;
-        
+
         // ocultar todo
         cerrarCamaras();
         document.getElementById("ui-botones").style.display = "none";
@@ -737,15 +826,229 @@
         // reproducir video ganar
         var videoGanar = document.getElementById("video-ganar");
         videoGanar.style.display = "block";
-        videoGanar.play().catch(function(){});
+        videoGanar.play().catch(function () { });
 
-        videoGanar.onended = function() {
+        videoGanar.onended = function () {
           window.location.href = "menu.html";
         };
       } else {
         textoHora.innerText = hora + ":00 AM";
+        
+        // mecanica de las 5 AM
+        if (hora === 5) {
+          probabilidadGerman = 0.6; // mas agresivo
+          musicaTension.src = "assets/musica/tension 5 am.mp3";
+          musicaTension.load();
+          musicaTension.play().catch(function(){});
+          mostrarSub("¡Son las 5 AM! German se ha vuelto extremadamente agresivo...", 5000);
+
+          // evento: destruccion aleatoria de camaras en los proximos 30 segundos
+          var delayDestruccion = Math.random() * 30000;
+          setTimeout(function () {
+            camarasDestruidas = true;
+            cerrarCamaras();
+            var btnC = document.getElementById("btn-camaras");
+            if (btnC) {
+              btnC.innerText = "SISTEMA CORRUPTO";
+              btnC.style.color = "#ff0000";
+              btnC.style.borderColor = "#ff0000";
+              btnC.style.boxShadow = "0 0 10px red";
+            }
+            // efecto glitch visual al destruir el sistema
+            var estatica = document.getElementById("pantalla-estatica");
+            if (estatica) {
+              estatica.style.display = "block";
+              setTimeout(function () { estatica.style.display = "none"; }, 1000);
+            }
+            var aCorr = document.getElementById("audio-pasos-corriendo");
+            if (aCorr) aCorr.play().catch(function () { });
+            mostrarSub("ADVERTENCIA: SISTEMA DE CÁMARAS DESTRUIDO", 6000);
+
+            // Reparacion automatica tras 15 segundos
+            setTimeout(function () {
+              if (juegoTerminado) return;
+              camarasDestruidas = false;
+              if (btnC) {
+                btnC.innerText = "Subir Camaras";
+                btnC.style.color = "";
+                btnC.style.borderColor = "";
+                btnC.style.boxShadow = "";
+              }
+              mostrarSub("SISTEMA DE CÁMARAS REINICIADO", 3000);
+            }, 15000);
+          }, delayDestruccion);
+        }
       }
     }, 60000);
+
+    // =============================================
+    // parpadeo aleatorio de luces en la oficina (ambiente)
+    // =============================================
+    setInterval(function () {
+      if (juegoTerminado || energia <= 0 || germanPos === 4) return;
+      
+      // Probabilidad dinamica: 15% base, 30% a partir de las 4 AM
+      var probLuz = (hora >= 4) ? 0.30 : 0.15;
+
+      if (Math.random() < probLuz) {
+        var flashAmbiente = document.getElementById("pantalla-flashes");
+        flashAmbiente.style.display = "block";
+        flashAmbiente.style.opacity = "0.3";
+        setTimeout(function () {
+          if (germanPos !== 4) { 
+            flashAmbiente.style.opacity = "0";
+            setTimeout(function () { flashAmbiente.style.display = "none"; }, 100);
+          }
+        }, 80 + Math.random() * 150);
+      }
+    }, 3000);
+
+    // =============================================
+    // fallo aleatorio de camaras (3 segundos con sonido)
+    // =============================================
+    setInterval(function () {
+      if (juegoTerminado || energia <= 0 || camaraFallo || panelCamaras.style.display !== "block") return;
+      
+      // probabilidad dinamica: aumenta a partir de las 3 AM
+      var prob = (hora >= 3) ? 0.25 : 0.08;
+
+      if (Math.random() < prob) {
+        camaraFallo = true;
+        var audioCorr = document.getElementById("audio-pasos-corriendo");
+        if (audioCorr) {
+          audioCorr.currentTime = 0;
+          audioCorr.play().catch(function () { });
+        }
+        actualizarCamara();
+        setTimeout(function () {
+          camaraFallo = false;
+          if (panelCamaras.style.display === "block") actualizarCamara();
+        }, 3000);
+      }
+    }, 15000);
+
+    // =============================================
+    // alucinacion de sombra aleatoria en la oficina
+    // =============================================
+    setInterval(function () {
+      if (juegoTerminado || energia <= 0 || panelCamaras.style.display === "block") return;
+      // 3% de probabilidad cada 10 segundos
+      if (Math.random() < 0.03) {
+        var sombra = document.getElementById("sombra-alucinacion");
+        sombra.style.display = "block";
+        setTimeout(function () {
+          sombra.style.display = "none";
+        }, 400 + Math.random() * 800);
+      }
+    }, 10000);
+
+    // =============================================
+    // glitch de mensajes en camaras (5 AM)
+    // =============================================
+    setInterval(function () {
+      if (juegoTerminado || energia <= 0 || hora < 5) return;
+      // 30% de probabilidad cada 12 segundos
+      if (Math.random() < 0.3) {
+        var b1 = document.getElementById("btn-cam-1");
+        var b2 = document.getElementById("btn-cam-2");
+        var b3 = document.getElementById("btn-cam-3");
+        var b4 = document.getElementById("btn-cam-4");
+        if (!b1 || !b2 || !b3 || !b4) return;
+
+        // Cambiar a mensajes de terror y color rojo
+        [b1, b2, b3, b4].forEach(function (b) {
+          b.style.color = "#ff0000";
+          b.style.borderColor = "#ff0000";
+          b.style.textShadow = "0 0 5px red";
+        });
+        b1.innerText = "SI";
+        b2.innerText = "NOS";
+        b3.innerText = "MIRAS";
+        b4.innerText = "MORIRAS";
+
+        setTimeout(function () {
+          b1.innerText = "CAM 1";
+          b2.innerText = "CAM 2";
+          b3.innerText = "CAM 3";
+          b4.innerText = "CAM 4";
+          [b1, b2, b3, b4].forEach(function (b) {
+            b.style.color = "";
+            b.style.borderColor = "";
+            b.style.textShadow = "";
+          });
+        }, 3000);
+      }
+    }, 12000);
+
+    // =============================================
+    // sonidos de ambiente aleatorios (pasos o risa)
+    // =============================================
+    setInterval(function () {
+      if (juegoTerminado || energia <= 0) return;
+      // 30% de probabilidad cada minuto
+      if (Math.random() < 0.3) {
+        var randomSound = Math.random() < 0.5 ? "audio-pasos-corriendo" : "audio-risa";
+        var a = document.getElementById(randomSound);
+        if (a) {
+          a.currentTime = 0;
+          a.play().catch(function () { });
+        }
+      }
+    }, 60000);
+
+    // =============================================
+    // bloqueo severo de una camara (70% cada 2 min)
+    // =============================================
+    setInterval(function () {
+      if (juegoTerminado || energia <= 0) return;
+      // 30% de probabilidad cada 2 minutos
+      if (Math.random() < 0.3) {
+        camaraBloqueada = Math.floor(Math.random() * 4) + 1; // elige una camara 1-4
+        
+        // alternar entre varios sonidos de terror
+        var listaSonidos = ["audio-demonio", "audio-pasos-corriendo", "audio-risa", "audio-respiracion-amb"];
+        var idAzar = listaSonidos[Math.floor(Math.random() * listaSonidos.length)];
+        var a = document.getElementById(idAzar);
+        
+        if (a) {
+          a.currentTime = 0;
+          a.play().catch(function () { });
+        }
+        if (panelCamaras.style.display === "block") actualizarCamara();
+        
+        // dura 15 segundos
+        setTimeout(function () {
+          camaraBloqueada = 0;
+          if (panelCamaras.style.display === "block") actualizarCamara();
+        }, 15000);
+      }
+    }, 12000);
+
+    // =============================================
+    // efecto reloj roto (5 AM)
+    // =============================================
+    setInterval(function () {
+      if (juegoTerminado || energia <= 0 || hora < 5) return;
+      
+      var clock = document.getElementById("texto-hora");
+      if (!clock) return;
+
+      // 40% de probabilidad cada 4 segundos de glitch visual
+      if (Math.random() < 0.4) {
+        var glitches = ["5:?? AM", "??:?? AM", "6:66 AM", "#$:%& AM", "ERROR", "5:-- AM", "88:88"];
+        clock.innerText = glitches[Math.floor(Math.random() * glitches.length)];
+        clock.style.color = "#ff3333";
+        clock.style.textShadow = "0 0 8px red";
+        
+        setTimeout(function () {
+          if (hora === 5 && !juegoTerminado) {
+            clock.innerText = "5:00 AM";
+            clock.style.color = "white";
+            clock.style.textShadow = "none";
+          }
+        }, 600 + Math.random() * 1200);
+      }
+    }, 4000);
 
   </script>
 
