@@ -347,17 +347,12 @@
     style="display:none; position:absolute; top:0; left:0; width:100%; height:100%; background:black; opacity:0; z-index:97; pointer-events:none;">
   </div>
 
-  <!-- sombra de alucinacion -->
-  <div id="sombra-alucinacion"
-    style="display:none; position:absolute; bottom:0; left:10%; width:35%; height:75%; background: url('assets/imagenes/escenarios/personajes/alonso/de_pie.png') center/contain no-repeat; filter: brightness(0) opacity(0.4) blur(3px); z-index:8; pointer-events:none;">
-  </div>
-
-  <audio id="audio-gameover" src="assets/musica/musica_mickey.mp4"></audio>
-
-  <!-- estatica al cerrar camaras -->
+  <!-- estatica al cerrar camaras / distorsion de animacion -->
   <div id="pantalla-estatica"
     style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background: url('assets/imagenes/menu/glitch.gif') center/cover no-repeat; z-index:150; pointer-events:none; opacity: 0.8;">
   </div>
+
+  <audio id="audio-gameover" src="assets/musica/musica_mickey.mp4"></audio>
 
   <!-- audio de alonso para la mecanica de retencion -->
   <audio id="audio-alonso" src="assets/musica/audioalonso.mp3" preload="auto"></audio>
@@ -366,7 +361,7 @@
   <audio id="audio-pasos" src="assets/musica/pasos.mp3" preload="auto"></audio>
 
   <!-- musica de fondo: tension -->
-  <audio id="musica-tension" src="assets/musica/TENSION.mp3" loop></audio>
+  <audio id="musica-tension" src="assets/musica/sonido de fondo.mp3" loop></audio>
 
   <!-- audio de alonso respirando -->
   <audio id="audio-respiracion" src="assets/musica/respiracion_alonso.mp3" loop preload="auto"></audio>
@@ -385,6 +380,11 @@
 
   <!-- audio de caja de musica de alonso -->
   <audio id="audio-caja" src="assets/musica/caja de musica de alonso.mp3" preload="auto"></audio>
+
+  <!-- audios de falta de energia -->
+  <audio id="audio-powerdown" src="assets/musica/powerdown.mp3" preload="auto"></audio>
+  <audio id="audio-sevalaluz" src="assets/musica/se va la luz.mp3" preload="auto"></audio>
+  <audio id="audio-linterna" src="assets/musica/linterna.mp3" preload="auto"></audio>
 
   <!-- ui de textos -->
   <div id="texto-hora" class="ui-texto">12:00 PM</div>
@@ -406,6 +406,11 @@
     <!-- boton audio: solo visible cuando ves la camara de alonso -->
     <button id="btn-audio" onclick="usarAudio()">&#9834; Usar Audio</button>
     <div id="contador-retencion">Reteniendo: <span id="seg-retencion">20</span>s</div>
+
+    <!-- video de animacion de alonso saliendo de sala 1 -->
+    <video id="video-animacion-alonso-sala1" src="assets/videos/animaciones de camaras/alonsosala1.mp4" playsinline
+      style="display:none; position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover; z-index:22; pointer-events:none;">
+    </video>
 
     <!-- 4 salas: la sala 2 original ha sido eliminada -->
     <div id="lista-camaras">
@@ -481,6 +486,8 @@
     var camaraBloqueada = 0; // camara especifica que queda inservible
     var cajaMusicaActiva = false;
     var camarasDestruidas = false; // fallo global a las 5 AM
+    // animacion de alonso saliendo de sala 1 (no bloquea el movimiento)
+    var animacionAlonsoSala1Activa = false;
 
     // =============================================
     // referencias DOM
@@ -500,6 +507,20 @@
     var subTimer = null;
     var musicaTension = document.getElementById("musica-tension");
 
+    function actualizarUIEnergia() {
+      if (!textoEnergia) return;
+      textoEnergia.innerText = "energia: " + Math.floor(energia) + "%";
+      if (energia < 20) {
+        textoEnergia.style.color = "#ff0000";
+        textoEnergia.style.fontWeight = "bold";
+        textoEnergia.style.textShadow = "0 0 10px red";
+      } else {
+        textoEnergia.style.color = "white";
+        textoEnergia.style.fontWeight = "normal";
+        textoEnergia.style.textShadow = "none";
+      }
+    }
+
     // referencias para el screamer
     var videoScreamer = document.getElementById("video-screamer");
     var pantallaFlashes = document.getElementById("pantalla-flashes");
@@ -512,7 +533,7 @@
     function desbloquearMedia() {
       if (mediaDesbloqueada) return;
       mediaDesbloqueada = true;
-      [videoScreamer, audioGameover, audioAlonso, videoPuerta, musicaTension, document.getElementById("audio-respiracion"), document.getElementById("audio-pasos-corriendo"), document.getElementById("audio-risa"), document.getElementById("audio-demonio"), document.getElementById("audio-respiracion-fnaf"), document.getElementById("audio-caja")].forEach(function (m) {
+      [videoScreamer, audioGameover, audioAlonso, videoPuerta, musicaTension, document.getElementById("audio-respiracion"), document.getElementById("audio-pasos-corriendo"), document.getElementById("audio-risa"), document.getElementById("audio-demonio"), document.getElementById("audio-respiracion-fnaf"), document.getElementById("audio-caja"), document.getElementById("audio-powerdown"), document.getElementById("audio-sevalaluz"), document.getElementById("audio-linterna")].forEach(function (m) {
         if (!m) return;
         m.muted = true;
         var p = m.play();
@@ -540,7 +561,10 @@
     function iniciarScreamer() {
       if (juegoTerminado) return;
       juegoTerminado = true;
+      // Restablecer filtros para que el screamer se vea bien (no oscuro)
+      document.body.style.filter = "none";
       cerrarCamaras();
+      detenerAudiosApagon();
       document.getElementById("ui-botones").style.display = "none";
       document.getElementById("texto-hora").style.display = "none";
       document.getElementById("texto-noche").style.display = "none";
@@ -575,6 +599,13 @@
         audioGameover.currentTime = 0;
         audioGameover.play().catch(function () { });
       };
+    }
+
+    function detenerAudiosApagon() {
+      var pwrDown = document.getElementById("audio-powerdown");
+      var lzOut = document.getElementById("audio-sevalaluz");
+      if (pwrDown) { pwrDown.pause(); pwrDown.currentTime = 0; }
+      if (lzOut) { lzOut.pause(); lzOut.currentTime = 0; }
     }
 
     // =============================================
@@ -651,9 +682,32 @@
     }
 
     // =============================================
+    // distorsion de camara al terminar una animacion
+    // =============================================
+    function distorsionCamara() {
+      var estatica = document.getElementById("pantalla-estatica");
+      if (!estatica) return;
+      estatica.style.display = "block";
+      estatica.style.opacity = "1";
+      setTimeout(function () {
+        estatica.style.opacity = "0";
+        setTimeout(function () { estatica.style.display = "none"; }, 200);
+      }, 350);
+    }
+
+    // =============================================
     // actualiza la imagen de la camara y el boton de audio
     // =============================================
     function actualizarCamara() {
+      // gestionar visibilidad del video de animacion de alonso (sala 1)
+      var videoAnimAlonsoS1 = document.getElementById("video-animacion-alonso-sala1");
+      if (videoAnimAlonsoS1) {
+        if (animacionAlonsoSala1Activa && camActual === 1) {
+          videoAnimAlonsoS1.style.display = "block";
+        } else {
+          videoAnimAlonsoS1.style.display = "none";
+        }
+      }
       if (camaraFallo) {
         vistaCam.style.backgroundImage = "url('assets/imagenes/menu/glitch.gif')";
         vistaCam.style.filter = "none";
@@ -714,10 +768,25 @@
     }
 
     // linterna: mantener clic o touch sobre la camara
-    vistaCam.addEventListener("mousedown", function () { if (energia > 0) { linterna = true; actualizarCamara(); } });
+    vistaCam.addEventListener("mousedown", function () { 
+      if (energia > 0) { 
+        linterna = true; 
+        var aLin = document.getElementById("audio-linterna");
+        if (aLin) { aLin.currentTime = 0; aLin.play().catch(function(){}); }
+        actualizarCamara(); 
+      } 
+    });
     vistaCam.addEventListener("mouseup", function () { linterna = false; actualizarCamara(); });
     vistaCam.addEventListener("mouseleave", function () { linterna = false; actualizarCamara(); });
-    vistaCam.addEventListener("touchstart", function (e) { e.preventDefault(); if (energia > 0) { linterna = true; actualizarCamara(); } });
+    vistaCam.addEventListener("touchstart", function (e) { 
+      e.preventDefault(); 
+      if (energia > 0) { 
+        linterna = true; 
+        var aLin = document.getElementById("audio-linterna");
+        if (aLin) { aLin.currentTime = 0; aLin.play().catch(function(){}); }
+        actualizarCamara(); 
+      } 
+    });
     vistaCam.addEventListener("touchend", function (e) { e.preventDefault(); linterna = false; actualizarCamara(); });
 
     // =============================================
@@ -745,7 +814,7 @@
         segMirandoAlonso = 0;
         energia -= 2;
         if (energia < 0) energia = 0;
-        textoEnergia.innerText = "energia: " + Math.floor(energia) + "%";
+        actualizarUIEnergia();
         mostrarSub("El aura de Alonso te ha quitado 2 de energia", 2500);
         if (energia <= 0) apagarTodo();
       }
@@ -810,7 +879,7 @@
           if (puertaCerrada) {
             energia -= 7;
             if (energia < 0) energia = 0;
-            textoEnergia.innerText = "energia: " + Math.floor(energia) + "%";
+            actualizarUIEnergia();
             mostrarSub("Alonso ha golpeado la puerta! Pierdes 7% de energia", 4000);
             if (energia <= 0) apagarTodo();
 
@@ -824,6 +893,32 @@
             iniciarScreamer();
           }
         }, delayExtra);
+        return;
+      }
+
+      // si alonso sale de sala 1, reproducir la animacion en cam 1 (sin bloquear el movimiento)
+      if (alonsoPos === 1) {
+        var videoAnimS1 = document.getElementById("video-animacion-alonso-sala1");
+        if (videoAnimS1) {
+          animacionAlonsoSala1Activa = true;
+          // alonso avanza de inmediato, el video es solo visual
+          alonsoPos = siguiente;
+          actualizarEfectosCam4();
+          if (panelCamaras.style.display === "block") actualizarCamara();
+
+          videoAnimS1.currentTime = 0;
+          videoAnimS1.play().catch(function () { });
+          videoAnimS1.onended = function () {
+            animacionAlonsoSala1Activa = false;
+            videoAnimS1.style.display = "none";
+            distorsionCamara();
+            if (panelCamaras.style.display === "block") actualizarCamara();
+          };
+        } else {
+          alonsoPos = siguiente;
+          actualizarEfectosCam4();
+          if (panelCamaras.style.display === "block") actualizarCamara();
+        }
         return;
       }
 
@@ -863,7 +958,7 @@
           if (alonsoPos === 4) {
             energia -= 7;
             if (energia < 0) energia = 0;
-            textoEnergia.innerText = "energia: " + Math.floor(energia) + "%";
+            actualizarUIEnergia();
             mostrarSub("Alonso estaba en la puerta y la golpeo! Pierdes 7% de energia", 4000);
             if (energia <= 0) apagarTodo();
 
@@ -890,11 +985,11 @@
       var gasto = 0.01;
       if (panelCamaras.style.display === "block") gasto += 0.04;
       if (linterna) gasto += 0.08;
-      if (puertaCerrada) gasto += 0.25;
+      if (puertaCerrada) gasto += 1.5;
       if (alonsoRetenido) gasto += 0.08;
       energia -= gasto;
       if (energia < 0) energia = 0;
-      textoEnergia.innerText = "energia: " + Math.floor(energia) + "%";
+      actualizarUIEnergia();
       if (energia <= 0) apagarTodo();
     }, 1000);
 
@@ -902,12 +997,14 @@
     // apagon al quedarse sin energia
     // =============================================
     function apagarTodo() {
+      if (juegoTerminado) return;
+      
       panelCamaras.style.display = "none";
       videoPuerta.style.display = "none";
       videoPuerta.pause();
-      audioAlonso.pause();
+      if (audioAlonso) audioAlonso.pause();
       musicaTension.pause();
-      
+
       // detener musica de la caja y restaurar audios
       var audioCaja = document.getElementById("audio-caja");
       if (audioCaja) {
@@ -917,10 +1014,49 @@
       }
       linterna = false;
       puertaCerrada = false;
-      document.getElementById("btn-puerta").style.display = "none";
-      document.getElementById("btn-camaras").style.display = "none";
-      document.body.style.backgroundImage = "none";
-      document.body.style.backgroundColor = "black";
+
+      // Efecto de "luz pobre" y parpadeo en lugar de negro total
+      document.body.style.transition = "filter 2s";
+      document.body.style.filter = "brightness(0.05) contrast(1.2)";
+
+      // Iniciar un pequeño parpadeo residual de la luz de la oficina
+      var flickerApagon = setInterval(function() {
+        if (juegoTerminado) {
+          clearInterval(flickerApagon);
+          return;
+        }
+        var b = 0.02 + Math.random() * 0.08;
+        document.body.style.filter = "brightness(" + b + ") contrast(1.2)";
+      }, 150);
+
+      // Secuencia de audios
+      var pwrDown = document.getElementById("audio-powerdown");
+      var lzOut = document.getElementById("audio-sevalaluz");
+
+      if (pwrDown) {
+        pwrDown.play().catch(function () { });
+        pwrDown.onended = function () {
+          if (lzOut) {
+            lzOut.play().catch(function () { });
+            
+            // El screamer salta DURANTE la música de "se va la luz"
+            // (entre 4 y 8 segundos después de empezar la música)
+            var tiempoParaSusto = 4000 + Math.random() * 4000;
+            setTimeout(function () {
+              if (!juegoTerminado) {
+                iniciarScreamer();
+              }
+            }, tiempoParaSusto);
+          } else {
+            setTimeout(function() { iniciarScreamer(); }, 2000);
+          }
+        };
+      } else {
+        // Fallback
+        setTimeout(function () {
+          iniciarScreamer();
+        }, 3000);
+      }
     }
 
     // =============================================
@@ -1007,7 +1143,7 @@
     // =============================================
     setInterval(function () {
       if (juegoTerminado || energia <= 0 || alonsoPos === 4) return;
-      
+
       // Probabilidad dinamica: 15% base, 30% a partir de las 4 AM
       var probLuz = (hora >= 4) ? 0.30 : 0.15;
 
@@ -1048,20 +1184,7 @@
       }
     }, 15000);
 
-    // =============================================
-    // alucinacion de sombra aleatoria en la oficina
-    // =============================================
-    setInterval(function () {
-      if (juegoTerminado || energia <= 0 || panelCamaras.style.display === "block") return;
-      // 3% de probabilidad cada 10 segundos
-      if (Math.random() < 0.03) {
-        var sombra = document.getElementById("sombra-alucinacion");
-        sombra.style.display = "block";
-        setTimeout(function () {
-          sombra.style.display = "none";
-        }, 400 + Math.random() * 800);
-      }
-    }, 10000);
+
 
     // =============================================
     // glitch de mensajes en camaras (5 AM)
@@ -1125,12 +1248,12 @@
       // 30% de probabilidad cada 2 minutos
       if (Math.random() < 0.3) {
         camaraBloqueada = Math.floor(Math.random() * 4) + 1; // elige una camara 1-4
-        
+
         // alternar entre varios sonidos de terror
         var listaSonidos = ["audio-demonio", "audio-pasos-corriendo", "audio-risa", "audio-respiracion-fnaf"];
         var idAzar = listaSonidos[Math.floor(Math.random() * listaSonidos.length)];
         var a = document.getElementById(idAzar);
-        
+
         if (a) {
           a.currentTime = 0;
           a.play().catch(function () { });
@@ -1223,6 +1346,22 @@
       }
     }, 4000);
 
+    // =============================================
+    // Parpadeo de linterna (baja energia < 30%)
+    // =============================================
+    setInterval(function () {
+      if (juegoTerminado || energia <= 0 || camaraFallo || (typeof camaraBloqueada !== 'undefined' && camaraBloqueada !== 0)) return;
+
+      if (linterna && energia < 30) {
+        // Generar un parpadeo aleatorio si la energia es baja
+        var b = 0.2 + Math.random() * 0.9;
+        vistaCam.style.filter = "brightness(" + b + ")";
+      } else if (linterna && energia >= 30) {
+        if (vistaCam.style.filter.includes("brightness")) {
+          vistaCam.style.filter = "none";
+        }
+      }
+    }, 60);
 
   </script>
 
