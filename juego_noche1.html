@@ -265,12 +265,30 @@
     style="display:none; position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover; z-index:5; pointer-events:none;">
   </video>
 
+  <!-- video de golpes en la puerta -->
+  <video id="video-golpes" src="assets/videos/golpes en la puerta.mp4" playsinline
+    style="display:none; position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover; z-index:6; pointer-events:none;">
+  </video>
+  <video id="video-golpes-2" src="assets/videos/golpes en la puerta 2 .mp4" playsinline
+    style="display:none; position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover; z-index:6; pointer-events:none;">
+  </video>
+
   <div id="pantalla-flashes"
     style="display:none; position:absolute; top:0; left:0; width:100%; height:100%; background:black; opacity:0; z-index:95; pointer-events:none;">
   </div>
 
   <!-- screamer de german -->
   <video id="video-screamer" src="assets/videos/SCREAMER GERMAN.mp4" playsinline webkit-playsinline
+    style="display:none; position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover; z-index:90;">
+  </video>
+
+  <!-- screamer de german numero 2 -->
+  <video id="video-screamer-2" src="assets/videos/screamer german numero 2.mp4" playsinline webkit-playsinline
+    style="display:none; position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover; z-index:90;">
+  </video>
+
+  <!-- screamer especial sin energia puerta cerrada -->
+  <video id="video-screamer-especial" src="assets/videos/sin energia puerta cerrada.mp4" playsinline webkit-playsinline
     style="display:none; position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover; z-index:90;">
   </video>
 
@@ -468,7 +486,7 @@
     function desbloquearMedia() {
       if (mediaDesbloqueada) return;
       mediaDesbloqueada = true;
-      [videoScreamer, audioGameover, audioGerman, videoPuerta, musicaTension, document.getElementById("audio-pasos-corriendo"), document.getElementById("audio-risa"), document.getElementById("audio-demonio"), document.getElementById("audio-respiracion-amb"), document.getElementById("audio-powerdown"), document.getElementById("audio-sevalaluz"), document.getElementById("audio-linterna")].forEach(function (m) {
+      [videoScreamer, document.getElementById("video-screamer-2"), document.getElementById("video-screamer-especial"), document.getElementById("video-golpes"), document.getElementById("video-golpes-2"), audioGameover, audioGerman, videoPuerta, musicaTension, document.getElementById("audio-pasos-corriendo"), document.getElementById("audio-risa"), document.getElementById("audio-demonio"), document.getElementById("audio-respiracion-amb"), document.getElementById("audio-powerdown"), document.getElementById("audio-sevalaluz"), document.getElementById("audio-linterna")].forEach(function (m) {
         if (!m) return;
         m.muted = true;
         var p = m.play();
@@ -493,13 +511,16 @@
     // funcion para iniciar el screamer de german
     // oculta todo, reproduce el video con luces y luego muestra el game over
     // =============================================
-    function iniciarScreamer(mensaje) {
-      if (juegoTerminado) return;
+    function iniciarScreamer(mensaje, usarEspecial) {
+      if (juegoTerminado && !usarEspecial) return;
       juegoTerminado = true;
       // Restablecer filtros para que el screamer se vea bien (no oscuro)
       document.body.style.filter = "none";
       cerrarCamaras();
-      detenerAudiosApagon();
+      // Solo detener audios de apagon si NO es el screamer especial (puerta cerrada)
+      if (!usarEspecial) {
+        detenerAudiosApagon();
+      }
       document.getElementById("ui-botones").style.display = "none";
       document.getElementById("texto-hora").style.display = "none";
       document.getElementById("texto-noche").style.display = "none";
@@ -512,14 +533,23 @@
         document.getElementById("mensaje-gameover").innerText = "german ha entrado a la oficina...";
       }
 
+      // elegir screamer aleatorio (solo si no es por falta de energia)
+      var vid = videoScreamer;
+      if (usarEspecial) {
+        vid = document.getElementById("video-screamer-especial");
+      } else if (mensaje !== "te has quedado sin energia..." && Math.random() < 0.5) {
+        vid = document.getElementById("video-screamer-2");
+      }
+
       // reproducir screamer
-      videoScreamer.style.display = "block";
-      videoScreamer.currentTime = 0;
-      videoScreamer.play().catch(function () { });
+      vid.style.display = "block";
+      vid.currentTime = 0;
+      vid.play().catch(function () { });
 
       // al terminar el screamer, mostrar game over y reproducir musica
-      videoScreamer.onended = function () {
-        videoScreamer.style.display = "none";
+      vid.onended = function () {
+        detenerAudiosApagon();
+        vid.style.display = "none";
 
         gameOverDiv.style.display = "flex";
         audioGameover.currentTime = 0;
@@ -532,6 +562,25 @@
       var lzOut = document.getElementById("audio-sevalaluz");
       if (pwrDown) { pwrDown.pause(); pwrDown.currentTime = 0; }
       if (lzOut) { lzOut.pause(); lzOut.currentTime = 0; }
+    }
+
+    function reproducirGolpes() {
+      var v1 = document.getElementById("video-golpes");
+      var v2 = document.getElementById("video-golpes-2");
+      if (!v1 || !v2) return null;
+
+      var vid = (Math.random() < 0.5) ? v1 : v2;
+      vid.style.display = "block";
+      vid.currentTime = 0;
+      vid.loop = true; // Loopear para que dure lo necesario
+      vid.play().catch(function () { });
+
+      // Retornar funcion para detener el video
+      return function () {
+        vid.pause();
+        vid.style.display = "none";
+        vid.loop = false;
+      };
     }
 
     // =============================================
@@ -584,6 +633,7 @@
     // =============================================
     function getImg(sala, usarLinterna) {
       if (sala === germanPos) {
+        // Usar la imagen de German en la oscuridad para que su presencia sea real pero oculta
         return usarLinterna ? escGerman[sala].lin : escGerman[sala].osc;
       }
       return usarLinterna ? escBase[sala].lin : escBase[sala].osc;
@@ -593,6 +643,9 @@
     // distorsion de camara al terminar una animacion de german
     // =============================================
     function distorsionCamara() {
+      // Solo mostrar el glitch si el jugador tiene las camaras subidas
+      if (panelCamaras.style.display !== "block") return;
+
       var estatica = document.getElementById("pantalla-estatica");
       if (!estatica) return;
       estatica.style.display = "block";
@@ -640,7 +693,17 @@
         btnAudio.style.display = "none";
         return;
       }
-      vistaCam.style.filter = "none";
+      // Aplicar filtro de oscuridad dinamico (mas oscuro en salas lejanas)
+      var brilloBase = 0.35;
+      if (camActual === 3) brilloBase = 0.32;
+      if (camActual === 4) brilloBase = 0.25;
+
+      var filtroOscuridad = linterna ? "none" : "brightness(" + brilloBase + ") contrast(1.1)";
+
+      vistaCam.style.filter = filtroOscuridad;
+      if (videoAnimGerman) videoAnimGerman.style.filter = filtroOscuridad;
+      if (videoAnimGermanS2) videoAnimGermanS2.style.filter = filtroOscuridad;
+
       vistaCam.style.backgroundImage = "url('" + getImg(camActual, linterna) + "')";
       // mostrar boton audio solo en la camara de german y sin cooldown
       if (camActual === germanPos && !audioEnCooldown) {
@@ -689,24 +752,24 @@
     }
 
     // linterna: mantener clic o touch sobre la camara
-    vistaCam.addEventListener("mousedown", function () { 
-      if (energia > 0) { 
-        linterna = true; 
+    vistaCam.addEventListener("mousedown", function () {
+      if (energia > 0) {
+        linterna = true;
         var aLin = document.getElementById("audio-linterna");
-        if (aLin) { aLin.currentTime = 0; aLin.play().catch(function(){}); }
-        actualizarCamara(); 
-      } 
+        if (aLin) { aLin.currentTime = 0; aLin.play().catch(function () { }); }
+        actualizarCamara();
+      }
     });
     vistaCam.addEventListener("mouseup", function () { linterna = false; actualizarCamara(); });
     vistaCam.addEventListener("mouseleave", function () { linterna = false; actualizarCamara(); });
-    vistaCam.addEventListener("touchstart", function (e) { 
-      e.preventDefault(); 
-      if (energia > 0) { 
-        linterna = true; 
+    vistaCam.addEventListener("touchstart", function (e) {
+      e.preventDefault();
+      if (energia > 0) {
+        linterna = true;
         var aLin = document.getElementById("audio-linterna");
-        if (aLin) { aLin.currentTime = 0; aLin.play().catch(function(){}); }
-        actualizarCamara(); 
-      } 
+        if (aLin) { aLin.currentTime = 0; aLin.play().catch(function () { }); }
+        actualizarCamara();
+      }
     });
     vistaCam.addEventListener("touchend", function (e) { e.preventDefault(); linterna = false; actualizarCamara(); });
 
@@ -781,34 +844,12 @@
     // ruta: sala1 -> sala2 -> sala3 -> sala4 -> oficina
     // al llegar a sala4 y la puerta esta cerrada, se va a sala aleatoria
     // =============================================
+    // Movimiento normal de German (Sala 1 -> 2 -> 3 -> 4) cada 10s
     setInterval(function () {
-      if (germanRetenido || energia <= 0 || juegoTerminado || animacionGermanActiva) return;
+      if (germanRetenido || energia <= 0 || juegoTerminado || animacionGermanActiva || germanPos >= 4) return;
       if (Math.random() > probabilidadGerman) return;
 
       var siguiente = germanPos + 1;
-
-      // german intenta llegar a la oficina (sala5 = oficina para el)
-      if (siguiente > 4) {
-        if (puertaCerrada) {
-          // puerta cerrada: german golpea la puerta y drena energia
-          energia -= 5;
-          if (energia < 0) energia = 0;
-          actualizarUIEnergia();
-          mostrarSub("German ha golpeado la puerta! Pierdes 5% de energia", 4000);
-          if (energia <= 0) apagarTodo();
-
-          var salaRandom = Math.floor(Math.random() * 3) + 1; // 1, 2 o 3
-          setTimeout(function () {
-            germanPos = salaRandom;
-            actualizarEfectosCam4();
-            if (panelCamaras.style.display === "block") actualizarCamara();
-          }, 2000);
-        } else {
-          // puerta abierta: inicia el screamer de german
-          iniciarScreamer();
-        }
-        return;
-      }
 
       // si german sale de sala 1, reproducir la animacion en cam 1
       if (germanPos === 1) {
@@ -882,6 +923,52 @@
 
     }, 10000);
 
+    setInterval(function () {
+      if (germanPos !== 4 || germanRetenido || energia <= 0 || juegoTerminado) return;
+
+      // Reproducir sonido de pasos para avisar del ataque inminente
+      var audioPasos = document.getElementById("audio-pasos-corriendo");
+      if (audioPasos) {
+        audioPasos.currentTime = 0;
+        audioPasos.play().catch(function () { });
+      }
+
+      // Dar una ventana de 2 segundos para reaccionar y cerrar la puerta
+      setTimeout(function () {
+        if (germanPos !== 4 || germanRetenido || energia <= 0 || juegoTerminado) return;
+
+        if (puertaCerrada) {
+          // Si la puerta ya esta cerrada, German choca inmediatamente
+          var detenerV = reproducirGolpes();
+
+          // drena energia y se va
+          energia -= 5;
+          if (energia < 0) energia = 0;
+          actualizarUIEnergia();
+          mostrarSub("German ha golpeado la puerta! Pierdes 5% de energia", 4000);
+          if (energia <= 0) apagarTodo();
+
+          var salaRandom = Math.floor(Math.random() * 3) + 1; // 1, 2 o 3
+          setTimeout(function () {
+            germanPos = salaRandom;
+            actualizarEfectosCam4();
+            if (panelCamaras.style.display === "block") actualizarCamara();
+
+            // Detener los golpes 1 segundo despues de que se haya ido
+            setTimeout(function () {
+              if (detenerV) detenerV();
+            }, 1000);
+          }, 2000);
+        } else if (animandoPuerta) {
+          // Si se esta cerrando, no hacemos nada aqui.
+          // La funcion togglePuerta() se encargara de German cuando el video termine.
+        } else {
+          // puerta abierta y sin cerrar: inicia the screamer (muerte)
+          iniciarScreamer();
+        }
+      }, 2000);
+    }, 13000);
+
     // =============================================
     // puerta: cierre con video y apertura
     // =============================================
@@ -902,6 +989,9 @@
           btnPuerta.innerText = "Abrir Puerta";
           // si german esta en sala4 cuando cierras, se va y golpea la puerta
           if (germanPos === 4) {
+            // Efecto visual de golpes
+            var detenerV = reproducirGolpes();
+
             energia -= 5;
             if (energia < 0) energia = 0;
             actualizarUIEnergia();
@@ -913,6 +1003,11 @@
               germanPos = salaRandom;
               actualizarEfectosCam4();
               if (panelCamaras.style.display === "block") actualizarCamara();
+
+              // Detener los golpes 1 segundo despues de que se haya ido
+              setTimeout(function () {
+                if (detenerV) detenerV();
+              }, 1000);
             }, 2000);
           }
         };
@@ -931,7 +1026,7 @@
       var gasto = 0.01;
       if (panelCamaras.style.display === "block") gasto += 0.02;
       if (linterna) gasto += 0.05;
-      if (puertaCerrada) gasto += 1.5;
+      if (puertaCerrada || animandoPuerta) gasto += 0.75;
       if (germanRetenido) gasto += 0.05;
       energia -= gasto;
       if (energia < 0) energia = 0;
@@ -944,7 +1039,10 @@
     // =============================================
     function apagarTodo() {
       if (juegoTerminado) return;
-      
+      mostrarSub("¡No tienes energía!", 4000);
+
+      var murioConPuertaCerrada = puertaCerrada || animandoPuerta;
+
       panelCamaras.style.display = "none";
       videoPuerta.style.display = "none";
       videoPuerta.pause();
@@ -952,13 +1050,14 @@
       musicaTension.pause();
       linterna = false;
       puertaCerrada = false;
+      animandoPuerta = false;
 
       // Efecto de "luz pobre" y parpadeo en lugar de negro total
       document.body.style.transition = "filter 2s";
       document.body.style.filter = "brightness(0.05) contrast(1.2)";
 
       // Iniciar un pequeño parpadeo residual de la luz de la oficina
-      var flickerApagon = setInterval(function() {
+      var flickerApagon = setInterval(function () {
         if (juegoTerminado) {
           clearInterval(flickerApagon);
           return;
@@ -976,17 +1075,19 @@
         pwrDown.onended = function () {
           if (lzOut) {
             lzOut.play().catch(function () { });
-            
+
             // El screamer salta DURANTE la música de "se va la luz"
             // (entre 4 y 8 segundos después de empezar la música)
             var tiempoParaSusto = 4000 + Math.random() * 4000;
             setTimeout(function () {
               if (!juegoTerminado) {
-                iniciarScreamer("te has quedado sin energia...");
+                iniciarScreamer("te has quedado sin energia...", murioConPuertaCerrada);
               }
             }, tiempoParaSusto);
           } else {
-            setTimeout(function() { iniciarScreamer("te has quedado sin energia..."); }, 2000);
+            setTimeout(function () {
+              iniciarScreamer("te has quedado sin energia...", murioConPuertaCerrada);
+            }, 3000);
           }
         };
       } else {
@@ -1012,7 +1113,15 @@
         document.getElementById("texto-hora").style.display = "none";
         document.getElementById("texto-noche").style.display = "none";
         document.getElementById("texto-energia").style.display = "none";
-        musicaTension.pause();
+        
+        // Detener todos los audios y otros videos para que solo suene el de ganar
+        document.querySelectorAll("audio, video").forEach(function (m) {
+          if (m.id !== "video-ganar") {
+            m.pause();
+            m.currentTime = 0;
+            if (m.tagName === "VIDEO") m.style.display = "none";
+          }
+        });
 
         // reproducir video ganar
         var videoGanar = document.getElementById("video-ganar");
