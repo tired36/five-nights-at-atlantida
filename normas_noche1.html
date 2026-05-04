@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8">
   <title>Normas - Noche 1</title>
@@ -13,7 +14,16 @@
       padding-top: 50px;
       animation: fadeIn 2s;
     }
-    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+
+      to {
+        opacity: 1;
+      }
+    }
 
     .lore-container {
       max-width: 800px;
@@ -41,27 +51,33 @@
       letter-spacing: 2px;
       transition: all 0.3s;
     }
-    button:hover { background: white; color: black; }
+
+    button:hover {
+      background: white;
+      color: black;
+    }
   </style>
 </head>
+
 <body>
 
   <div class="lore-container">
     <h2>NORMAS DE SEGURIDAD</h2>
-    <img src="assets/imagenes/lore/NORMAS.jpg" alt="normas del juego" class="lore-image">
+    <img src="assets/imagenes/lore/NORMAS_1.jpg" alt="normas del juego" class="lore-image">
     <button onclick="window.location.href='juego_noche1.html'">AVANZAR</button>
   </div>
 
   <script>
     // musica de tension en bucle (se mantiene la misma para continuidad)
-    var musica = new Audio("assets/musica/tension carta.mp3");
+    var musica = new Audio("assets/musica/tension_carta.mp3");
     musica.volume = 0.5;
-    musica.play().catch(function() {});
-    musica.addEventListener("ended", function() {
+    musica.play().catch(function () { });
+    musica.addEventListener("ended", function () {
       musica.currentTime = 0;
-      musica.play().catch(function() {});
+      musica.play().catch(function () { });
     });
   </script>
 
 </body>
+
 </html>

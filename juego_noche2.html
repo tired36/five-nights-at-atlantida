@@ -144,12 +144,6 @@
       font-weight: bold;
     }
 
-    /* camara de alonso resaltada en rojo */
-    .btn-cam.alonso {
-      border-color: #ff4444;
-      color: #ff4444;
-    }
-
     #btn-bajar-cam {
       position: absolute;
       bottom: 30px;
@@ -261,6 +255,67 @@
       background: white;
       color: black;
     }
+
+    /* animacion de respiracion visual */
+    @keyframes visualBreathing {
+      0% {
+        opacity: 0;
+      }
+
+      50% {
+        opacity: 0.25;
+      }
+
+      100% {
+        opacity: 0;
+      }
+    }
+
+    .efecto-respiracion {
+      animation: visualBreathing 4s ease-in-out infinite;
+    }
+
+    /* efecto glitch para la caja de musica */
+    @keyframes glitchCaja {
+      0% {
+        filter: none;
+        transform: translate(0);
+      }
+
+      10% {
+        filter: hue-rotate(90deg) brightness(1.5);
+        transform: translate(2px, -2px);
+      }
+
+      20% {
+        filter: invert(0.2) contrast(2);
+        transform: translate(-2px, 2px);
+      }
+
+      30% {
+        filter: none;
+        transform: translate(0);
+      }
+
+      40% {
+        filter: saturate(5) blur(1px);
+        transform: translate(3px, 1px);
+      }
+
+      50% {
+        filter: none;
+        transform: translate(0);
+      }
+
+      100% {
+        filter: none;
+        transform: translate(0);
+      }
+    }
+
+    .glitch-caja-activa {
+      animation: glitchCaja 0.3s infinite !important;
+    }
   </style>
 </head>
 
@@ -269,6 +324,14 @@
   <!-- video del porton bajando -->
   <video id="video-puerta" src="assets/videos/video_porton_bajando.mp4" playsinline webkit-playsinline
     style="display:none; position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover; z-index:5; pointer-events:none;">
+  </video>
+
+  <!-- video de golpes en la puerta -->
+  <video id="video-golpes" src="assets/videos/golpes_en_la_puerta.mp4" playsinline
+    style="display:none; position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover; z-index:6; pointer-events:none;">
+  </video>
+  <video id="video-golpes-2" src="assets/videos/golpes_en_la_puerta_2.mp4" playsinline
+    style="display:none; position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover; z-index:6; pointer-events:none;">
   </video>
 
   <!-- screamer de alonso -->
@@ -284,16 +347,55 @@
   <div id="pantalla-flashes"
     style="display:none; position:absolute; top:0; left:0; width:100%; height:100%; background:white; opacity:0; z-index:95; pointer-events:none;">
   </div>
+
+  <div id="pantalla-parpadeo"
+    style="display:none; position:absolute; top:0; left:0; width:100%; height:100%; background:black; opacity:0; z-index:96; pointer-events:none;">
+  </div>
+  <div id="pantalla-respiracion"
+    style="display:none; position:absolute; top:0; left:0; width:100%; height:100%; background:black; opacity:0; z-index:97; pointer-events:none;">
+  </div>
+
+  <!-- estatica al cerrar camaras / distorsion de animacion -->
+  <div id="pantalla-estatica"
+    style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background: url('assets/imagenes/menu/glitch.gif') center/cover no-repeat; z-index:150; pointer-events:none; opacity: 0.8;">
+  </div>
+
   <audio id="audio-gameover" src="assets/musica/musica_mickey.mp4"></audio>
 
   <!-- audio de alonso para la mecanica de retencion -->
   <audio id="audio-alonso" src="assets/musica/audioalonso.mp3" preload="auto"></audio>
 
+  <!-- audio de pasos cuando llega a camara 4 -->
+  <audio id="audio-pasos" src="assets/musica/pasos.mp3" preload="auto"></audio>
+
   <!-- musica de fondo: tension -->
-  <audio id="musica-tension" src="assets/musica/TENSION.mp3" loop></audio>
+  <audio id="musica-tension" src="assets/musica/sonido_de_fondo.mp3" loop></audio>
+
+  <!-- audio de alonso respirando -->
+  <audio id="audio-respiracion" src="assets/musica/respiracion_alonso.mp3" loop preload="auto"></audio>
+
+  <!-- audio de pasos corriendo para cuando falla la camara -->
+  <audio id="audio-pasos-corriendo" src="assets/musica/PASOS_CORRIENDO.mp3" preload="auto"></audio>
+
+  <!-- audio de risa de nino ambiente -->
+  <audio id="audio-risa" src="assets/musica/risa_de_niño.mp3" preload="auto"></audio>
+
+  <!-- audio de risa de demonio para bloqueo de camara -->
+  <audio id="audio-demonio" src="assets/musica/demonio_risa.mp3" preload="auto"></audio>
+
+  <!-- audio de respiracion alonso fnaf ambiental -->
+  <audio id="audio-respiracion-fnaf" src="assets/musica/RESPIRACION_ALONSO_fnaf.mp3" preload="auto"></audio>
+
+  <!-- audio de caja de musica de alonso -->
+  <audio id="audio-caja" src="assets/musica/caja_de_musica_de_alonso.mp3" preload="auto"></audio>
+
+  <!-- audios de falta de energia -->
+  <audio id="audio-powerdown" src="assets/musica/powerdown.mp3" preload="auto"></audio>
+  <audio id="audio-sevalaluz" src="assets/musica/se_va_la_luz.mp3" preload="auto"></audio>
+  <audio id="audio-linterna" src="assets/musica/linterna.mp3" preload="auto"></audio>
 
   <!-- ui de textos -->
-  <div id="texto-hora" class="ui-texto">12:00 AM</div>
+  <div id="texto-hora" class="ui-texto">12:00 PM</div>
   <div id="texto-noche" class="ui-texto">Noche 2</div>
   <div id="texto-energia" class="ui-texto">energia: 100%</div>
 
@@ -313,6 +415,11 @@
     <button id="btn-audio" onclick="usarAudio()">&#9834; Usar Audio</button>
     <div id="contador-retencion">Reteniendo: <span id="seg-retencion">20</span>s</div>
 
+    <!-- video de animacion de alonso saliendo de sala 1 -->
+    <video id="video-animacion-alonso-sala1" src="assets/videos/animaciones de camaras/alonsosala1.mp4" playsinline
+      style="display:none; position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover; z-index:22; pointer-events:none;">
+    </video>
+
     <!-- 4 salas: la sala 2 original ha sido eliminada -->
     <div id="lista-camaras">
       <button class="btn-cam activo" id="btn-cam-1" onclick="cambiarCam(1)">CAM 1</button>
@@ -329,9 +436,10 @@
 
   <!-- game over modificado con la imagen de alonso de pie -->
   <div id="pantalla-gameover" style="background-color: black;">
-    <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: url('assets/imagenes/escenarios/personajes/alonso/despues_screamer.png') center/contain no-repeat; z-index: -1;"></div>
+    <div
+      style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: url('assets/imagenes/escenarios/sala_principal/oficina.png') center/cover no-repeat; z-index: -1;">
+    </div>
     <h1 style="text-shadow: 2px 2px 5px black;">GAME OVER</h1>
-    <p style="text-shadow: 1px 1px 3px black; color: white; font-size: 24px;">alonso ha entrado a la oficina...</p>
     <div style="display: flex; gap: 20px; justify-content: center; margin-top: 20px;">
       <button onclick="window.location.href='juego_noche2.html'">volver a intentarlo</button>
       <button onclick="window.location.href='menu.html'">volver al menu</button>
@@ -339,15 +447,13 @@
   </div>
 
   <script>
-    // =============================================
     // 4 salas: 1, 2, 3, 4
     // imagenes base sin personaje
-    // =============================================
     var escBase = {
       1: { osc: "assets/imagenes/escenarios/sala1/sala1_oscura.jpeg", lin: "assets/imagenes/escenarios/sala1/sala1_linterna.jpeg" },
       2: { osc: "assets/imagenes/escenarios/sala2/sala2_oscura.jpeg", lin: "assets/imagenes/escenarios/sala2/sala2_linterna.png" },
-      3: { osc: "assets/imagenes/escenarios/sala3/sala3_oscura.png",  lin: "assets/imagenes/escenarios/sala3/sala3_linterna.png" },
-      4: { osc: "assets/imagenes/escenarios/sala4/sala4_oscura.png",  lin: "assets/imagenes/escenarios/sala4/sala4_linterna.png" }
+      3: { osc: "assets/imagenes/escenarios/sala3/sala3_oscura.png", lin: "assets/imagenes/escenarios/sala3/sala3_linterna.png" },
+      4: { osc: "assets/imagenes/escenarios/sala4/sala4_oscura.png", lin: "assets/imagenes/escenarios/sala4/sala4_linterna.png" }
     };
 
     // imagenes de alonso en cada sala (donde existen)
@@ -355,13 +461,11 @@
     var escAlonso = {
       1: { osc: "assets/imagenes/escenarios/personajes/alonso/sala1_oscura.jpeg", lin: "assets/imagenes/escenarios/personajes/alonso/sala1_linterna.png" },
       2: { osc: "assets/imagenes/escenarios/personajes/alonso/sala2_oscura.jpeg", lin: "assets/imagenes/escenarios/personajes/alonso/sala2_linterna.png" },
-      3: { osc: "assets/imagenes/escenarios/personajes/alonso/sala3_oscura.jpg",  lin: "assets/imagenes/escenarios/personajes/alonso/sala3_linterna.jpg" },
-      4: { osc: "assets/imagenes/escenarios/personajes/alonso/sala4_oscura.jpg",  lin: "assets/imagenes/escenarios/personajes/alonso/sala4_linterna.jpg" }
+      3: { osc: "assets/imagenes/escenarios/personajes/alonso/sala3_oscura.jpg", lin: "assets/imagenes/escenarios/personajes/alonso/sala3_linterna.jpg" },
+      4: { osc: "assets/imagenes/escenarios/personajes/alonso/sala4_oscura.jpg", lin: "assets/imagenes/escenarios/personajes/alonso/sala4_linterna.jpg" }
     };
 
-    // =============================================
     // estado del juego
-    // =============================================
     var camActual = 1;
     var linterna = false;
     var puertaCerrada = false;
@@ -380,9 +484,16 @@
     var hintAuraMostrado = false;
     var juegoTerminado = false;
 
-    // =============================================
+    // probabilidad de movimiento de alonso (se aumenta a las 5 AM)
+    var probabilidadAlonso = 0.6;
+    var camaraFallo = false;
+    var camaraBloqueada = 0; // camara especifica que queda inservible
+    var cajaMusicaActiva = false;
+    var camarasDestruidas = false; // fallo global a las 5 AM
+    // animacion de alonso saliendo de sala 1 (no bloquea el movimiento)
+    var animacionAlonsoSala1Activa = false;
+
     // referencias DOM
-    // =============================================
     var vistaCam = document.getElementById("vista-camara");
     var panelCamaras = document.getElementById("camaras");
     var videoPuerta = document.getElementById("video-puerta");
@@ -398,19 +509,31 @@
     var subTimer = null;
     var musicaTension = document.getElementById("musica-tension");
 
+    function actualizarUIEnergia() {
+      if (!textoEnergia) return;
+      textoEnergia.innerText = "energia: " + Math.floor(energia) + "%";
+      if (energia < 20) {
+        textoEnergia.style.color = "#ff0000";
+        textoEnergia.style.fontWeight = "bold";
+        textoEnergia.style.textShadow = "0 0 10px red";
+      } else {
+        textoEnergia.style.color = "white";
+        textoEnergia.style.fontWeight = "normal";
+        textoEnergia.style.textShadow = "none";
+      }
+    }
+
     // referencias para el screamer
     var videoScreamer = document.getElementById("video-screamer");
     var pantallaFlashes = document.getElementById("pantalla-flashes");
     var audioGameover = document.getElementById("audio-gameover");
 
-    // =============================================
     // desbloqueo de media para moviles y navegadores estrictos
-    // =============================================
     var mediaDesbloqueada = false;
     function desbloquearMedia() {
       if (mediaDesbloqueada) return;
       mediaDesbloqueada = true;
-      [videoScreamer, audioGameover, audioAlonso, videoPuerta, musicaTension].forEach(function (m) {
+      [videoScreamer, document.getElementById("video-golpes"), document.getElementById("video-golpes-2"), audioGameover, audioAlonso, videoPuerta, musicaTension, document.getElementById("audio-respiracion"), document.getElementById("audio-pasos-corriendo"), document.getElementById("audio-risa"), document.getElementById("audio-demonio"), document.getElementById("audio-respiracion-fnaf"), document.getElementById("audio-caja"), document.getElementById("audio-powerdown"), document.getElementById("audio-sevalaluz"), document.getElementById("audio-linterna")].forEach(function (m) {
         if (!m) return;
         m.muted = true;
         var p = m.play();
@@ -431,23 +554,41 @@
     document.addEventListener("click", desbloquearMedia, { once: true });
     document.addEventListener("touchstart", desbloquearMedia, { once: true });
 
-    // =============================================
     // funcion para iniciar el screamer de alonso
     // oculta todo, reproduce el video con luces y luego muestra el game over
-    // =============================================
-    function iniciarScreamer() {
-      if (juegoTerminado) return;
+    function iniciarScreamer(mensaje, usarEspecial) {
+      if (juegoTerminado && !usarEspecial) return;
       juegoTerminado = true;
+      // Restablecer filtros para que el screamer se vea bien (no oscuro)
+      document.body.style.filter = "none";
       cerrarCamaras();
+      // Solo detener audios de apagon si NO es el screamer especial (puerta cerrada)
+      if (!usarEspecial) {
+        detenerAudiosApagon();
+      }
       document.getElementById("ui-botones").style.display = "none";
       document.getElementById("texto-hora").style.display = "none";
       document.getElementById("texto-noche").style.display = "none";
       document.getElementById("texto-energia").style.display = "none";
 
+      // elegir screamer (normal o especial)
+      var vid = videoScreamer;
+      if (usarEspecial) {
+        vid = document.getElementById("video-screamer-especial");
+      }
+
       // reproducir screamer
-      videoScreamer.style.display = "block";
-      videoScreamer.currentTime = 0;
-      videoScreamer.play().catch(function () { });
+      vid.style.display = "block";
+      vid.currentTime = 0;
+      vid.play().catch(function () { });
+
+      // parar la musica de la caja si esta sonando y restaurar audios
+      var audioCaja = document.getElementById("audio-caja");
+      if (audioCaja) {
+        audioCaja.pause();
+        var todosAudios = document.querySelectorAll('audio');
+        todosAudios.forEach(function (a) { a.muted = false; });
+      }
 
       // luces parpadeantes (flashes blancos)
       pantallaFlashes.style.display = "block";
@@ -456,10 +597,11 @@
       }, 50);
 
       // al terminar el screamer, mostrar game over y reproducir musica
-      videoScreamer.onended = function () {
+      vid.onended = function () {
+        detenerAudiosApagon();
         clearInterval(parpadeo);
         pantallaFlashes.style.display = "none";
-        videoScreamer.style.display = "none";
+        vid.style.display = "none";
 
         gameOverDiv.style.display = "flex";
         audioGameover.currentTime = 0;
@@ -467,9 +609,79 @@
       };
     }
 
-    // =============================================
+    function detenerAudiosApagon() {
+      var pwrDown = document.getElementById("audio-powerdown");
+      var lzOut = document.getElementById("audio-sevalaluz");
+      if (pwrDown) { pwrDown.pause(); pwrDown.currentTime = 0; }
+      if (lzOut) { lzOut.pause(); lzOut.currentTime = 0; }
+    }
+
+    function reproducirGolpes() {
+      var v1 = document.getElementById("video-golpes");
+      var v2 = document.getElementById("video-golpes-2");
+      if (!v1 || !v2) return null;
+
+      var vid = (Math.random() < 0.5) ? v1 : v2;
+      vid.style.display = "block";
+      vid.currentTime = 0;
+      vid.loop = true; // Loopear para que dure lo necesario
+      vid.play().catch(function () { });
+
+      // Retornar funcion para detener el video
+      return function () {
+        vid.pause();
+        vid.style.display = "none";
+        vid.loop = false;
+      };
+    }
+
+    // parpadeo de luces en la oficina (se mantiene mientras este en CAM 4)
+    var intervalParpadeo = null;
+    function actualizarEfectosCam4() {
+      var flash = document.getElementById("pantalla-parpadeo");
+      var respVisual = document.getElementById("pantalla-respiracion");
+      var audioResp = document.getElementById("audio-respiracion");
+
+      if (!flash || !respVisual || !audioResp) return;
+
+      if (alonsoPos === 4) {
+        // efecto parpadeo negro
+        if (!intervalParpadeo) {
+          flash.style.display = "block";
+          intervalParpadeo = setInterval(function () {
+            flash.style.opacity = (flash.style.opacity === "0" || flash.style.opacity === "") ? "0.4" : "0";
+          }, 100);
+
+          // reproducir audio de pasos al llegar
+          var audioPasos = document.getElementById("audio-pasos");
+          if (audioPasos) {
+            audioPasos.currentTime = 0;
+            audioPasos.play().catch(function () { });
+          }
+
+          // iniciar respiracion visual y sonora
+          respVisual.style.display = "block";
+          respVisual.classList.add("efecto-respiracion");
+          audioResp.volume = 0.6;
+          audioResp.play().catch(function () { });
+        }
+      } else {
+        if (intervalParpadeo) {
+          clearInterval(intervalParpadeo);
+          intervalParpadeo = null;
+          flash.style.display = "none";
+          flash.style.opacity = "0";
+
+          // detener respiracion visual y sonora
+          respVisual.style.display = "none";
+          respVisual.classList.remove("efecto-respiracion");
+          audioResp.pause();
+          audioResp.currentTime = 0;
+        }
+      }
+    }
+
     // muestra un subtitulo estilo netflix durante X segundos
-    // =============================================
     function mostrarSub(texto, duracion) {
       clearTimeout(subTimer);
       subtitulo.innerText = texto;
@@ -481,21 +693,65 @@
       }, duracion || 3000);
     }
 
-    // =============================================
     // devuelve la imagen correcta para la sala
     // si alonso esta ahi muestra la imagen con el
-    // =============================================
     function getImg(sala, usarLinterna) {
       if (sala === alonsoPos) {
+        // Usar la imagen de Alonso en la oscuridad para que su presencia sea real pero oculta
         return usarLinterna ? escAlonso[sala].lin : escAlonso[sala].osc;
       }
       return usarLinterna ? escBase[sala].lin : escBase[sala].osc;
     }
 
-    // =============================================
+    // distorsion de camara al terminar una animacion
+    function distorsionCamara() {
+      // Solo mostrar el glitch si el jugador tiene las camaras subidas
+      if (panelCamaras.style.display !== "block") return;
+
+      var estatica = document.getElementById("pantalla-estatica");
+      if (!estatica) return;
+      estatica.style.display = "block";
+      estatica.style.opacity = "1";
+      setTimeout(function () {
+        estatica.style.opacity = "0";
+        setTimeout(function () { estatica.style.display = "none"; }, 200);
+      }, 350);
+    }
+
     // actualiza la imagen de la camara y el boton de audio
-    // =============================================
     function actualizarCamara() {
+      // gestionar visibilidad del video de animacion de alonso (sala 1)
+      var videoAnimAlonsoS1 = document.getElementById("video-animacion-alonso-sala1");
+      if (videoAnimAlonsoS1) {
+        if (animacionAlonsoSala1Activa && camActual === 1) {
+          videoAnimAlonsoS1.style.display = "block";
+        } else {
+          videoAnimAlonsoS1.style.display = "none";
+        }
+      }
+      if (camaraFallo) {
+        vistaCam.style.backgroundImage = "url('assets/imagenes/menu/glitch.gif')";
+        vistaCam.style.filter = "none";
+        btnAudio.style.display = "none";
+        return;
+      }
+      if (camaraBloqueada === camActual) {
+        vistaCam.style.backgroundImage = "url('assets/imagenes/menu/glitch.gif')";
+        vistaCam.style.backgroundColor = "black";
+        vistaCam.style.filter = "brightness(0.1) contrast(1.5)";
+        btnAudio.style.display = "none";
+        return;
+      }
+      // Aplicar filtro de oscuridad dinamico (mas oscuro en salas lejanas)
+      var brilloBase = 0.35;
+      if (camActual === 3) brilloBase = 0.32;
+      if (camActual === 4) brilloBase = 0.22;
+
+      var filtroOscuridad = linterna ? "none" : "brightness(" + brilloBase + ") contrast(1.1)";
+
+      vistaCam.style.filter = filtroOscuridad;
+      if (videoAnimAlonsoS1) videoAnimAlonsoS1.style.filter = filtroOscuridad;
+
       vistaCam.style.backgroundImage = "url('" + getImg(camActual, linterna) + "')";
       // mostrar boton audio solo en la camara de alonso y sin cooldown
       if (camActual === alonsoPos && !audioEnCooldown) {
@@ -506,20 +762,9 @@
       }
     }
 
-    // =============================================
-    // resalta en rojo el boton de la camara donde esta alonso
-    // =============================================
-    function actualizarAlertas() {
-      for (var i = 1; i <= 4; i++) {
-        var b = document.getElementById("btn-cam-" + i);
-        if (i === alonsoPos) { b.classList.add("alonso"); }
-        else { b.classList.remove("alonso"); }
-      }
-    }
 
-    // =============================================
+
     // cambiar camara activa
-    // =============================================
     function cambiarCam(num) {
       camActual = num;
       linterna = false;
@@ -530,12 +775,19 @@
     }
 
     function abrirCamaras() {
-      if (energia <= 0) return;
+      if (energia <= 0 || camarasDestruidas) return;
       panelCamaras.style.display = "block";
       actualizarCamara();
     }
 
     function cerrarCamaras() {
+      // flash de estatica al bajar camaras para generar inseguridad
+      var estatica = document.getElementById("pantalla-estatica");
+      if (estatica) {
+        estatica.style.display = "block";
+        setTimeout(function () { estatica.style.display = "none"; }, 200);
+      }
+
       panelCamaras.style.display = "none";
       linterna = false;
       segMirandoAlonso = 0;
@@ -543,17 +795,30 @@
     }
 
     // linterna: mantener clic o touch sobre la camara
-    vistaCam.addEventListener("mousedown", function () { if (energia > 0) { linterna = true; actualizarCamara(); } });
+    vistaCam.addEventListener("mousedown", function () {
+      if (energia > 0) {
+        linterna = true;
+        var aLin = document.getElementById("audio-linterna");
+        if (aLin) { aLin.currentTime = 0; aLin.play().catch(function () { }); }
+        actualizarCamara();
+      }
+    });
     vistaCam.addEventListener("mouseup", function () { linterna = false; actualizarCamara(); });
     vistaCam.addEventListener("mouseleave", function () { linterna = false; actualizarCamara(); });
-    vistaCam.addEventListener("touchstart", function (e) { e.preventDefault(); if (energia > 0) { linterna = true; actualizarCamara(); } });
+    vistaCam.addEventListener("touchstart", function (e) {
+      e.preventDefault();
+      if (energia > 0) {
+        linterna = true;
+        var aLin = document.getElementById("audio-linterna");
+        if (aLin) { aLin.currentTime = 0; aLin.play().catch(function () { }); }
+        actualizarCamara();
+      }
+    });
     vistaCam.addEventListener("touchend", function (e) { e.preventDefault(); linterna = false; actualizarCamara(); });
 
-    // =============================================
     // aura de alonso: si llevas 10 segundos seguidos mirando su camara
     // te quita 8 de energia de golpe y el ciclo se repite
     // a los 7 segundos muestra un hint (solo la primera vez)
-    // =============================================
     setInterval(function () {
       // si no hay camaras abiertas o no miras a alonso, resetear
       if (panelCamaras.style.display !== "block" || camActual !== alonsoPos) {
@@ -569,20 +834,18 @@
         mostrarSub("Cuidado... si lo sigues mirando te quitara energia", 3000);
       }
 
-      // a los 10 segundos: drenar 5 de energia y reiniciar el ciclo
+      // a los 10 segundos: drenar 2 de energia y reiniciar el ciclo
       if (segMirandoAlonso >= 10) {
         segMirandoAlonso = 0;
-        energia -= 5;
+        energia -= 2;
         if (energia < 0) energia = 0;
-        textoEnergia.innerText = "energia: " + Math.floor(energia) + "%";
-        mostrarSub("El aura de Alonso te ha quitado 5 de energia", 2500);
+        actualizarUIEnergia();
+        mostrarSub("El aura de Alonso te ha quitado 2 de energia", 2500);
         if (energia <= 0) apagarTodo();
       }
     }, 1000);
 
-    // =============================================
     // mecanica de audio: retiene a alonso 15s, cooldown 25s
-    // =============================================
     function usarAudio() {
       if (audioEnCooldown || alonsoRetenido || energia <= 0) return;
 
@@ -615,50 +878,104 @@
       actualizarCamara();
     }
 
-    // =============================================
-    // movimiento de alonso: cada 7s tiene 40% de avanzar
+    // movimiento de alonso: cada 10s tiene 60% de avanzar
     // ruta: sala1 -> sala2 -> sala3 -> sala4 -> oficina
     // al llegar a sala4 y la puerta esta cerrada, se va a sala aleatoria
-    // =============================================
-    setInterval(function () {
+    function intentarMoverAlonso() {
       if (alonsoRetenido || energia <= 0 || juegoTerminado) return;
-      if (Math.random() > 0.4) return; // 60% de no hacer nada
+
+      // si la caja de musica esta activa, la probabilidad de exito es casi total
+      var probActual = cajaMusicaActiva ? 0.9 : probabilidadAlonso;
+      if (Math.random() > probActual) return;
 
       var siguiente = alonsoPos + 1;
 
-      // alonso intenta llegar a la oficina (sala5 = oficina para el)
       if (siguiente > 4) {
-        if (puertaCerrada) {
-          // puerta cerrada: alonso golpea la puerta y drena energia
-          energia -= 15;
-          if (energia < 0) energia = 0;
-          textoEnergia.innerText = "energia: " + Math.floor(energia) + "%";
-          mostrarSub("Alonso ha golpeado la puerta! Pierdes 15% de energia", 4000);
-          if (energia <= 0) apagarTodo();
+        // Reproducir sonido de pasos para avisar del ataque inminente
+        var audioPasos = document.getElementById("audio-pasos-corriendo");
+        if (audioPasos) {
+          audioPasos.currentTime = 0;
+          audioPasos.play().catch(function () { });
+        }
 
-          var salaRandom = Math.floor(Math.random() * 3) + 1; // 1, 2 o 3
-          setTimeout(function () {
-            alonsoPos = salaRandom;
-            actualizarAlertas();
+        // Damos al menos 2 segundos extra para reaccionar (o 3 si la musica esta activa)
+        var delayExtra = (cajaMusicaActiva) ? 3000 : 2000;
+
+        setTimeout(function () {
+          if (juegoTerminado || energia <= 0 || alonsoPos !== 4) return;
+
+          if (puertaCerrada) {
+            // Si la puerta ya esta cerrada, Alonso choca inmediatamente
+            var detenerV = reproducirGolpes();
+
+            energia -= 7;
+            if (energia < 0) energia = 0;
+            actualizarUIEnergia();
+            mostrarSub("Alonso ha golpeado la puerta! Pierdes 7% de energia", 4000);
+            if (energia <= 0) apagarTodo();
+
+            var salaRandom = Math.floor(Math.random() * 3) + 1;
+            setTimeout(function () {
+              alonsoPos = salaRandom;
+              actualizarEfectosCam4();
+              if (panelCamaras.style.display === "block") actualizarCamara();
+
+              // Detener los golpes 1 segundo despues de que se haya ido
+              setTimeout(function () {
+                if (detenerV) detenerV();
+              }, 1000);
+            }, 2000);
+          } else if (animandoPuerta) {
+            // Si se esta cerrando, no hacemos nada aqui.
+            // La funcion togglePuerta() se encargara de Alonso cuando el video termine.
+          } else {
+            iniciarScreamer();
+          }
+        }, delayExtra);
+        return;
+      }
+
+      // si alonso sale de sala 1, reproducir la animacion en cam 1 (sin bloquear el movimiento)
+      if (alonsoPos === 1) {
+        var videoAnimS1 = document.getElementById("video-animacion-alonso-sala1");
+        if (videoAnimS1) {
+          animacionAlonsoSala1Activa = true;
+          // alonso avanza de inmediato, el video es solo visual
+          alonsoPos = siguiente;
+          actualizarEfectosCam4();
+          if (panelCamaras.style.display === "block") actualizarCamara();
+
+          videoAnimS1.currentTime = 0;
+          videoAnimS1.play().catch(function () { });
+          videoAnimS1.onended = function () {
+            animacionAlonsoSala1Activa = false;
+            videoAnimS1.style.display = "none";
+            distorsionCamara();
             if (panelCamaras.style.display === "block") actualizarCamara();
-          }, 2000);
+          };
         } else {
-          // puerta abierta: inicia el screamer de alonso
-          iniciarScreamer();
+          alonsoPos = siguiente;
+          actualizarEfectosCam4();
+          if (panelCamaras.style.display === "block") actualizarCamara();
         }
         return;
       }
 
-      // alonso avanza a la siguiente sala
       alonsoPos = siguiente;
-      actualizarAlertas();
+      actualizarEfectosCam4();
       if (panelCamaras.style.display === "block") actualizarCamara();
+    }
 
-    }, 7000);
+    // bucle normal de movimiento (cada 10s)
+    setInterval(intentarMoverAlonso, 10000);
 
-    // =============================================
+    // bucle de agresividad extrema (cada 2s) solo activo con la caja de musica
+    setInterval(function () {
+      if (cajaMusicaActiva && alonsoPos !== 4) intentarMoverAlonso();
+    }, 2000);
+
+
     // puerta: cierre con video y apertura
-    // =============================================
     function togglePuerta() {
       if (energia <= 0 || animandoPuerta) return;
 
@@ -676,17 +993,25 @@
           btnPuerta.innerText = "Abrir Puerta";
           // si alonso esta en sala4 cuando cierras, se va y golpea la puerta
           if (alonsoPos === 4) {
-            energia -= 15;
+            // Efecto visual de golpes
+            var detenerV = reproducirGolpes();
+
+            energia -= 7;
             if (energia < 0) energia = 0;
-            textoEnergia.innerText = "energia: " + Math.floor(energia) + "%";
-            mostrarSub("Alonso estaba en la puerta y la golpeo! Pierdes 15% de energia", 4000);
+            actualizarUIEnergia();
+            mostrarSub("Alonso estaba en la puerta y la golpeo! Pierdes 7% de energia", 4000);
             if (energia <= 0) apagarTodo();
 
             var salaRandom = Math.floor(Math.random() * 3) + 1;
             setTimeout(function () {
               alonsoPos = salaRandom;
-              actualizarAlertas();
+              actualizarEfectosCam4();
               if (panelCamaras.style.display === "block") actualizarCamara();
+
+              // Detener los golpes 1 segundo despues de que se haya ido
+              setTimeout(function () {
+                if (detenerV) detenerV();
+              }, 1000);
             }, 2000);
           }
         };
@@ -697,48 +1022,93 @@
       }
     }
 
-    // =============================================
     // gasto de energia cada segundo (aumentado para noche 2)
-    // =============================================
     setInterval(function () {
       if (energia <= 0 || juegoTerminado) return;
-      var gasto = 0.05;
-      if (panelCamaras.style.display === "block") gasto += 0.1;
-      if (linterna) gasto += 0.2;
-      if (puertaCerrada) gasto += 0.6; // nerfeado de 1.0 a 0.6
-      if (alonsoRetenido) gasto += 0.2;
+      var gasto = 0.01;
+      if (panelCamaras.style.display === "block") gasto += 0.04;
+      if (linterna) gasto += 0.08;
+      if (puertaCerrada || animandoPuerta) gasto += 0.75;
+      if (alonsoRetenido) gasto += 0.08;
       energia -= gasto;
       if (energia < 0) energia = 0;
-      textoEnergia.innerText = "energia: " + Math.floor(energia) + "%";
+      actualizarUIEnergia();
       if (energia <= 0) apagarTodo();
     }, 1000);
 
-    // =============================================
     // apagon al quedarse sin energia
-    // =============================================
     function apagarTodo() {
+      if (juegoTerminado) return;
+      mostrarSub("¡No tienes energía!", 4000);
+
       panelCamaras.style.display = "none";
       videoPuerta.style.display = "none";
       videoPuerta.pause();
-      audioAlonso.pause();
+      if (audioAlonso) audioAlonso.pause();
       musicaTension.pause();
+
+      // detener musica de la caja y restaurar audios
+      var audioCaja = document.getElementById("audio-caja");
+      if (audioCaja) {
+        audioCaja.pause();
+        var todosAudios = document.querySelectorAll('audio');
+        todosAudios.forEach(function (a) { a.muted = false; });
+      }
       linterna = false;
       puertaCerrada = false;
-      document.getElementById("btn-puerta").style.display = "none";
-      document.getElementById("btn-camaras").style.display = "none";
-      document.body.style.backgroundImage = "none";
-      document.body.style.backgroundColor = "black";
+      animandoPuerta = false;
+
+      // Efecto de "luz pobre" y parpadeo en lugar de negro total
+      document.body.style.transition = "filter 2s";
+      document.body.style.filter = "brightness(0.05) contrast(1.2)";
+
+      // Iniciar un pequeño parpadeo residual de la luz de la oficina
+      var flickerApagon = setInterval(function () {
+        if (juegoTerminado) {
+          clearInterval(flickerApagon);
+          return;
+        }
+        var b = 0.02 + Math.random() * 0.08;
+        document.body.style.filter = "brightness(" + b + ") contrast(1.2)";
+      }, 150);
+
+      // Secuencia de audios
+      var pwrDown = document.getElementById("audio-powerdown");
+      var lzOut = document.getElementById("audio-sevalaluz");
+
+      if (pwrDown) {
+        pwrDown.play().catch(function () { });
+        pwrDown.onended = function () {
+          if (lzOut) {
+            lzOut.play().catch(function () { });
+
+            // El screamer salta DURANTE la música de "se va la luz"
+            // (entre 4 y 8 segundos después de empezar la música)
+            var tiempoParaSusto = 4000 + Math.random() * 4000;
+            setTimeout(function () {
+              if (!juegoTerminado) {
+                iniciarScreamer();
+              }
+            }, tiempoParaSusto);
+          } else {
+            setTimeout(function () { iniciarScreamer(); }, 2000);
+          }
+        };
+      } else {
+        // Fallback
+        setTimeout(function () {
+          iniciarScreamer();
+        }, 3000);
+      }
     }
 
-    // =============================================
     // reloj: 1 hora cada minuto real, ganar a las 6AM
-    // =============================================
     setInterval(function () {
-      if (juegoTerminado) return;
+      if (juegoTerminado || energia <= 0) return;
       hora++;
       if (hora >= 6) {
         juegoTerminado = true;
-        
+
         // ocultar todo
         cerrarCamaras();
         document.getElementById("ui-botones").style.display = "none";
@@ -747,18 +1117,276 @@
         document.getElementById("texto-energia").style.display = "none";
         musicaTension.pause();
 
+        // detener musica de la caja
+        var audioCaja = document.getElementById("audio-caja");
+        if (audioCaja) audioCaja.pause();
+
         // reproducir video ganar
         var videoGanar = document.getElementById("video-ganar");
         videoGanar.style.display = "block";
-        videoGanar.play().catch(function(){});
+        videoGanar.play().catch(function () { });
 
-        videoGanar.onended = function() {
+        videoGanar.onended = function () {
           window.location.href = "menu.html";
         };
       } else {
         textoHora.innerText = hora + ":00 AM";
+
+        // mecanica de las 5 AM
+        if (hora === 5) {
+          probabilidadAlonso = 0.8; // extremadamente agresivo para noche 2
+          musicaTension.src = "assets/musica/tension_5_am.mp3";
+          musicaTension.load();
+          musicaTension.play().catch(function () { });
+          mostrarSub("¡Son las 5 AM! Alonso se ha vuelto extremadamente agresivo...", 5000);
+
+          // evento: destruccion aleatoria de camaras en los proximos 30 segundos
+          var delayDestruccion = Math.random() * 30000;
+          setTimeout(function () {
+            camarasDestruidas = true;
+            cerrarCamaras();
+            var btnC = document.getElementById("btn-camaras");
+            if (btnC) {
+              btnC.innerText = "SISTEMA CORRUPTO";
+              btnC.style.color = "#ff0000";
+              btnC.style.borderColor = "#ff0000";
+              btnC.style.boxShadow = "0 0 10px red";
+            }
+            // efecto glitch visual al destruir el sistema
+            var estatica = document.getElementById("pantalla-estatica");
+            if (estatica) {
+              estatica.style.display = "block";
+              setTimeout(function () { estatica.style.display = "none"; }, 1000);
+            }
+            var aCorr = document.getElementById("audio-pasos-corriendo");
+            if (aCorr) aCorr.play().catch(function () { });
+            mostrarSub("ADVERTENCIA: SISTEMA DE CÁMARAS DESTRUIDO", 6000);
+
+            // Reparacion automatica tras 15 segundos
+            setTimeout(function () {
+              if (juegoTerminado) return;
+              camarasDestruidas = false;
+              if (btnC) {
+                btnC.innerText = "Subir Camaras";
+                btnC.style.color = "";
+                btnC.style.borderColor = "";
+                btnC.style.boxShadow = "";
+              }
+              mostrarSub("SISTEMA DE CÁMARAS REINICIADO", 3000);
+            }, 15000);
+          }, delayDestruccion);
+        }
       }
     }, 60000);
+
+    // parpadeo aleatorio de luces en la oficina (ambiente)
+    setInterval(function () {
+      if (juegoTerminado || energia <= 0 || alonsoPos === 4) return;
+
+      // Probabilidad dinamica: 15% base, 30% a partir de las 4 AM
+      var probLuz = (hora >= 4) ? 0.30 : 0.15;
+
+      if (Math.random() < probLuz) {
+        var flashAmbiente = document.getElementById("pantalla-parpadeo");
+        flashAmbiente.style.display = "block";
+        flashAmbiente.style.opacity = "0.3";
+        setTimeout(function () {
+          if (alonsoPos !== 4) { // no apagar si alonso acaba de llegar
+            flashAmbiente.style.opacity = "0";
+            setTimeout(function () { flashAmbiente.style.display = "none"; }, 100);
+          }
+        }, 80 + Math.random() * 150);
+      }
+    }, 3000);
+
+    // fallo aleatorio de camaras (3 segundos con sonido)
+    setInterval(function () {
+      if (juegoTerminado || energia <= 0 || camaraFallo || panelCamaras.style.display !== "block") return;
+
+      // probabilidad dinamica: aumenta a partir de las 3 AM
+      var prob = (hora >= 3) ? 0.25 : 0.08;
+
+      if (Math.random() < prob) {
+        camaraFallo = true;
+        var audioCorr = document.getElementById("audio-pasos-corriendo");
+        if (audioCorr) {
+          audioCorr.currentTime = 0;
+          audioCorr.play().catch(function () { });
+        }
+        actualizarCamara();
+        setTimeout(function () {
+          camaraFallo = false;
+          if (panelCamaras.style.display === "block") actualizarCamara();
+        }, 3000);
+      }
+    }, 15000);
+
+
+
+    // glitch de mensajes en camaras (5 AM)
+    setInterval(function () {
+      if (juegoTerminado || energia <= 0 || hora < 5) return;
+      // 30% de probabilidad cada 12 segundos
+      if (Math.random() < 0.3) {
+        var b1 = document.getElementById("btn-cam-1");
+        var b2 = document.getElementById("btn-cam-2");
+        var b3 = document.getElementById("btn-cam-3");
+        var b4 = document.getElementById("btn-cam-4");
+        if (!b1 || !b2 || !b3 || !b4) return;
+
+        // Cambiar a mensajes de terror y color rojo
+        [b1, b2, b3, b4].forEach(function (b) {
+          b.style.color = "#ff0000";
+          b.style.borderColor = "#ff0000";
+          b.style.textShadow = "0 0 5px red";
+        });
+        b1.innerText = "SI";
+        b2.innerText = "NOS";
+        b3.innerText = "MIRAS";
+        b4.innerText = "MORIRAS";
+
+        setTimeout(function () {
+          b1.innerText = "CAM 1";
+          b2.innerText = "CAM 2";
+          b3.innerText = "CAM 3";
+          b4.innerText = "CAM 4";
+          [b1, b2, b3, b4].forEach(function (b) {
+            b.style.color = "";
+            b.style.borderColor = "";
+            b.style.textShadow = "";
+          });
+        }, 3000);
+      }
+    }, 12000);
+
+    // sonidos de ambiente aleatorios (pasos o risa)
+    setInterval(function () {
+      if (juegoTerminado || energia <= 0) return;
+      // 30% de probabilidad cada minuto
+      if (Math.random() < 0.3) {
+        var randomSound = Math.random() < 0.5 ? "audio-pasos-corriendo" : "audio-risa";
+        var a = document.getElementById(randomSound);
+        if (a) {
+          a.currentTime = 0;
+          a.play().catch(function () { });
+        }
+      }
+    }, 60000);
+
+    // bloqueo severo de una camara (70% cada 2 min)
+    setInterval(function () {
+      if (juegoTerminado || energia <= 0) return;
+      // 30% de probabilidad cada 2 minutos
+      if (Math.random() < 0.3) {
+        camaraBloqueada = Math.floor(Math.random() * 4) + 1; // elige una camara 1-4
+
+        // alternar entre varios sonidos de terror
+        var listaSonidos = ["audio-demonio", "audio-pasos-corriendo", "audio-risa", "audio-respiracion-fnaf"];
+        var idAzar = listaSonidos[Math.floor(Math.random() * listaSonidos.length)];
+        var a = document.getElementById(idAzar);
+
+        if (a) {
+          a.currentTime = 0;
+          a.play().catch(function () { });
+        }
+        if (panelCamaras.style.display === "block") actualizarCamara();
+
+        // dura 15 segundos
+        setTimeout(function () {
+          camaraBloqueada = 0;
+          if (panelCamaras.style.display === "block") actualizarCamara();
+        }, 15000);
+      }
+    }, 120000);
+
+    // respiracion aleatoria de alonso (4 AM en adelante)
+    setInterval(function () {
+      if (juegoTerminado || energia <= 0 || hora < 4) return;
+      // 40% de probabilidad cada 20 segundos
+      if (Math.random() < 0.4) {
+        var a = document.getElementById("audio-respiracion-fnaf");
+        if (a) {
+          a.currentTime = 0;
+          a.play().catch(function () { });
+        }
+      }
+    }, 20000);
+
+    setInterval(function () {
+      if (juegoTerminado || energia <= 0 || hora < 5 || cajaMusicaActiva) return;
+      // 50% de probabilidad cada 20 segundos
+      if (Math.random() < 0.5) {
+        var audioCaja = document.getElementById("audio-caja");
+        if (audioCaja) {
+          cajaMusicaActiva = true;
+
+          // Silenciar todos los demas audios para que solo se oiga la caja
+          var todosAudios = document.querySelectorAll('audio');
+          todosAudios.forEach(function (a) {
+            if (a.id !== "audio-caja") {
+              a.muted = true;
+            }
+          });
+
+          audioCaja.volume = 1.0; // Volumen maximo para la caja
+          document.body.classList.add("glitch-caja-activa");
+          mostrarSub("¡La caja de música de Alonso está sonando! Se ha vuelto loco...", 5000);
+
+          audioCaja.currentTime = 0;
+          audioCaja.play().catch(function () { });
+
+          audioCaja.onended = function () {
+            cajaMusicaActiva = false;
+            // Restaurar el sonido de los demas audios
+            todosAudios.forEach(function (a) {
+              a.muted = false;
+            });
+            document.body.classList.remove("glitch-caja-activa");
+            mostrarSub("La música se ha detenido...", 3000);
+          };
+        }
+      }
+    }, 20000);
+
+    // efecto reloj roto (5 AM)
+    setInterval(function () {
+      if (juegoTerminado || energia <= 0 || hora < 5) return;
+
+      var clock = document.getElementById("texto-hora");
+      if (!clock) return;
+
+      // 40% de probabilidad cada 4 segundos de glitch visual
+      if (Math.random() < 0.4) {
+        var glitches = ["5:?? AM", "??:?? AM", "6:66 AM", "#$:%& AM", "ERROR", "5:-- AM", "88:88"];
+        var originalText = "5:00 AM";
+        clock.innerText = glitches[Math.floor(Math.random() * glitches.length)];
+        clock.style.color = "#ff3333";
+        clock.style.textShadow = "0 0 8px red";
+
+        setTimeout(function () {
+          if (hora === 5 && !juegoTerminado) {
+            clock.innerText = "5:00 AM";
+            clock.style.color = "white";
+            clock.style.textShadow = "none";
+          }
+        }, 600 + Math.random() * 1200);
+      }
+    }, 4000);
+
+    // Parpadeo de linterna (baja energia < 30%)
+    setInterval(function () {
+      if (juegoTerminado || energia <= 0 || camaraFallo || (typeof camaraBloqueada !== 'undefined' && camaraBloqueada !== 0)) return;
+
+      if (linterna && energia < 30) {
+        // Generar un parpadeo aleatorio si la energia es baja
+        var b = 0.2 + Math.random() * 0.9;
+        vistaCam.style.filter = "brightness(" + b + ")";
+      } else if (linterna && energia >= 30) {
+        if (vistaCam.style.filter.includes("brightness")) {
+          vistaCam.style.filter = "none";
+        }
+      }
+    }, 60);
 
   </script>
 
