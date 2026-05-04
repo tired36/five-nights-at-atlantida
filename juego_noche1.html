@@ -1102,7 +1102,7 @@
     // reloj: 1 hora cada minuto real, ganar a las 6AM
     // =============================================
     setInterval(function () {
-      if (juegoTerminado) return;
+      if (juegoTerminado || energia <= 0) return;
       hora++;
       if (hora >= 6) {
         juegoTerminado = true;
