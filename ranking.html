@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Ranking</title>
+  <style>
+    body { background: #000; color: #fff; font-family: monospace; padding: 30px; max-width: 600px; margin: 0 auto; }
+    h1, h2 { text-align: center; }
+    table { width: 100%; border-collapse: collapse; margin: 16px 0 32px; }
+    th, td { border: 1px solid #444; padding: 8px; text-align: center; }
+    a { color: #aaa; display: block; text-align: center; margin-top: 20px; }
+  </style>
+</head>
+<body>
+  <h1>Ranking</h1>
+
+  <h2 id="t1">Noche 1</h2>
+  <table><thead><tr><th>#</th><th>Usuario</th><th>Pts</th></tr></thead><tbody id="n1"></tbody></table>
+
+  <h2 id="t2">Noche 2</h2>
+  <table><thead><tr><th>#</th><th>Usuario</th><th>Pts</th></tr></thead><tbody id="n2"></tbody></table>
+
+  <a href="menu.html">← Menú</a>
+
+  <script>
+    var URL = "https://jyjrhjgzircwcevtmsbd.supabase.co";
+    var KEY = "sb_publishable_Mrkm6TMkllKp3Q8pF6IM9A_7S7tktbG";
+
+    function cargar(noche, idTabla) {
+      fetch(URL + "/rest/v1/partidas?noche=eq." + noche + "&select=usuario,puntuacion&order=puntuacion.desc&limit=10", {
+        headers: { apikey: KEY, Authorization: "Bearer " + KEY }
+      })
+        .then(function (r) { return r.json(); })
+        .then(function (lista) {
+          var tb = document.getElementById(idTabla);
+          if (!lista.length) {
+            tb.innerHTML = "<tr><td colspan='3'>Sin datos</td></tr>";
+            return;
+          }
+          lista.forEach(function (p, i) {
+            tb.innerHTML += "<tr><td>" + (i + 1) + "</td><td>" + p.usuario + "</td><td>" + p.puntuacion + "</td></tr>";
+          });
+        })
+        .catch(function () {
+          document.getElementById(idTabla).innerHTML = "<tr><td colspan='3'>Error</td></tr>";
+        });
+    }
+
+    cargar(1, "n1");
+    cargar(2, "n2");
+
+    if (location.hash === "#noche2") document.getElementById("t2").scrollIntoView();
+    if (location.hash === "#noche1") document.getElementById("t1").scrollIntoView();
+  </script>
+</body>
+</html>

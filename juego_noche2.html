@@ -420,6 +420,7 @@
     </div>
   </div>
 
+  <script src="js/ranking.js"></script>
   <script>
     // =============================================
     // 4 salas: 1, 2, 3, 4
@@ -590,6 +591,7 @@
         gameOverDiv.style.display = "flex";
         audioGameover.currentTime = 0;
         audioGameover.play().catch(function () { });
+        Ranking.finPartida({ victoria: false, hora: hora, energia: energia });
       };
     }
 
@@ -849,6 +851,7 @@
     // =============================================
     function usarAudio() {
       if (audioEnCooldown || alonsoRetenido || energia <= 0) return;
+      Ranking.penalizarAudio();
 
       // reproducir audio de alonso
       audioAlonso.currentTime = 0;
@@ -985,6 +988,7 @@
       if (energia <= 0 || animandoPuerta) return;
 
       if (!puertaCerrada) {
+        Ranking.penalizarPuerta();
         animandoPuerta = true;
         btnPuerta.innerText = "Cerrando...";
         videoPuerta.style.display = "block";
@@ -1040,6 +1044,7 @@
       energia -= gasto;
       if (energia < 0) energia = 0;
       actualizarUIEnergia();
+      Ranking.actualizar(hora, energia);
       if (energia <= 0) apagarTodo();
     }, 1000);
 
@@ -1138,10 +1143,11 @@
         videoGanar.play().catch(function () { });
 
         videoGanar.onended = function () {
-          window.location.href = "menu.html";
+          Ranking.finPartida({ victoria: true, hora: 6, energia: energia });
         };
       } else {
         textoHora.innerText = hora + ":00 AM";
+        Ranking.actualizar(hora, energia);
 
         // mecanica de las 5 AM
         if (hora === 5) {
@@ -1415,6 +1421,7 @@
       }
     }, 60);
 
+    Ranking.init(2);
   </script>
 
 </body>

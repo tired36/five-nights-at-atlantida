@@ -78,3 +78,13 @@ Eres el vigilante nocturno del centro **Atlántida FP**. Debes **sobrevivir de l
 - **Derrota**: el enemigo entra en la oficina, o te quedas sin energía en el momento crítico.
 
 > **Nota:** el juego está pensado para **5 noches**; en el menú solo están jugables la **1** y la **2** por ahora.
+
+## Ranking (Supabase)
+
+1. En [Supabase](https://supabase.com) → tu proyecto → **SQL Editor**, ejecuta el archivo `supabase-setup.sql`.
+2. Al empezar cada noche se pide un **usuario** (se guarda en el navegador).
+3. Al terminar la partida se muestra la **puntuación** y se guarda en la tabla `partidas`.
+4. Menú → **RANKING**: top 10 de noche 1 y noche 2 en la misma página.
+5. En partida: **puntos arriba al centro**; -40 audio, -25 puerta.
+
+**Puntos:** hora×100 + energía×3 − penalizaciones; victoria +1000; noche 2 ×1.2.
