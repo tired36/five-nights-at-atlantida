@@ -81,10 +81,19 @@ Eres el vigilante nocturno del centro **Atlántida FP**. Debes **sobrevivir de l
 
 ## Ranking (Supabase)
 
-1. En [Supabase](https://supabase.com) → tu proyecto → **SQL Editor**, ejecuta el archivo `supabase-setup.sql`.
-2. Al empezar cada noche se pide un **usuario** (se guarda en el navegador).
-3. Al terminar la partida se muestra la **puntuación** y se guarda en la tabla `partidas`.
-4. Menú → **RANKING**: top 10 de noche 1 y noche 2 en la misma página.
-5. En partida: **puntos arriba al centro**; -40 audio, -25 puerta.
+1. Ejecuta `supabase-setup.sql` en Supabase (tabla + datos iniciales).
+2. Abre el juego como siempre (`index.html` con doble clic).
+3. Al terminar partida se guarda en Supabase; menú → **RANKING** lee el top 10 compartido.
 
-**Puntos:** hora×100 + energía×3 − penalizaciones; victoria +1000; noche 2 ×1.2.
+La tabla necesita las columnas **`usuario`**, **`noche`** y **`puntuacion`** (más `id`). `created_at` es opcional.
+
+## Código del juego
+
+| Archivo | Qué hace |
+|---------|----------|
+| `js/utilidades.js` | Subtítulos, energía, golpes en puerta (común) |
+| `js/ranking.js` | Puntuación y pantallas de usuario |
+| `js/noche1.js` / `js/noche2.js` | Lógica de cada noche (config arriba del archivo) |
+| `js/supabase-api.js` | Guardar y leer ranking online |
+
+**Puntos:** pasivo lento (+1 cada 3–4 s); bonus hora/victoria reducidos; noche 1: −28 audio, −40 puerta; noche 2: −32 audio, −45 puerta (×1.08).
