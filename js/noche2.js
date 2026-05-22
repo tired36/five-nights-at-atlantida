@@ -387,7 +387,7 @@ function reproducirGolpes() { return Util.golpesEnPuerta(); }
     // =============================================
     function usarAudio() {
       if (audioEnCooldown || alonsoRetenido || energia <= 0) return;
-      Ranking.penalizarAudio();
+      Ranking.audioActivado();
 
       // reproducir audio de alonso
       audioAlonso.currentTime = 0;
@@ -410,6 +410,7 @@ function reproducirGolpes() { return Util.golpesEnPuerta(); }
           // cooldown de 25s antes de poder usar el audio de nuevo
           setTimeout(function () {
             audioEnCooldown = false;
+            Ranking.audioTerminado();
             if (panelCamaras.style.display === "block") actualizarCamara();
           }, 25000);
         }
@@ -524,7 +525,7 @@ function reproducirGolpes() { return Util.golpesEnPuerta(); }
       if (energia <= 0 || animandoPuerta) return;
 
       if (!puertaCerrada) {
-        Ranking.penalizarPuerta();
+        Ranking.puertaCerrada();
         animandoPuerta = true;
         btnPuerta.innerText = "Cerrando...";
         videoPuerta.style.display = "block";
@@ -564,6 +565,7 @@ function reproducirGolpes() { return Util.golpesEnPuerta(); }
         document.body.style.backgroundImage = "url('assets/imagenes/escenarios/sala_principal/oficina.png')";
         puertaCerrada = false;
         btnPuerta.innerText = "Cerrar Puerta";
+        Ranking.puertaAbierta();
       }
     }
 
@@ -607,6 +609,7 @@ function reproducirGolpes() { return Util.golpesEnPuerta(); }
       linterna = false;
       puertaCerrada = false;
       animandoPuerta = false;
+      Ranking.puertaAbierta();
 
       // Efecto de "luz pobre" y parpadeo en lugar de negro total
       document.body.style.transition = "filter 2s";

@@ -1,7 +1,7 @@
 (function () {
   const REGLAS = {
     1: { subeCadaSeg: 1, subeCantidad: 3, bonusHora: 18, bonusVictoria: 280, penAudio: 28, penPuerta: 40, mult: 1 },
-    2: { subeCadaSeg: 1, subeCantidad: 3, bonusHora: 22, bonusVictoria: 300, penAudio: 32, penPuerta: 45, mult: 1.08 }
+    2: { subeCadaSeg: 1, subeCantidad: 3, bonusHora: 22, bonusVictoria: 300, penAudio: 32, penPuerta: 40, mult: 1.08 }
   };
 
   let noche = 1;
@@ -9,10 +9,15 @@
   let fin = false;
   let hora = 0;
   let puntos = 0;
-  let subePuntos = true;
+  let pausaPorAudio = false;
+  let pausaPorPuerta = false;
   let ticks = 0;
 
   const reglas = () => REGLAS[noche] || REGLAS[1];
+
+  function puedeSubirPuntos() {
+    return !pausaPorAudio && !pausaPorPuerta;
+  }
 
   function calcularPuntos(victoria) {
     const r = reglas();
@@ -32,13 +37,6 @@
     el.textContent = texto;
     el.style.opacity = "1";
     setTimeout(() => { el.style.opacity = "0"; }, 1800);
-  }
-
-  function aplicarPenalizacion(cantidad, mensaje) {
-    puntos = Math.max(0, puntos - cantidad);
-    subePuntos = false;
-    avisoPenalizacion(mensaje);
-    pintarPuntos();
   }
 
   function crearPantallas() {
@@ -88,7 +86,8 @@
       fin = false;
       hora = 0;
       puntos = 0;
-      subePuntos = true;
+      pausaPorAudio = false;
+      pausaPorPuerta = false;
       ticks = 0;
       crearPantallas();
 
@@ -100,30 +99,48 @@
       document.getElementById("rank-pts").style.display = "none";
     },
 
-    /** Llamado cada segundo: +3 pts por segundo mientras no hayas sido penalizado */
     actualizar(h) {
       if (!listo || fin) return;
       hora = h;
-      if (!subePuntos) {
-        pintarPuntos();
-        return;
+      if (puedeSubirPuntos()) {
+        ticks++;
+        const r = reglas();
+        if (ticks % r.subeCadaSeg === 0) puntos += r.subeCantidad;
       }
-      ticks++;
-      const r = reglas();
-      if (ticks % r.subeCadaSeg === 0) puntos += r.subeCantidad;
       pintarPuntos();
     },
 
-    penalizarAudio() {
+    /** Usas el audio: penalización y no sube hasta que termine (retención + recarga) */
+    audioActivado() {
       if (!listo) return;
       const n = reglas().penAudio;
-      aplicarPenalizacion(n, "-" + n + " audio (ya no suben puntos)");
+      puntos = Math.max(0, puntos - n);
+      pausaPorAudio = true;
+      avisoPenalizacion("-" + n + " audio (no sube mientras activo)");
+      pintarPuntos();
     },
 
-    penalizarPuerta() {
+    audioTerminado() {
+      if (!listo) return;
+      pausaPorAudio = false;
+      pintarPuntos();
+    },
+
+    /** Cierras la puerta: -40 y no sube hasta que abras */
+    puertaCerrada() {
       if (!listo) return;
       const n = reglas().penPuerta;
-      aplicarPenalizacion(n, "-" + n + " puerta (ya no suben puntos)");
+      puntos = Math.max(0, puntos - n);
+      pausaPorPuerta = true;
+      avisoPenalizacion("-" + n + " puerta (no sube mientras cerrada)");
+      pintarPuntos();
+    },
+
+    /** Abres la puerta: vuelve a subir la puntuación (si el audio no la bloqueó) */
+    puertaAbierta() {
+      if (!listo) return;
+      pausaPorPuerta = false;
+      pintarPuntos();
     },
 
     finPartida(opts) {

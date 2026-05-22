@@ -96,4 +96,4 @@ La tabla necesita las columnas **`usuario`**, **`noche`** y **`puntuacion`** (m�
 | `js/noche1.js` / `js/noche2.js` | Lógica de cada noche (config arriba del archivo) |
 | `js/supabase-api.js` | Guardar y leer ranking online |
 
-**Puntos:** +3 cada segundo (deja de subir si pierdes por audio o puerta); noche 1: −28 audio, −40 puerta; noche 2: −32 audio, −45 puerta.
+**Puntos:** +3 cada segundo; puerta −40 (pausa mientras cerrada); audio −28/−32 (pausa hasta que acabe retención + recarga).
