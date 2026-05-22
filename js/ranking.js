@@ -1,23 +1,22 @@
 (function () {
-  // Puntuación por noche (más difícil ganar, más fácil perder)
   const REGLAS = {
-    1: { pasivoCada: 3, pasivoPorTick: 1, bonusHora: 18, bonusVictoria: 280, penAudio: 28, penPuerta: 40, mult: 1 },
-    2: { pasivoCada: 4, pasivoPorTick: 1, bonusHora: 22, bonusVictoria: 300, penAudio: 32, penPuerta: 45, mult: 1.08 }
+    1: { subeCadaSeg: 3, subeCantidad: 3, bonusHora: 18, bonusVictoria: 280, penAudio: 28, penPuerta: 40, mult: 1 },
+    2: { subeCadaSeg: 3, subeCantidad: 3, bonusHora: 22, bonusVictoria: 300, penAudio: 32, penPuerta: 45, mult: 1.08 }
   };
 
   let noche = 1;
   let listo = false;
   let fin = false;
   let hora = 0;
-  let pasivo = 0;
-  let penal = 0;
+  let puntos = 0;
+  let subePuntos = true;
   let ticks = 0;
 
   const reglas = () => REGLAS[noche] || REGLAS[1];
 
   function calcularPuntos(victoria) {
     const r = reglas();
-    let total = pasivo + (victoria ? r.bonusVictoria : hora * r.bonusHora) - penal;
+    let total = puntos + (victoria ? r.bonusVictoria : hora * r.bonusHora);
     if (r.mult !== 1) total = Math.floor(total * r.mult);
     return total < 0 ? 0 : total;
   }
@@ -33,6 +32,13 @@
     el.textContent = texto;
     el.style.opacity = "1";
     setTimeout(() => { el.style.opacity = "0"; }, 1800);
+  }
+
+  function aplicarPenalizacion(cantidad, mensaje) {
+    puntos = Math.max(0, puntos - cantidad);
+    subePuntos = false;
+    avisoPenalizacion(mensaje);
+    pintarPuntos();
   }
 
   function crearPantallas() {
@@ -81,8 +87,8 @@
       listo = false;
       fin = false;
       hora = 0;
-      pasivo = 0;
-      penal = 0;
+      puntos = 0;
+      subePuntos = true;
       ticks = 0;
       crearPantallas();
 
@@ -94,29 +100,30 @@
       document.getElementById("rank-pts").style.display = "none";
     },
 
+    /** Llamado cada segundo: +3 pts cada 3 s mientras no hayas sido penalizado */
     actualizar(h) {
       if (!listo || fin) return;
       hora = h;
+      if (!subePuntos) {
+        pintarPuntos();
+        return;
+      }
       ticks++;
       const r = reglas();
-      if (ticks % r.pasivoCada === 0) pasivo += r.pasivoPorTick;
+      if (ticks % r.subeCadaSeg === 0) puntos += r.subeCantidad;
       pintarPuntos();
     },
 
     penalizarAudio() {
       if (!listo) return;
       const n = reglas().penAudio;
-      penal += n;
-      avisoPenalizacion("-" + n + " audio");
-      pintarPuntos();
+      aplicarPenalizacion(n, "-" + n + " audio (ya no suben puntos)");
     },
 
     penalizarPuerta() {
       if (!listo) return;
       const n = reglas().penPuerta;
-      penal += n;
-      avisoPenalizacion("-" + n + " puerta");
-      pintarPuntos();
+      aplicarPenalizacion(n, "-" + n + " puerta (ya no suben puntos)");
     },
 
     finPartida(opts) {
@@ -124,18 +131,18 @@
       fin = true;
 
       const victoria = !!opts.victoria;
-      const puntos = calcularPuntos(victoria);
+      const total = calcularPuntos(victoria);
       const usuario = localStorage.getItem("fnat_usuario") || "anon";
 
       document.getElementById("rank-pts").style.display = "none";
-      document.getElementById("rank-total").textContent = puntos + " pts";
+      document.getElementById("rank-total").textContent = total + " pts";
       document.getElementById("rank-save").textContent = "Guardando en Supabase...";
       document.getElementById("rank-fin").style.display = "flex";
       document.getElementById("rank-ver").onclick = () => {
         location.href = "ranking.html#noche" + noche;
       };
 
-      SupabaseRank.guardar(usuario, noche, puntos)
+      SupabaseRank.guardar(usuario, noche, total)
         .then(() => {
           document.getElementById("rank-save").textContent = "Guardado en Supabase.";
         })
