@@ -1,7 +1,7 @@
 (function () {
   const REGLAS = {
-    1: { subeCadaSeg: 3, subeCantidad: 3, bonusHora: 18, bonusVictoria: 280, penAudio: 28, penPuerta: 40, mult: 1 },
-    2: { subeCadaSeg: 3, subeCantidad: 3, bonusHora: 22, bonusVictoria: 300, penAudio: 32, penPuerta: 45, mult: 1.08 }
+    1: { subeCadaSeg: 1, subeCantidad: 3, bonusHora: 18, bonusVictoria: 280, penAudio: 28, penPuerta: 40, mult: 1 },
+    2: { subeCadaSeg: 1, subeCantidad: 3, bonusHora: 22, bonusVictoria: 300, penAudio: 32, penPuerta: 45, mult: 1.08 }
   };
 
   let noche = 1;
@@ -100,7 +100,7 @@
       document.getElementById("rank-pts").style.display = "none";
     },
 
-    /** Llamado cada segundo: +3 pts cada 3 s mientras no hayas sido penalizado */
+    /** Llamado cada segundo: +3 pts por segundo mientras no hayas sido penalizado */
     actualizar(h) {
       if (!listo || fin) return;
       hora = h;
