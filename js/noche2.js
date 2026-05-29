@@ -107,6 +107,11 @@ function reproducirGolpes() { return Util.golpesEnPuerta(); }
     document.addEventListener("click", desbloquearMedia, { once: true });
     document.addEventListener("touchstart", desbloquearMedia, { once: true });
 
+    document.querySelectorAll("video").forEach(function (v) { Util.prepararVideo(v); });
+
+    var apagonIniciado = false;
+    var intervalScreamerLuces = null;
+
     // =============================================
     // funcion para iniciar el screamer de alonso
     // oculta todo, reproduce el video con luces y luego muestra el game over
@@ -114,55 +119,53 @@ function reproducirGolpes() { return Util.golpesEnPuerta(); }
     function iniciarScreamer(mensaje, usarEspecial) {
       if (juegoTerminado && !usarEspecial) return;
       juegoTerminado = true;
-      // Restablecer filtros para que el screamer se vea bien (no oscuro)
+
+      if (intervalParpadeo) {
+        clearInterval(intervalParpadeo);
+        intervalParpadeo = null;
+      }
+      if (intervalScreamerLuces) {
+        clearInterval(intervalScreamerLuces);
+        intervalScreamerLuces = null;
+      }
+
       document.body.style.filter = "none";
       cerrarCamaras();
-      // Solo detener audios de apagon si NO es el screamer especial (puerta cerrada)
-      if (!usarEspecial) {
-        detenerAudiosApagon();
-      }
+      Util.detenerVideos();
+      if (!usarEspecial) detenerAudiosApagon();
+
       document.getElementById("ui-botones").style.display = "none";
       document.getElementById("texto-hora").style.display = "none";
       document.getElementById("texto-noche").style.display = "none";
       document.getElementById("texto-energia").style.display = "none";
 
-      // elegir screamer (normal o especial)
+      document.getElementById("mensaje-gameover").innerText = mensaje || "alonso ha entrado a la oficina...";
+
       var vid = videoScreamer;
-      if (usarEspecial) {
-        vid = document.getElementById("video-screamer-especial");
-      }
+      if (!vid) return;
 
-      // reproducir screamer
-      vid.style.display = "block";
-      vid.currentTime = 0;
-      vid.play().catch(function () { });
-
-      // parar la musica de la caja si esta sonando y restaurar audios
       var audioCaja = document.getElementById("audio-caja");
       if (audioCaja) {
         audioCaja.pause();
-        var todosAudios = document.querySelectorAll('audio');
-        todosAudios.forEach(function (a) { a.muted = false; });
+        document.querySelectorAll("audio").forEach(function (a) { a.muted = false; });
       }
 
-      // luces parpadeantes (flashes blancos)
-      pantallaFlashes.style.display = "block";
-      var parpadeo = setInterval(function () {
-        pantallaFlashes.style.opacity = Math.random() > 0.5 ? "0.6" : "0";
-      }, 50);
+      if (pantallaFlashes) {
+        pantallaFlashes.style.display = "block";
+        intervalScreamerLuces = setInterval(function () {
+          pantallaFlashes.style.opacity = Math.random() > 0.5 ? "0.6" : "0";
+        }, 50);
+      }
 
-      // al terminar el screamer, mostrar game over y reproducir musica
-      vid.onended = function () {
+      Util.reproducirVideoUnaVez(vid, function () {
         detenerAudiosApagon();
-        clearInterval(parpadeo);
-        pantallaFlashes.style.display = "none";
-        vid.style.display = "none";
-
+        if (intervalScreamerLuces) clearInterval(intervalScreamerLuces);
+        if (pantallaFlashes) pantallaFlashes.style.display = "none";
         gameOverDiv.style.display = "flex";
         audioGameover.currentTime = 0;
         audioGameover.play().catch(function () { });
         Ranking.finPartida({ victoria: false, hora: hora, energia: energia });
-      };
+      }, { maxMs: 18000 });
     }
 
 
@@ -488,14 +491,11 @@ function reproducirGolpes() { return Util.golpesEnPuerta(); }
           actualizarEfectosCam4();
           if (panelCamaras.style.display === "block") actualizarCamara();
 
-          videoAnimS1.currentTime = 0;
-          videoAnimS1.play().catch(function () { });
-          videoAnimS1.onended = function () {
+          Util.reproducirVideoUnaVez(videoAnimS1, function () {
             animacionAlonsoSala1Activa = false;
-            videoAnimS1.style.display = "none";
             distorsionCamara();
             if (panelCamaras.style.display === "block") actualizarCamara();
-          };
+          }, { maxMs: 12000 });
         } else {
           alonsoPos = siguiente;
           actualizarEfectosCam4();
@@ -528,39 +528,27 @@ function reproducirGolpes() { return Util.golpesEnPuerta(); }
         Ranking.puertaCerrada();
         animandoPuerta = true;
         btnPuerta.innerText = "Cerrando...";
-        videoPuerta.style.display = "block";
-        videoPuerta.currentTime = 0;
-        videoPuerta.play();
-        videoPuerta.onended = function () {
-          videoPuerta.style.display = "none";
+        Util.reproducirVideoUnaVez(videoPuerta, function () {
           document.body.style.backgroundImage = "url('assets/imagenes/escenarios/sala_principal/oficina_porton.png')";
           puertaCerrada = true;
           animandoPuerta = false;
           btnPuerta.innerText = "Abrir Puerta";
-          // si alonso esta en sala4 cuando cierras, se va y golpea la puerta
           if (alonsoPos === 4) {
-            // Efecto visual de golpes
             var detenerV = reproducirGolpes();
-
             energia -= 7;
             if (energia < 0) energia = 0;
             actualizarUIEnergia();
             mostrarSub("Alonso estaba en la puerta y la golpeo! Pierdes 7% de energia", 4000);
             if (energia <= 0) apagarTodo();
-
             var salaRandom = Math.floor(Math.random() * 3) + 1;
             setTimeout(function () {
               alonsoPos = salaRandom;
               actualizarEfectosCam4();
               if (panelCamaras.style.display === "block") actualizarCamara();
-
-              // Detener los golpes 1 segundo despues de que se haya ido
-              setTimeout(function () {
-                if (detenerV) detenerV();
-              }, 1000);
+              setTimeout(function () { if (detenerV) detenerV(); }, 1000);
             }, 2000);
           }
-        };
+        }, { maxMs: 10000 });
       } else {
         document.body.style.backgroundImage = "url('assets/imagenes/escenarios/sala_principal/oficina.png')";
         puertaCerrada = false;
@@ -590,8 +578,9 @@ function reproducirGolpes() { return Util.golpesEnPuerta(); }
     // apagon al quedarse sin energia
     // =============================================
     function apagarTodo() {
-      if (juegoTerminado) return;
-      mostrarSub("Â¡No tienes energÃ­a!", 4000);
+      if (juegoTerminado || apagonIniciado) return;
+      apagonIniciado = true;
+      mostrarSub("¡No tienes energía!", 4000);
 
       panelCamaras.style.display = "none";
       videoPuerta.style.display = "none";
@@ -639,9 +628,7 @@ function reproducirGolpes() { return Util.golpesEnPuerta(); }
             // (entre 4 y 8 segundos despuÃ©s de empezar la mÃºsica)
             var tiempoParaSusto = 4000 + Math.random() * 4000;
             setTimeout(function () {
-              if (!juegoTerminado) {
-                iniciarScreamer();
-              }
+              iniciarScreamer("te has quedado sin energia...");
             }, tiempoParaSusto);
           } else {
             setTimeout(function () { iniciarScreamer(); }, 2000);
@@ -676,20 +663,19 @@ function reproducirGolpes() { return Util.golpesEnPuerta(); }
         var audioCaja = document.getElementById("audio-caja");
         if (audioCaja) audioCaja.pause();
 
-        // reproducir video ganar
+        document.querySelectorAll("audio").forEach(function (a) { a.pause(); });
+        Util.detenerVideos();
         var videoGanar = document.getElementById("video-ganar");
-        videoGanar.style.display = "block";
-        videoGanar.play().catch(function () { });
-
-        videoGanar.onended = function () {
+        function irAlMenu() {
           Ranking.finPartida({ victoria: true, hora: 6, energia: energia });
           window.location.href = "menu.html";
-        };
-
-        videoGanar.onerror = function () {
-          Ranking.finPartida({ victoria: true, hora: 6, energia: energia });
-          window.location.href = "menu.html";
-        };
+        }
+        if (videoGanar) {
+          Util.reproducirVideoUnaVez(videoGanar, irAlMenu, { maxMs: 20000, ocultar: false });
+          videoGanar.onerror = irAlMenu;
+        } else {
+          irAlMenu();
+        }
       } else {
         textoHora.innerText = hora + ":00 AM";
         Ranking.actualizar(hora);

@@ -1,5 +1,15 @@
 const { getDb } = require("./lib/mongodb");
 
+function leerBody(req) {
+  if (!req.body) return {};
+  if (typeof req.body === "object") return req.body;
+  try {
+    return JSON.parse(req.body);
+  } catch {
+    return {};
+  }
+}
+
 module.exports = async function handler(req, res) {
   if (req.method === "OPTIONS") {
     return res.status(200).end();
@@ -27,7 +37,7 @@ module.exports = async function handler(req, res) {
     }
 
     if (req.method === "POST") {
-      const body = req.body || {};
+      const body = leerBody(req);
       const usuario = String(body.usuario || "").trim();
       const noche = Number(body.noche);
       const puntuacion = Number(body.puntuacion);

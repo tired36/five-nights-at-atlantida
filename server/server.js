@@ -58,11 +58,18 @@ app.get("/api/partidas", async (req, res) => {
   }
 });
 
+function leerBody(req) {
+  if (!req.body) return {};
+  if (typeof req.body === "object") return req.body;
+  try { return JSON.parse(req.body); } catch { return {}; }
+}
+
 app.post("/api/partidas", async (req, res) => {
   try {
-    const usuario = String(req.body.usuario || "").trim();
-    const noche = Number(req.body.noche);
-    const puntuacion = Number(req.body.puntuacion);
+    const body = leerBody(req);
+    const usuario = String(body.usuario || "").trim();
+    const noche = Number(body.noche);
+    const puntuacion = Number(body.puntuacion);
 
     if (usuario.length < 2 || usuario.length > 20) {
       return res.status(400).json({ error: "usuario inválido" });

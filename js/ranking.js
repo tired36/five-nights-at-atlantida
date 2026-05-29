@@ -7,6 +7,7 @@
   let noche = 1;
   let listo = false;
   let fin = false;
+  let nombreUsuario = "";
   let hora = 0;
   let puntos = 0;
   let pausaPorAudio = false;
@@ -39,6 +40,17 @@
     setTimeout(() => { el.style.opacity = "0"; }, 1800);
   }
 
+  function empezarPartida() {
+    const nombre = document.getElementById("rank-nombre").value.trim();
+    if (nombre.length < 2) { alert("Mínimo 2 letras"); return; }
+    nombreUsuario = nombre;
+    localStorage.setItem("fnat_usuario", nombre);
+    document.getElementById("rank-login").style.display = "none";
+    document.getElementById("rank-pts").style.display = "block";
+    listo = true;
+    pintarPuntos();
+  }
+
   function crearPantallas() {
     if (document.getElementById("rank-ui")) return;
 
@@ -60,23 +72,32 @@
       '<button type="button" id="rank-start">Jugar</button></form></div>' +
       '<div id="rank-pts">0 pts</div><div id="rank-aviso"></div>' +
       '<div id="rank-fin" style="display:none"><div class="box">' +
-      '<h3>Fin</h3><p id="rank-total" style="font-size:32px">0 pts</p>' +
+      '<h3>Fin</h3><p id="rank-usuario" style="font-size:18px;color:#aaa"></p>' +
+      '<p id="rank-total" style="font-size:32px">0 pts</p>' +
       '<p id="rank-save"></p>' +
       '<button type="button" id="rank-ver">Ranking</button>' +
       '<button type="button" id="rank-menu">Menú</button></div></div>';
     document.body.appendChild(contenedor);
 
-    document.getElementById("rank-start").onclick = () => {
-      const nombre = document.getElementById("rank-nombre").value.trim();
-      if (nombre.length < 2) { alert("Mínimo 2 letras"); return; }
-      localStorage.setItem("fnat_usuario", nombre);
-      document.getElementById("rank-login").style.display = "none";
-      document.getElementById("rank-pts").style.display = "block";
-      listo = true;
-      pintarPuntos();
-    };
+    document.getElementById("rank-start").onclick = empezarPartida;
+
+    const formLogin = document.querySelector("#rank-login form");
+    formLogin.addEventListener("submit", (e) => {
+      e.preventDefault();
+      empezarPartida();
+    });
 
     document.getElementById("rank-menu").onclick = () => { location.href = "menu.html"; };
+  }
+
+  function leerNombre() {
+    if (nombreUsuario.length >= 2) return nombreUsuario;
+    const input = document.getElementById("rank-nombre");
+    const delInput = input ? input.value.trim() : "";
+    if (delInput.length >= 2) return delInput;
+    const guardado = localStorage.getItem("fnat_usuario");
+    if (guardado && guardado.trim().length >= 2) return guardado.trim();
+    return "";
   }
 
   window.Ranking = {
@@ -91,12 +112,17 @@
       ticks = 0;
       crearPantallas();
 
+      nombreUsuario = "";
       const guardado = localStorage.getItem("fnat_usuario");
       if (guardado) document.getElementById("rank-nombre").value = guardado;
 
       document.getElementById("rank-login").style.display = "flex";
       document.getElementById("rank-fin").style.display = "none";
       document.getElementById("rank-pts").style.display = "none";
+
+      if (guardado && guardado.trim().length >= 2) {
+        empezarPartida();
+      }
     },
 
     actualizar(h) {
@@ -149,9 +175,22 @@
 
       const victoria = !!opts.victoria;
       const total = calcularPuntos(victoria);
-      const usuario = localStorage.getItem("fnat_usuario") || "anon";
+      const usuario = leerNombre();
+
+      if (!usuario) {
+        document.getElementById("rank-pts").style.display = "none";
+        document.getElementById("rank-fin").style.display = "none";
+        document.getElementById("rank-login").style.display = "flex";
+        alert("Escribe tu nombre (mínimo 2 letras) y pulsa Jugar antes de terminar.");
+        fin = false;
+        return;
+      }
+
+      nombreUsuario = usuario;
+      localStorage.setItem("fnat_usuario", usuario);
 
       document.getElementById("rank-pts").style.display = "none";
+      document.getElementById("rank-usuario").textContent = usuario;
       document.getElementById("rank-total").textContent = total + " pts";
       document.getElementById("rank-save").textContent = "Guardando...";
       document.getElementById("rank-fin").style.display = "flex";

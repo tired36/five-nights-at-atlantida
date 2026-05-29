@@ -107,6 +107,10 @@ function reproducirGolpes() { return Util.golpesEnPuerta(); }
     document.addEventListener("click", desbloquearMedia, { once: true });
     document.addEventListener("touchstart", desbloquearMedia, { once: true });
 
+    document.querySelectorAll("video").forEach(function (v) { Util.prepararVideo(v); });
+
+    var apagonIniciado = false;
+
     // =============================================
     // funcion para iniciar el screamer de german
     // oculta todo, reproduce el video con luces y luego muestra el game over
@@ -114,48 +118,42 @@ function reproducirGolpes() { return Util.golpesEnPuerta(); }
     function iniciarScreamer(mensaje, usarEspecial) {
       if (juegoTerminado && !usarEspecial) return;
       juegoTerminado = true;
-      // Restablecer filtros para que el screamer se vea bien (no oscuro)
+
+      if (intervalParpadeo) {
+        clearInterval(intervalParpadeo);
+        intervalParpadeo = null;
+      }
+      var flash = document.getElementById("pantalla-flashes");
+      if (flash) flash.style.display = "none";
+
       document.body.style.filter = "none";
       cerrarCamaras();
-      // Solo detener audios de apagon si NO es el screamer especial (puerta cerrada)
-      if (!usarEspecial) {
-        detenerAudiosApagon();
-      }
+      Util.detenerVideos();
+      if (!usarEspecial) detenerAudiosApagon();
+
       document.getElementById("ui-botones").style.display = "none";
       document.getElementById("texto-hora").style.display = "none";
       document.getElementById("texto-noche").style.display = "none";
       document.getElementById("texto-energia").style.display = "none";
 
-      // establecer mensaje personalizado si existe
-      if (mensaje) {
-        document.getElementById("mensaje-gameover").innerText = mensaje;
-      } else {
-        document.getElementById("mensaje-gameover").innerText = "german ha entrado a la oficina...";
-      }
+      document.getElementById("mensaje-gameover").innerText = mensaje ||
+        (usarEspecial ? "te has quedado sin energia..." : "german ha entrado a la oficina...");
 
-      // elegir screamer aleatorio (solo si no es por falta de energia)
       var vid = videoScreamer;
       if (usarEspecial) {
-        vid = document.getElementById("video-screamer-especial");
+        vid = document.getElementById("video-screamer-especial") || videoScreamer;
       } else if (mensaje !== "te has quedado sin energia..." && Math.random() < 0.5) {
-        vid = document.getElementById("video-screamer-2");
+        vid = document.getElementById("video-screamer-2") || videoScreamer;
       }
+      if (!vid) return;
 
-      // reproducir screamer
-      vid.style.display = "block";
-      vid.currentTime = 0;
-      vid.play().catch(function () { });
-
-      // al terminar el screamer, mostrar game over y reproducir musica
-      vid.onended = function () {
+      Util.reproducirVideoUnaVez(vid, function () {
         detenerAudiosApagon();
-        vid.style.display = "none";
-
         gameOverDiv.style.display = "flex";
         audioGameover.currentTime = 0;
         audioGameover.play().catch(function () { });
         Ranking.finPartida({ victoria: false, hora: hora, energia: energia });
-      };
+      }, { maxMs: 18000 });
     }
 
 
@@ -428,18 +426,13 @@ function reproducirGolpes() { return Util.golpesEnPuerta(); }
         if (panelCamaras.style.display === "block") actualizarCamara();
 
         if (videoAnimGerman) {
-          videoAnimGerman.currentTime = 0;
-          videoAnimGerman.play().catch(function () { });
-
-          videoAnimGerman.onended = function () {
-            // al terminar la animacion, german pasa a la siguiente sala
+          Util.reproducirVideoUnaVez(videoAnimGerman, function () {
             animacionGermanActiva = false;
             germanPos = siguiente;
-            videoAnimGerman.style.display = "none";
             distorsionCamara();
             actualizarEfectosCam4();
             if (panelCamaras.style.display === "block") actualizarCamara();
-          };
+          }, { maxMs: 12000 });
         } else {
           // si no hay video, mover directamente
           animacionGermanActiva = false;
@@ -460,14 +453,11 @@ function reproducirGolpes() { return Util.golpesEnPuerta(); }
           actualizarEfectosCam4();
           if (panelCamaras.style.display === "block") actualizarCamara();
 
-          videoAnimS2.currentTime = 0;
-          videoAnimS2.play().catch(function () { });
-          videoAnimS2.onended = function () {
+          Util.reproducirVideoUnaVez(videoAnimS2, function () {
             animacionGermanSala2Activa = false;
-            videoAnimS2.style.display = "none";
             distorsionCamara();
             if (panelCamaras.style.display === "block") actualizarCamara();
-          };
+          }, { maxMs: 12000 });
         } else {
           germanPos = siguiente;
           actualizarEfectosCam4();
@@ -548,39 +538,27 @@ function reproducirGolpes() { return Util.golpesEnPuerta(); }
         Ranking.puertaCerrada();
         animandoPuerta = true;
         btnPuerta.innerText = "Cerrando...";
-        videoPuerta.style.display = "block";
-        videoPuerta.currentTime = 0;
-        videoPuerta.play();
-        videoPuerta.onended = function () {
-          videoPuerta.style.display = "none";
+        Util.reproducirVideoUnaVez(videoPuerta, function () {
           document.body.style.backgroundImage = "url('assets/imagenes/escenarios/sala_principal/oficina_porton.png')";
           puertaCerrada = true;
           animandoPuerta = false;
           btnPuerta.innerText = "Abrir Puerta";
-          // si german esta en sala4 cuando cierras, se va y golpea la puerta
           if (germanPos === 4) {
-            // Efecto visual de golpes
             var detenerV = reproducirGolpes();
-
             energia -= 5;
             if (energia < 0) energia = 0;
             actualizarUIEnergia();
             mostrarSub("German estaba en la puerta y la golpeo! Pierdes 5% de energia", 4000);
             if (energia <= 0) apagarTodo();
-
             var salaRandom = Math.floor(Math.random() * 3) + 1;
             setTimeout(function () {
               germanPos = salaRandom;
               actualizarEfectosCam4();
               if (panelCamaras.style.display === "block") actualizarCamara();
-
-              // Detener los golpes 1 segundo despues de que se haya ido
-              setTimeout(function () {
-                if (detenerV) detenerV();
-              }, 1000);
+              setTimeout(function () { if (detenerV) detenerV(); }, 1000);
             }, 2000);
           }
-        };
+        }, { maxMs: 10000 });
       } else {
         document.body.style.backgroundImage = "url('assets/imagenes/escenarios/sala_principal/oficina.png')";
         puertaCerrada = false;
@@ -610,8 +588,9 @@ function reproducirGolpes() { return Util.golpesEnPuerta(); }
     // apagon al quedarse sin energia
     // =============================================
     function apagarTodo() {
-      if (juegoTerminado) return;
-      mostrarSub("Â¡No tienes energÃ­a!", 4000);
+      if (juegoTerminado || apagonIniciado) return;
+      apagonIniciado = true;
+      mostrarSub("¡No tienes energía!", 4000);
 
       var murioConPuertaCerrada = puertaCerrada || animandoPuerta;
 
@@ -653,9 +632,7 @@ function reproducirGolpes() { return Util.golpesEnPuerta(); }
             // (entre 4 y 8 segundos despuÃ©s de empezar la mÃºsica)
             var tiempoParaSusto = 4000 + Math.random() * 4000;
             setTimeout(function () {
-              if (!juegoTerminado) {
-                iniciarScreamer("te has quedado sin energia...", murioConPuertaCerrada);
-              }
+              iniciarScreamer("te has quedado sin energia...", murioConPuertaCerrada);
             }, tiempoParaSusto);
           } else {
             setTimeout(function () {
@@ -687,29 +664,19 @@ function reproducirGolpes() { return Util.golpesEnPuerta(); }
         document.getElementById("texto-noche").style.display = "none";
         document.getElementById("texto-energia").style.display = "none";
         
-        // Detener todos los audios y otros videos para que solo suene el de ganar
-        document.querySelectorAll("audio, video").forEach(function (m) {
-          if (m.id !== "video-ganar") {
-            m.pause();
-            m.currentTime = 0;
-            if (m.tagName === "VIDEO") m.style.display = "none";
-          }
-        });
-
-        // reproducir video ganar
+        document.querySelectorAll("audio").forEach(function (a) { a.pause(); });
+        Util.detenerVideos();
         var videoGanar = document.getElementById("video-ganar");
-        videoGanar.style.display = "block";
-        videoGanar.play().catch(function () { });
-
-        videoGanar.onended = function () {
+        function irAlMenu() {
           Ranking.finPartida({ victoria: true, hora: 6, energia: energia });
           window.location.href = "menu.html";
-        };
-
-        videoGanar.onerror = function () {
-          Ranking.finPartida({ victoria: true, hora: 6, energia: energia });
-          window.location.href = "menu.html";
-        };
+        }
+        if (videoGanar) {
+          Util.reproducirVideoUnaVez(videoGanar, irAlMenu, { maxMs: 20000, ocultar: false });
+          videoGanar.onerror = irAlMenu;
+        } else {
+          irAlMenu();
+        }
       } else {
         textoHora.innerText = hora + ":00 AM";
         Ranking.actualizar(hora);
