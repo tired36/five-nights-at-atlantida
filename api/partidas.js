@@ -1,4 +1,4 @@
-const { getDb } = require("../lib/mongodb");
+const { getDb } = require("./lib/mongodb");
 
 module.exports = async function handler(req, res) {
   if (req.method === "OPTIONS") {
@@ -58,6 +58,6 @@ module.exports = async function handler(req, res) {
     return res.status(405).json({ error: "Método no permitido" });
   } catch (err) {
     console.error(err);
-    return res.status(500).json({ error: "Error del servidor" });
+    return res.status(500).json({ error: err.message || "Error del servidor" });
   }
 };

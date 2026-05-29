@@ -1,7 +1,7 @@
 const path = require("path");
 const express = require("express");
 const cors = require("cors");
-const { getDb, MONGODB_DB, COLECCION } = require("../lib/mongodb");
+const { getDb, MONGODB_DB, COLECCION } = require("../api/lib/mongodb");
 require("dotenv").config({ path: path.join(__dirname, ".env") });
 
 const PORT = Number(process.env.PORT) || 3000;

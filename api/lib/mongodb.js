@@ -16,7 +16,10 @@ async function getDb() {
   if (!URI) throw new Error("Falta MONGODB_URI");
 
   if (!cache.promise) {
-    const client = new MongoClient(URI);
+    const client = new MongoClient(URI, {
+      serverSelectionTimeoutMS: 8000,
+      connectTimeoutMS: 8000
+    });
     cache.promise = client.connect().then((c) => {
       cache.client = c;
       return c;
