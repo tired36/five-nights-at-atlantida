@@ -92,11 +92,6 @@
 
   function leerNombre() {
     if (nombreUsuario.length >= 2) return nombreUsuario;
-    const input = document.getElementById("rank-nombre");
-    const delInput = input ? input.value.trim() : "";
-    if (delInput.length >= 2) return delInput;
-    const guardado = localStorage.getItem("fnat_usuario");
-    if (guardado && guardado.trim().length >= 2) return guardado.trim();
     return "";
   }
 
@@ -113,16 +108,11 @@
       crearPantallas();
 
       nombreUsuario = "";
-      const guardado = localStorage.getItem("fnat_usuario");
-      if (guardado) document.getElementById("rank-nombre").value = guardado;
+      document.getElementById("rank-nombre").value = "";
 
       document.getElementById("rank-login").style.display = "flex";
       document.getElementById("rank-fin").style.display = "none";
       document.getElementById("rank-pts").style.display = "none";
-
-      if (guardado && guardado.trim().length >= 2) {
-        empezarPartida();
-      }
     },
 
     actualizar(h) {
