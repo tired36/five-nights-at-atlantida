@@ -153,15 +153,15 @@
 
       document.getElementById("rank-pts").style.display = "none";
       document.getElementById("rank-total").textContent = total + " pts";
-      document.getElementById("rank-save").textContent = "Guardando en Supabase...";
+      document.getElementById("rank-save").textContent = "Guardando...";
       document.getElementById("rank-fin").style.display = "flex";
       document.getElementById("rank-ver").onclick = () => {
         location.href = "ranking.html#noche" + noche;
       };
 
-      SupabaseRank.guardar(usuario, noche, total)
+      RankingApi.guardar(usuario, noche, total)
         .then(() => {
-          document.getElementById("rank-save").textContent = "Guardado en Supabase.";
+          document.getElementById("rank-save").textContent = "Guardado en el ranking.";
         })
         .catch((e) => {
           document.getElementById("rank-save").textContent = "Error: " + (e.message || "sin conexión");

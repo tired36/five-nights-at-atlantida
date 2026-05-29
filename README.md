@@ -79,13 +79,40 @@ Eres el vigilante nocturno del centro **Atlántida FP**. Debes **sobrevivir de l
 
 > **Nota:** el juego está pensado para **5 noches**; en el menú solo están jugables la **1** y la **2** por ahora.
 
-## Ranking (Supabase)
+## Ranking (MongoDB)
 
-1. Ejecuta `supabase-setup.sql` en Supabase (tabla + datos iniciales).
-2. Abre el juego como siempre (`index.html` con doble clic).
-3. Al terminar partida se guarda en Supabase; menú → **RANKING** lee el top 10 compartido.
+Al terminar una partida se guarda en **FNAA → usuarios** (Atlas). En **RANKING** ves el top 10 por noche.
 
-La tabla necesita las columnas **`usuario`**, **`noche`** y **`puntuacion`** (más `id`). `created_at` es opcional.
+### Desplegar en Vercel (recomendado, funciona en internet)
+
+1. **Sube el proyecto a GitHub** (toda la carpeta del juego).
+
+2. Entra en [vercel.com](https://vercel.com) → **Add New Project** → importa tu repo de GitHub.
+
+3. **Variables de entorno** (Settings → Environment Variables). Añade estas tres (marca Production, Preview y Development):
+
+   | Nombre | Valor |
+   |--------|--------|
+   | `MONGODB_URI` | `mongodb+srv://usuario:contraseña@fnat.mk0pu0b.mongodb.net/` |
+   | `MONGODB_DB` | `FNAA` |
+   | `MONGODB_COLLECTION` | `usuarios` |
+
+4. **MongoDB Atlas** → **Network Access** → **Add IP Address** → `0.0.0.0/0` (permite que Vercel se conecte).
+
+5. Pulsa **Deploy**. Cuando termine, abre la URL que te da Vercel (ej. `https://tu-proyecto.vercel.app`).
+
+6. Prueba:
+   - `https://tu-proyecto.vercel.app/api/health` → debe mostrar `"total": 20` (o más).
+   - Juega una noche, termina partida → debe decir "Guardado en el ranking".
+   - `https://tu-proyecto.vercel.app/ranking.html` → tablas con datos.
+
+**Importante:** en Vercel no hace falta `node server.js`; la carpeta `api/` es el servidor automático.
+
+### Probar en local
+
+1. En `server/`: copia `.env.example` a `.env` con tu `MONGODB_URI`.
+2. `node server.js` (o doble clic en `start.bat`).
+3. Abre **http://localhost:3000/menu.html**.
 
 ## Código del juego
 
@@ -93,7 +120,11 @@ La tabla necesita las columnas **`usuario`**, **`noche`** y **`puntuacion`** (m�
 |---------|----------|
 | `js/utilidades.js` | Subtítulos, energía, golpes en puerta (común) |
 | `js/ranking.js` | Puntuación y pantallas de usuario |
+| `js/ranking-api.js` | Peticiones al servidor (guardar / top 10) |
+| `js/ranking-pagina.js` | Pantalla de ranking |
+| `api/partidas.js` | API en Vercel (guardar / leer ranking) |
+| `lib/mongodb.js` | Conexión a MongoDB (Vercel y local) |
+| `server/server.js` | Servidor local opcional (desarrollo) |
 | `js/noche1.js` / `js/noche2.js` | Lógica de cada noche (config arriba del archivo) |
-| `js/supabase-api.js` | Guardar y leer ranking online |
 
 **Puntos:** +3 cada segundo; puerta −40 (pausa mientras cerrada); audio −28/−32 (pausa hasta que acabe retención + recarga).

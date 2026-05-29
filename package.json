@@ -1,0 +1,7 @@
+{
+  "name": "five-nights-at-atlantida",
+  "private": true,
+  "dependencies": {
+    "mongodb": "^6.8.0"
+  }
+}
