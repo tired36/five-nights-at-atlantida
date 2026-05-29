@@ -703,6 +703,12 @@ function reproducirGolpes() { return Util.golpesEnPuerta(); }
 
         videoGanar.onended = function () {
           Ranking.finPartida({ victoria: true, hora: 6, energia: energia });
+          window.location.href = "menu.html";
+        };
+
+        videoGanar.onerror = function () {
+          Ranking.finPartida({ victoria: true, hora: 6, energia: energia });
+          window.location.href = "menu.html";
         };
       } else {
         textoHora.innerText = hora + ":00 AM";

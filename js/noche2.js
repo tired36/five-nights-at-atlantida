@@ -570,15 +570,15 @@ function reproducirGolpes() { return Util.golpesEnPuerta(); }
     }
 
     // =============================================
-    // gasto de energia cada segundo (aumentado para noche 2)
+    // gasto de energia cada segundo
     // =============================================
     setInterval(function () {
       if (energia <= 0 || juegoTerminado) return;
       var gasto = 0.01;
-      if (panelCamaras.style.display === "block") gasto += 0.04;
-      if (linterna) gasto += 0.08;
+      if (panelCamaras.style.display === "block") gasto += 0.02;
+      if (linterna) gasto += 0.05;
       if (puertaCerrada || animandoPuerta) gasto += 0.75;
-      if (alonsoRetenido) gasto += 0.08;
+      if (alonsoRetenido) gasto += 0.05;
       energia -= gasto;
       if (energia < 0) energia = 0;
       actualizarUIEnergia();
@@ -683,6 +683,12 @@ function reproducirGolpes() { return Util.golpesEnPuerta(); }
 
         videoGanar.onended = function () {
           Ranking.finPartida({ victoria: true, hora: 6, energia: energia });
+          window.location.href = "menu.html";
+        };
+
+        videoGanar.onerror = function () {
+          Ranking.finPartida({ victoria: true, hora: 6, energia: energia });
+          window.location.href = "menu.html";
         };
       } else {
         textoHora.innerText = hora + ":00 AM";
@@ -836,6 +842,68 @@ function reproducirGolpes() { return Util.golpesEnPuerta(); }
         }
       }
     }, 60000);
+
+    // =============================================
+    // parpadeo LARGO aleatorio (efecto tension, independiente de cam 4)
+    // igual al efecto de cam 4 pero ocurre de forma random durante la partida
+    // =============================================
+    setInterval(function () {
+      if (juegoTerminado || energia <= 0 || alonsoPos === 4) return;
+
+      // Probabilidad dinamica: 12% base, 25% a partir de las 3 AM
+      var probLargo = (hora >= 3) ? 0.25 : 0.12;
+
+      if (Math.random() < probLargo) {
+        var flashLargo = document.getElementById("pantalla-flashes");
+        if (!flashLargo || intervalParpadeo) return; // no interferir con el efecto de cam 4
+
+        // duracion aleatoria entre 600ms y 1400ms
+        var duracion = 600 + Math.random() * 800;
+
+        flashLargo.style.display = "block";
+        flashLargo.style.opacity = "0.5";
+
+        // reproducir audio de pasos con 50% de probabilidad
+        if (Math.random() < 0.5) {
+          var audioPasosRandom = document.getElementById("audio-pasos");
+          if (audioPasosRandom) {
+            audioPasosRandom.currentTime = 0;
+            audioPasosRandom.play().catch(function () { });
+          }
+        }
+
+        setTimeout(function () {
+          if (alonsoPos !== 4 && !intervalParpadeo) {
+            flashLargo.style.opacity = "0";
+            setTimeout(function () { flashLargo.style.display = "none"; }, 200);
+          }
+        }, duracion);
+      }
+    }, 20000);
+
+    // =============================================
+    // fallo aleatorio de camaras (3 segundos con sonido)
+    // =============================================
+    setInterval(function () {
+      if (juegoTerminado || energia <= 0 || camaraFallo || panelCamaras.style.display !== "block") return;
+
+      // probabilidad dinamica: aumenta a partir de las 3 AM
+      var prob = (hora >= 3) ? 0.25 : 0.08;
+
+      if (Math.random() < prob) {
+        camaraFallo = true;
+        var audioCorr = document.getElementById("audio-pasos-corriendo");
+        if (audioCorr) {
+          audioCorr.currentTime = 0;
+          audioCorr.play().catch(function () { });
+        }
+        actualizarCamara();
+        setTimeout(function () {
+          camaraFallo = false;
+          if (panelCamaras.style.display === "block") actualizarCamara();
+        }, 3000);
+      }
+    }, 15000);
 
     // =============================================
     // bloqueo severo de una camara (70% cada 2 min)
