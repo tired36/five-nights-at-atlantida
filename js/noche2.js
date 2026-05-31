@@ -32,6 +32,11 @@ function reproducirGolpes() { return Util.golpesEnPuerta(); }
     var linterna = false;
     var puertaCerrada = false;
     var animandoPuerta = false;
+    var cancelarVideoPuerta = null;
+
+    function syncRankingEstado() {
+      Ranking.syncBloqueos(puertaCerrada || animandoPuerta, alonsoRetenido || audioEnCooldown);
+    }
     var hora = 0;
     var energia = 100;
 
@@ -398,6 +403,7 @@ function reproducirGolpes() { return Util.golpesEnPuerta(); }
 
       alonsoRetenido = true;
       audioEnCooldown = true;
+      syncRankingEstado();
       btnAudio.disabled = true;
       contadorRet.style.display = "block";
 
@@ -409,11 +415,12 @@ function reproducirGolpes() { return Util.golpesEnPuerta(); }
         if (segundos <= 0) {
           clearInterval(iv);
           alonsoRetenido = false;
+          syncRankingEstado();
           contadorRet.style.display = "none";
           // cooldown de 25s antes de poder usar el audio de nuevo
           setTimeout(function () {
             audioEnCooldown = false;
-            Ranking.audioTerminado();
+            syncRankingEstado();
             if (panelCamaras.style.display === "block") actualizarCamara();
           }, 25000);
         }
@@ -527,11 +534,15 @@ function reproducirGolpes() { return Util.golpesEnPuerta(); }
       if (!puertaCerrada) {
         Ranking.puertaCerrada();
         animandoPuerta = true;
+        syncRankingEstado();
         btnPuerta.innerText = "Cerrando...";
-        Util.reproducirVideoUnaVez(videoPuerta, function () {
+        if (cancelarVideoPuerta) cancelarVideoPuerta();
+        cancelarVideoPuerta = Util.reproducirVideoUnaVez(videoPuerta, function () {
+          if (juegoTerminado || apagonIniciado) return;
           document.body.style.backgroundImage = "url('assets/imagenes/escenarios/sala_principal/oficina_porton.png')";
           puertaCerrada = true;
           animandoPuerta = false;
+          syncRankingEstado();
           btnPuerta.innerText = "Abrir Puerta";
           if (alonsoPos === 4) {
             var detenerV = reproducirGolpes();
@@ -550,10 +561,15 @@ function reproducirGolpes() { return Util.golpesEnPuerta(); }
           }
         }, { maxMs: 10000 });
       } else {
+        if (cancelarVideoPuerta) {
+          cancelarVideoPuerta();
+          cancelarVideoPuerta = null;
+        }
         document.body.style.backgroundImage = "url('assets/imagenes/escenarios/sala_principal/oficina.png')";
         puertaCerrada = false;
+        animandoPuerta = false;
         btnPuerta.innerText = "Cerrar Puerta";
-        Ranking.puertaAbierta();
+        syncRankingEstado();
       }
     }
 
@@ -570,6 +586,7 @@ function reproducirGolpes() { return Util.golpesEnPuerta(); }
       energia -= gasto;
       if (energia < 0) energia = 0;
       actualizarUIEnergia();
+      syncRankingEstado();
       Ranking.actualizar(hora);
       if (energia <= 0) apagarTodo();
     }, 1000);
@@ -583,6 +600,10 @@ function reproducirGolpes() { return Util.golpesEnPuerta(); }
       mostrarSub("¡No tienes energía!", 4000);
 
       panelCamaras.style.display = "none";
+      if (cancelarVideoPuerta) {
+        cancelarVideoPuerta();
+        cancelarVideoPuerta = null;
+      }
       videoPuerta.style.display = "none";
       videoPuerta.pause();
       if (audioAlonso) audioAlonso.pause();
@@ -598,7 +619,7 @@ function reproducirGolpes() { return Util.golpesEnPuerta(); }
       linterna = false;
       puertaCerrada = false;
       animandoPuerta = false;
-      Ranking.puertaAbierta();
+      syncRankingEstado();
 
       // Efecto de "luz pobre" y parpadeo en lugar de negro total
       document.body.style.transition = "filter 2s";

@@ -126,38 +126,34 @@
       pintarPuntos();
     },
 
+    /** Sincroniza pausas con el estado real del juego (evita que los pts queden bloqueados) */
+    syncBloqueos(puertaBloqueada, audioBloqueado) {
+      if (!listo) return;
+      pausaPorPuerta = !!puertaBloqueada;
+      pausaPorAudio = !!audioBloqueado;
+    },
+
     /** Usas el audio: penalización y no sube hasta que termine (retención + recarga) */
     audioActivado() {
       if (!listo) return;
       const n = reglas().penAudio;
       puntos = Math.max(0, puntos - n);
-      pausaPorAudio = true;
       avisoPenalizacion("-" + n + " audio (no sube mientras activo)");
       pintarPuntos();
     },
 
-    audioTerminado() {
-      if (!listo) return;
-      pausaPorAudio = false;
-      pintarPuntos();
-    },
+    audioTerminado() {},
 
-    /** Cierras la puerta: -40 y no sube hasta que abras */
+    /** Cierras la puerta: -40 y no sube mientras esté bajada o bajando */
     puertaCerrada() {
       if (!listo) return;
       const n = reglas().penPuerta;
       puntos = Math.max(0, puntos - n);
-      pausaPorPuerta = true;
       avisoPenalizacion("-" + n + " puerta (no sube mientras cerrada)");
       pintarPuntos();
     },
 
-    /** Abres la puerta: vuelve a subir la puntuación (si el audio no la bloqueó) */
-    puertaAbierta() {
-      if (!listo) return;
-      pausaPorPuerta = false;
-      pintarPuntos();
-    },
+    puertaAbierta() {},
 
     finPartida(opts) {
       if (fin) return;
