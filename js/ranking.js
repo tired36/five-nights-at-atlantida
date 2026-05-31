@@ -175,6 +175,11 @@
       nombreUsuario = usuario;
       localStorage.setItem("fnat_usuario", usuario);
 
+      if (victoria && noche === 1) {
+        if (window.Logros) Logros.desbloquear("noche1");
+        else localStorage.setItem("fnat_logro_noche1", "1");
+      }
+
       document.getElementById("rank-pts").style.display = "none";
       document.getElementById("rank-usuario").textContent = usuario;
       document.getElementById("rank-total").textContent = total + " pts";

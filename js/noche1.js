@@ -678,6 +678,8 @@ function reproducirGolpes() { return Util.golpesEnPuerta(); }
       if (hora >= 6) {
         juegoTerminado = true;
 
+        if (window.Logros) Logros.desbloquear("noche1");
+
         // ocultar todo
         cerrarCamaras();
         document.getElementById("ui-botones").style.display = "none";
@@ -963,3 +965,4 @@ function reproducirGolpes() { return Util.golpesEnPuerta(); }
     }, 60);
 
     Ranking.init(1);
+    if (window.Logros) Logros.initEsquina();
