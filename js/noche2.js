@@ -134,6 +134,26 @@ function reproducirGolpes() { return Util.golpesEnPuerta(); }
         intervalScreamerLuces = null;
       }
 
+      var flashParpadeo = document.getElementById("pantalla-parpadeo");
+      var flashResp = document.getElementById("pantalla-respiracion");
+      var audioResp = document.getElementById("audio-respiracion");
+      if (flashParpadeo) {
+        flashParpadeo.style.display = "none";
+        flashParpadeo.style.opacity = "0";
+      }
+      if (flashResp) {
+        flashResp.style.display = "none";
+        flashResp.classList.remove("efecto-respiracion");
+      }
+      if (audioResp) {
+        audioResp.pause();
+        audioResp.currentTime = 0;
+      }
+      if (pantallaFlashes) {
+        pantallaFlashes.style.display = "none";
+        pantallaFlashes.style.opacity = "0";
+      }
+
       document.body.style.filter = "none";
       cerrarCamaras();
       Util.detenerVideos();
@@ -144,10 +164,17 @@ function reproducirGolpes() { return Util.golpesEnPuerta(); }
       document.getElementById("texto-noche").style.display = "none";
       document.getElementById("texto-energia").style.display = "none";
 
-      document.getElementById("mensaje-gameover").innerText = mensaje || "alonso ha entrado a la oficina...";
+      var msgEl = document.getElementById("mensaje-gameover");
+      if (msgEl) {
+        msgEl.innerText = mensaje || "alonso ha entrado a la oficina...";
+      }
 
       var vid = videoScreamer;
-      if (!vid) return;
+      if (!vid) {
+        gameOverDiv.style.display = "flex";
+        Ranking.finPartida({ victoria: false, hora: hora, energia: energia });
+        return;
+      }
 
       var audioCaja = document.getElementById("audio-caja");
       if (audioCaja) {
@@ -155,20 +182,15 @@ function reproducirGolpes() { return Util.golpesEnPuerta(); }
         document.querySelectorAll("audio").forEach(function (a) { a.muted = false; });
       }
 
-      if (pantallaFlashes) {
-        pantallaFlashes.style.display = "block";
-        intervalScreamerLuces = setInterval(function () {
-          pantallaFlashes.style.opacity = Math.random() > 0.5 ? "0.6" : "0";
-        }, 50);
-      }
-
       Util.reproducirVideoUnaVez(vid, function () {
         detenerAudiosApagon();
         if (intervalScreamerLuces) clearInterval(intervalScreamerLuces);
         if (pantallaFlashes) pantallaFlashes.style.display = "none";
         gameOverDiv.style.display = "flex";
-        audioGameover.currentTime = 0;
-        audioGameover.play().catch(function () { });
+        if (audioGameover) {
+          audioGameover.currentTime = 0;
+          audioGameover.play().catch(function () { });
+        }
         Ranking.finPartida({ victoria: false, hora: hora, energia: energia });
       }, { maxMs: 18000 });
     }
@@ -184,7 +206,7 @@ function reproducirGolpes() { return Util.golpesEnPuerta(); }
       var respVisual = document.getElementById("pantalla-respiracion");
       var audioResp = document.getElementById("audio-respiracion");
 
-      if (!flash || !respVisual || !audioResp) return;
+      if (!flash || !respVisual) return;
 
       if (alonsoPos === 4) {
         // efecto parpadeo negro
@@ -204,8 +226,10 @@ function reproducirGolpes() { return Util.golpesEnPuerta(); }
           // iniciar respiracion visual y sonora
           respVisual.style.display = "block";
           respVisual.classList.add("efecto-respiracion");
-          audioResp.volume = 0.6;
-          audioResp.play().catch(function () { });
+          if (audioResp) {
+            audioResp.volume = 0.6;
+            audioResp.play().catch(function () { });
+          }
         }
       } else {
         if (intervalParpadeo) {
@@ -217,8 +241,10 @@ function reproducirGolpes() { return Util.golpesEnPuerta(); }
           // detener respiracion visual y sonora
           respVisual.style.display = "none";
           respVisual.classList.remove("efecto-respiracion");
-          audioResp.pause();
-          audioResp.currentTime = 0;
+          if (audioResp) {
+            audioResp.pause();
+            audioResp.currentTime = 0;
+          }
         }
       }
     }
@@ -887,30 +913,6 @@ function reproducirGolpes() { return Util.golpesEnPuerta(); }
         }, duracion);
       }
     }, 20000);
-
-    // =============================================
-    // fallo aleatorio de camaras (3 segundos con sonido)
-    // =============================================
-    setInterval(function () {
-      if (juegoTerminado || energia <= 0 || camaraFallo || panelCamaras.style.display !== "block") return;
-
-      // probabilidad dinamica: aumenta a partir de las 3 AM
-      var prob = (hora >= 3) ? 0.25 : 0.08;
-
-      if (Math.random() < prob) {
-        camaraFallo = true;
-        var audioCorr = document.getElementById("audio-pasos-corriendo");
-        if (audioCorr) {
-          audioCorr.currentTime = 0;
-          audioCorr.play().catch(function () { });
-        }
-        actualizarCamara();
-        setTimeout(function () {
-          camaraFallo = false;
-          if (panelCamaras.style.display === "block") actualizarCamara();
-        }, 3000);
-      }
-    }, 15000);
 
     // =============================================
     // bloqueo severo de una camara (70% cada 2 min)
