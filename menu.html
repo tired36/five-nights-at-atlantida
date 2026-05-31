@@ -165,24 +165,67 @@
     }
 
     .logro-item {
+      display: flex;
+      align-items: center;
+      gap: 20px;
       font-size: 1.4rem;
       text-transform: uppercase;
       letter-spacing: 3px;
       padding: 18px 24px;
       margin: 12px 0;
       border: 1px solid #330000;
-      transition: opacity 1.5s, color 1.5s, text-shadow 1.5s;
+      transition: opacity 1.5s, color 1.5s, text-shadow 1.5s, border-color 1.5s;
+    }
+
+    .logro-icono {
+      width: 52px;
+      height: 52px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid #333;
+      background: rgba(20, 0, 0, 0.5);
+      position: relative;
+    }
+
+    .logro-icono svg {
+      width: 26px;
+      height: 26px;
+      fill: currentColor;
+    }
+
+    .logro-texto {
+      flex: 1;
+      text-align: left;
+    }
+
+    .logro-item.desbloqueado .logro-icono {
+      color: #cc0000;
+      border-color: #cc0000;
+      box-shadow: 0 0 12px rgba(255, 0, 0, 0.35);
+    }
+
+    .logro-item.desbloqueado .logro-texto {
+      color: #cc0000;
+      text-shadow: 2px 2px 20px #ff0000;
     }
 
     .logro-item.desbloqueado {
-      color: #cc0000;
-      text-shadow: 2px 2px 20px #ff0000;
       border-color: #cc0000;
     }
 
-    .logro-item.bloqueado {
+    .logro-item.bloqueado .logro-icono {
+      color: #444;
+      border-color: #2a2a2a;
+    }
+
+    .logro-item.bloqueado .logro-texto {
       color: #333;
       text-shadow: none;
+    }
+
+    .logro-item.bloqueado {
       border-color: #222;
     }
 
@@ -224,9 +267,7 @@
 
   <div id="panel-logros">
     <h2 class="logros-titulo">Logros</h2>
-    <ul class="logros-lista">
-      <li id="logro-noche1" class="logro-item bloqueado">???</li>
-    </ul>
+    <ul class="logros-lista" id="logros-lista"></ul>
     <button class="btn-volver-logros" onclick="volverMenuLogros()">[ Volver al menu ]</button>
   </div>
 
@@ -287,15 +328,7 @@
     }
 
     function renderLogros() {
-      var noche1 = Logros.estaDesbloqueado("noche1");
-      var el = document.getElementById("logro-noche1");
-      if (noche1) {
-        el.textContent = Logros.texto("noche1");
-        el.className = "logro-item desbloqueado";
-      } else {
-        el.textContent = "???";
-        el.className = "logro-item bloqueado";
-      }
+      Logros.renderLista("logros-lista");
     }
 
     Logros.initEsquina();

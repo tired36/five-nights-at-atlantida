@@ -1,4 +1,10 @@
 (function () {
+  var SVG_CANDADO =
+    '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17 9h-1V7a4 4 0 0 0-8 0v2H7a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2zm-3 0h-4V7a2 2 0 1 1 4 0v2z"/></svg>';
+
+  var SVG_TROFEO =
+    '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 5h-2V4a2 2 0 0 0-2-2H9a2 2 0 0 0-2 2v1H5a2 2 0 0 0-2 2v1a4 4 0 0 0 4 4h.5A5 5 0 0 0 11 15.9V18H8a1 1 0 0 0 0 2h8a1 1 0 0 0 0-2h-3v-2.1A5 5 0 0 0 16.5 13H17a4 4 0 0 0 4-4V7a2 2 0 0 0-2-2zM5 10V8h1v2a2 2 0 0 1-2 2 2 2 0 0 1-2-2zm14 0a2 2 0 0 1-2 2 2 2 0 0 1-2-2V8h4v2z"/></svg>';
+
   var LOGROS = {
     noche1: {
       key: "fnat_logro_noche1",
@@ -79,6 +85,31 @@
     initEsquina();
   }
 
+  function renderLista(contenedorId) {
+    var lista = document.getElementById(contenedorId);
+    if (!lista) return;
+    lista.innerHTML = "";
+
+    Object.keys(LOGROS).forEach(function (id) {
+      var r = LOGROS[id];
+      var desbloqueado = estaDesbloqueado(id);
+      var item = document.createElement("li");
+      item.className = "logro-item " + (desbloqueado ? "desbloqueado" : "bloqueado");
+
+      var icono = document.createElement("span");
+      icono.className = "logro-icono";
+      icono.innerHTML = desbloqueado ? SVG_TROFEO : SVG_CANDADO;
+
+      var texto = document.createElement("span");
+      texto.className = "logro-texto";
+      texto.textContent = desbloqueado ? r.texto : "???";
+
+      item.appendChild(icono);
+      item.appendChild(texto);
+      lista.appendChild(item);
+    });
+  }
+
   window.Logros = {
     estaDesbloqueado: estaDesbloqueado,
 
@@ -91,6 +122,8 @@
     },
 
     initEsquina: initEsquina,
+
+    renderLista: renderLista,
 
     texto: function (id) {
       var r = registro(id);
