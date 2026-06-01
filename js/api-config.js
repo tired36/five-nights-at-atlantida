@@ -1,27 +1,29 @@
 (function () {
-  const host = window.location.hostname;
-  const port = window.location.port;
-  const LOCAL_API = "http://localhost:3000";
+  // Misma BD Atlas para todos. Si abres el juego en otro PC (Live Server, etc.) usa la API de Vercel.
+  var API_NUBE = "https://five-nights-at-atlantida.vercel.app";
 
-  // file:// o Live Server (5500, etc.): el juego en un sitio, la API en :3000
-  if (window.location.protocol === "file:") {
-    window.API_URL = LOCAL_API;
-    return;
-  }
+  var host = window.location.hostname;
+  var port = window.location.port;
+  var protocol = window.location.protocol;
 
-  // Vercel, dominio propio, o npm run dev (todo en :3000): /api relativo
-  if (
-    host.endsWith(".vercel.app") ||
-    ((host === "localhost" || host === "127.0.0.1") && port === "3000")
-  ) {
+  // En Vercel o tu dominio: API en el mismo sitio
+  if (host.endsWith(".vercel.app")) {
     window.API_URL = "";
     return;
   }
 
-  if (host !== "localhost" && host !== "127.0.0.1") {
+  // npm run dev → http://localhost:3000 (misma BD si tienes .env)
+  if ((host === "localhost" || host === "127.0.0.1") && port === "3000") {
     window.API_URL = "";
     return;
   }
 
-  window.API_URL = LOCAL_API;
+  // Dominio propio en producción
+  if (host && host !== "localhost" && host !== "127.0.0.1") {
+    window.API_URL = "";
+    return;
+  }
+
+  // file://, Live Server u otro puerto local → ranking en la nube (todos ven lo mismo)
+  window.API_URL = API_NUBE.replace(/\/$/, "");
 })();

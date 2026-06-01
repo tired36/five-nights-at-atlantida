@@ -120,8 +120,8 @@
       ticks = 0;
       crearPantallas();
 
-      nombreUsuario = "";
-      document.getElementById("rank-nombre").value = "";
+      nombreUsuario = localStorage.getItem("fnat_usuario") || "";
+      document.getElementById("rank-nombre").value = nombreUsuario;
 
       document.getElementById("rank-login").style.display = "flex";
       document.getElementById("rank-fin").style.display = "none";
@@ -202,6 +202,14 @@
       }
 
       mostrarBarraPuntos(false);
+
+      const idRank = idNocheRanking();
+      const promesaGuardado = RankingApi.guardar(usuario, idRank, total);
+
+      if (!victoria) {
+        return promesaGuardado.catch(() => {});
+      }
+
       document.getElementById("rank-usuario").textContent = usuario;
       document.getElementById("rank-total").textContent = total + " pts";
       document.getElementById("rank-save").textContent = "Guardando...";
@@ -213,8 +221,7 @@
             : "ranking.html#noche" + noche;
       };
 
-      const idRank = idNocheRanking();
-      RankingApi.guardar(usuario, idRank, total)
+      return promesaGuardado
         .then(() => {
           const donde =
             modo === "dificil"

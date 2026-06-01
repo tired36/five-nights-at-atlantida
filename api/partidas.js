@@ -1,4 +1,5 @@
 const { getDb } = require("./lib/mongodb");
+const { aplicarCors } = require("./lib/cors");
 
 function leerBody(req) {
   if (!req.body) return {};
@@ -41,6 +42,7 @@ function filtroBusqueda(parsed) {
 }
 
 module.exports = async function handler(req, res) {
+  aplicarCors(res);
   if (req.method === "OPTIONS") {
     return res.status(200).end();
   }
