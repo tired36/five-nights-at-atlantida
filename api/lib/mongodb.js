@@ -3,16 +3,24 @@ const { MongoClient } = require("mongodb");
 
 dns.setServers(["8.8.8.8", "1.1.1.1"]);
 
-const URI = process.env.MONGODB_URI_STANDARD || process.env.MONGODB_URI;
-const MONGODB_DB = process.env.MONGODB_DB || "FNAA";
-const COLECCION = process.env.MONGODB_COLLECTION || "usuarios";
-
 let cache = global._fnatMongo;
 if (!cache) {
   cache = global._fnatMongo = { client: null, promise: null };
 }
 
+function getMongoUri() {
+  return process.env.MONGODB_URI_STANDARD || process.env.MONGODB_URI;
+}
+
+function getMongoConfig() {
+  return {
+    MONGODB_DB: process.env.MONGODB_DB || "FNAA",
+    COLECCION: process.env.MONGODB_COLLECTION || "usuarios"
+  };
+}
+
 async function getDb() {
+  const URI = getMongoUri();
   if (!URI) throw new Error("Falta MONGODB_URI");
 
   if (!cache.promise) {
@@ -27,8 +35,11 @@ async function getDb() {
   }
 
   await cache.promise;
+  const { MONGODB_DB, COLECCION } = getMongoConfig();
   const db = cache.client.db(MONGODB_DB);
   return { db, col: db.collection(COLECCION) };
 }
 
-module.exports = { getDb, MONGODB_DB, COLECCION };
+const { MONGODB_DB, COLECCION } = getMongoConfig();
+
+module.exports = { getDb, getMongoUri, getMongoConfig, MONGODB_DB, COLECCION };

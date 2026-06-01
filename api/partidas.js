@@ -10,6 +10,36 @@ function leerBody(req) {
   }
 }
 
+/** 1, 2, 1D, 2D (también acepta noche 1 + modo dificil por compatibilidad) */
+function parseNoche(raw, modoOpcional) {
+  const s = String(raw ?? "")
+    .trim()
+    .toUpperCase();
+  if (s === "1D") return { id: "1D", base: 1, dificil: true };
+  if (s === "2D") return { id: "2D", base: 2, dificil: true };
+
+  const n = Number(s);
+  if (n === 1 || n === 2) {
+    const modo =
+      modoOpcional === "dificil" || modoOpcional === true ? "dificil" : "normal";
+    if (modo === "dificil") return { id: n + "D", base: n, dificil: true };
+    return { id: n, base: n, dificil: false };
+  }
+  return null;
+}
+
+function filtroBusqueda(parsed) {
+  if (parsed.dificil) {
+    return {
+      $or: [{ noche: parsed.id }, { noche: parsed.base, modo: "dificil" }]
+    };
+  }
+  return {
+    noche: parsed.base,
+    $or: [{ modo: { $exists: false } }, { modo: "normal" }]
+  };
+}
+
 module.exports = async function handler(req, res) {
   if (req.method === "OPTIONS") {
     return res.status(200).end();
@@ -19,15 +49,15 @@ module.exports = async function handler(req, res) {
     const { col } = await getDb();
 
     if (req.method === "GET") {
-      const noche = Number(req.query.noche);
       const limit = Math.min(Number(req.query.limit) || 10, 50);
+      const parsed = parseNoche(req.query.noche, req.query.modo);
 
-      if (![1, 2].includes(noche)) {
-        return res.status(400).json({ error: "noche debe ser 1 o 2" });
+      if (!parsed) {
+        return res.status(400).json({ error: "noche debe ser 1, 2, 1D o 2D" });
       }
 
       const lista = await col
-        .find({ noche })
+        .find(filtroBusqueda(parsed))
         .sort({ puntuacion: -1 })
         .limit(limit)
         .project({ _id: 0, usuario: 1, puntuacion: 1 })
@@ -39,14 +69,14 @@ module.exports = async function handler(req, res) {
     if (req.method === "POST") {
       const body = leerBody(req);
       const usuario = String(body.usuario || "").trim();
-      const noche = Number(body.noche);
       const puntuacion = Number(body.puntuacion);
+      const parsed = parseNoche(body.noche, body.modo);
 
       if (usuario.length < 2 || usuario.length > 20) {
         return res.status(400).json({ error: "usuario inválido" });
       }
-      if (![1, 2].includes(noche)) {
-        return res.status(400).json({ error: "noche debe ser 1 o 2" });
+      if (!parsed) {
+        return res.status(400).json({ error: "noche debe ser 1, 2, 1D o 2D" });
       }
       if (!Number.isFinite(puntuacion) || puntuacion < 0 || puntuacion > 999999) {
         return res.status(400).json({ error: "puntuación inválida" });
@@ -58,7 +88,7 @@ module.exports = async function handler(req, res) {
       await col.insertOne({
         id: siguienteId,
         usuario,
-        noche,
+        noche: parsed.id,
         puntuacion: Math.floor(puntuacion)
       });
 

@@ -1,6 +1,10 @@
 // === NOCHE 2: Alonso ===
 var CONFIG_N2 = { probMovimiento: 0.6, probMovimiento5AM: 0.8, probConCaja: 0.9, audioRetieneSeg: 15, audioRecargaSeg: 25, auraAvisoSeg: 7, auraDanoSeg: 10, auraDanoEnergia: 2, golpePuertaEnergia: 7, gasto: { base: 0.01, camaras: 0.04, linterna: 0.08, puerta: 0.75, retenido: 0.08 } };
 
+function esModoDificil() {
+  return window.ModoDificil && ModoDificil.esActivo();
+}
+
 function mostrarSub(texto, duracion) { Util.subtitulo(subtitulo, subTimer, texto, duracion); }
 function actualizarUIEnergia() { Util.pintarEnergia(textoEnergia, energia); }
 function detenerAudiosApagon() { Util.pararApagon(); }
@@ -121,9 +125,19 @@ function reproducirGolpes() { return Util.golpesEnPuerta(); }
     // funcion para iniciar el screamer de alonso
     // oculta todo, reproduce el video con luces y luego muestra el game over
     // =============================================
+    var ultimaPosRegistrada = alonsoPos;
+
     function iniciarScreamer(mensaje, usarEspecial) {
       if (juegoTerminado && !usarEspecial) return;
       juegoTerminado = true;
+
+      if (window.Logros) {
+        if (mensaje === "te has quedado sin energia...") {
+          Logros.alMorir({ sinEnergia: true });
+        } else {
+          Logros.alMorir({ noche: 2 });
+        }
+      }
 
       if (intervalParpadeo) {
         clearInterval(intervalParpadeo);
@@ -335,6 +349,7 @@ function reproducirGolpes() { return Util.golpesEnPuerta(); }
     // cambiar camara activa
     // =============================================
     function cambiarCam(num) {
+      if (esModoDificil()) return;
       camActual = num;
       linterna = false;
       segMirandoAlonso = 0; // resetear contador de aura al cambiar
@@ -344,6 +359,7 @@ function reproducirGolpes() { return Util.golpesEnPuerta(); }
     }
 
     function abrirCamaras() {
+      if (esModoDificil()) return;
       if (energia <= 0 || camarasDestruidas) return;
       panelCamaras.style.display = "block";
       actualizarCamara();
@@ -545,6 +561,14 @@ function reproducirGolpes() { return Util.golpesEnPuerta(); }
     // bucle normal de movimiento (cada 10s)
     setInterval(intentarMoverAlonso, 10000);
 
+    setInterval(function () {
+      if (alonsoPos !== ultimaPosRegistrada) {
+        ultimaPosRegistrada = alonsoPos;
+        if (window.Logros) Logros.registrarMovimientoSala(alonsoPos);
+        if (esModoDificil() && alonsoPos < 4) ModoDificil.pistaMovimiento();
+      }
+    }, 250);
+
     // bucle de agresividad extrema (cada 2s) solo activo con la caja de musica
     setInterval(function () {
       if (cajaMusicaActiva && alonsoPos !== 4) intentarMoverAlonso();
@@ -698,6 +722,11 @@ function reproducirGolpes() { return Util.golpesEnPuerta(); }
       if (hora >= 6) {
         juegoTerminado = true;
 
+        if (window.Logros) {
+          Logros.desbloquear("noche2");
+          if (energia > 20) Logros.desbloquear("energia20");
+        }
+
         // ocultar todo
         cerrarCamaras();
         document.getElementById("ui-botones").style.display = "none";
@@ -736,6 +765,7 @@ function reproducirGolpes() { return Util.golpesEnPuerta(); }
           mostrarSub("Â¡Son las 5 AM! Alonso se ha vuelto extremadamente agresivo...", 5000);
 
           // evento: destruccion aleatoria de camaras en los proximos 30 segundos
+          if (esModoDificil()) return;
           var delayDestruccion = Math.random() * 30000;
           setTimeout(function () {
             camarasDestruidas = true;
@@ -800,6 +830,7 @@ function reproducirGolpes() { return Util.golpesEnPuerta(); }
     // fallo aleatorio de camaras (3 segundos con sonido)
     // =============================================
     setInterval(function () {
+      if (esModoDificil()) return;
       if (juegoTerminado || energia <= 0 || camaraFallo || panelCamaras.style.display !== "block") return;
 
       // probabilidad dinamica: aumenta a partir de las 3 AM
@@ -1037,4 +1068,15 @@ function reproducirGolpes() { return Util.golpesEnPuerta(); }
       }
     }, 60);
 
-    Ranking.init(2);
+    if (esModoDificil()) {
+      ModoDificil.aplicarSinCamaras({
+        noche: 2,
+        panelCamaras: panelCamaras,
+        btnCamaras: document.getElementById("btn-camaras"),
+        textoNoche: document.getElementById("texto-noche")
+      });
+      Ranking.init(2, { modo: "dificil" });
+    } else {
+      Ranking.init(2);
+    }
+    if (window.Logros) Logros.initEsquina();

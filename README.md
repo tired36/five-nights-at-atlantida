@@ -81,7 +81,32 @@ Eres el vigilante nocturno del centro **Atlántida FP**. Debes **sobrevivir de l
 
 ## Ranking (MongoDB)
 
-Al terminar una partida se guarda en **FNAA → usuarios** (Atlas). En **RANKING** ves el top 10 por noche.
+Al terminar una partida se guarda en **FNAA → usuarios** (MongoDB Atlas). En **RANKING** ves el top 10 por noche (y **1D / 2D** en modo difícil).
+
+### Una sola base de datos (local + Vercel)
+
+No hay dos rankings separados: **local y Vercel usan la misma BD en Atlas**. Si guardas una partida en tu PC, aparece en la web de Vercel al instante, y al revés.
+
+| Dónde | Qué usa |
+|-------|---------|
+| **Vercel** | Variables en el panel → carpeta `api/` |
+| **Local** | Archivo `.env` en la raíz → `npm run dev` |
+
+Las **tres variables deben ser idénticas** en ambos sitios:
+
+- `MONGODB_URI`
+- `MONGODB_DB` → `FNAA`
+- `MONGODB_COLLECTION` → `usuarios`
+
+Comprobar conexión local:
+
+```bash
+npm run check-db
+```
+
+Si en local el `total` de `/api/health` es el mismo que en Vercel, estás en la misma base de datos.
+
+**Vercel no se rompe:** en producción solo se ejecuta la carpeta `api/` (serverless). El archivo `server/server.js` es solo para desarrollo en tu PC y no se despliega como servidor en Vercel.
 
 ### Desplegar en Vercel (recomendado, funciona en internet)
 
@@ -108,11 +133,26 @@ Al terminar una partida se guarda en **FNAA → usuarios** (Atlas). En **RANKING
 
 **Importante:** en Vercel no hace falta `node server.js`; la carpeta `api/` es el servidor automático.
 
-### Probar en local
+### Probar en local (misma BD y misma API que Vercel)
 
-1. En `server/`: copia `.env.example` a `.env` con tu `MONGODB_URI`.
-2. `node server.js` (o doble clic en `start.bat`).
-3. Abre **http://localhost:3000/menu.html**.
+1. Copia `.env.example` a **`.env`** en la **raíz** del proyecto.
+2. Pega en `.env` la **misma** `MONGODB_URI` (y DB/colección) que tienes en Vercel → Settings → Environment Variables.
+3. En la raíz:
+   ```bash
+   npm install
+   npm run check-db
+   npm run dev
+   ```
+   O doble clic en **`dev.bat`** (comprueba la BD antes de arrancar).
+4. Abre **http://localhost:3000/menu.html**.
+
+Si usas **Live Server**, deja `npm run dev` en marcha: el juego llama a `http://localhost:3000/api/...`.
+
+Comprueba: **http://localhost:3000/api/health** → `"ok": true` y el mismo `"total"` que en tu URL de Vercel.
+
+### Modo difícil
+
+En el menú: **MODO DIFICIL** → mismas noches 1 y 2 **sin cámaras** (solo sonidos y parpadeos). En el ranking se guardan como **1D** y **2D** (sección aparte en `ranking.html`).
 
 ## Código del juego
 
@@ -124,7 +164,7 @@ Al terminar una partida se guarda en **FNAA → usuarios** (Atlas). En **RANKING
 | `js/ranking-pagina.js` | Pantalla de ranking |
 | `api/partidas.js` | API en Vercel (guardar / leer ranking) |
 | `lib/mongodb.js` | Conexión a MongoDB (Vercel y local) |
-| `server/server.js` | Servidor local opcional (desarrollo) |
+| `server/server.js` | Servidor local (`npm run dev`); usa los mismos handlers que `api/` en Vercel |
 | `js/noche1.js` / `js/noche2.js` | Lógica de cada noche (config arriba del archivo) |
 
 **Puntos:** +3 cada segundo; puerta −40 (pausa mientras cerrada); audio −28/−32 (pausa hasta que acabe retención + recarga).

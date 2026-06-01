@@ -259,10 +259,9 @@
   <div id="menu">
     <h1>Five Nights at Atlantida</h1>
     <button onclick="nuevaPartida()">&#9658; NUEVA PARTIDA</button>
-    <button onclick="continuar()">CONTINUAR</button>
-    <button onclick="opciones()">OPCIONES</button>
     <button onclick="location.href='ranking.html'">RANKING</button>
     <button onclick="mostrarLogros()">LOGROS</button>
+    <button onclick="modoDificil()" style="color:#f55;">MODO DIFICIL</button>
   </div>
 
   <div id="panel-logros">
@@ -279,6 +278,19 @@
     <button class="btn-volver" onclick="volverMenu()">[ Volver al menu ]</button>
   </div>
 
+  <div id="panel-dificil" style="display:none;position:absolute;top:30%;left:5%;z-index:5;text-align:center;background:rgba(10,0,0,0.92);border:2px solid #a00;padding:40px;min-width:420px;">
+    <h2 style="color:#f44;letter-spacing:2px;margin-bottom:16px;">MODO DIFICIL</h2>
+    <p style="color:#ccc;font-size:14px;line-height:1.5;margin-bottom:24px;text-transform:none;letter-spacing:0;">
+      Las mismas noches 1 y 2, pero <strong style="color:#f88;">sin cámaras</strong>.
+      Solo podrás orientarte con <strong>sonidos</strong> y <strong>parpadeos de luz</strong> en la oficina.
+      <br><br>
+      <span style="color:#f66;">Casi imposible de ganar. Muy difícil.</span>
+    </p>
+    <button class="boton-noche" onclick="iniciarNocheDificil(1)">&#9658; NOCHE 1D</button>
+    <button class="boton-noche" onclick="iniciarNocheDificil(2)">&#9658; NOCHE 2D</button>
+    <button class="btn-volver" onclick="volverMenuDificil()">[ Volver al menu ]</button>
+  </div>
+
   <div id="popup-desarrollo"
     style="display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 10; text-align: center; background: rgba(10,0,0,0.95); border: 2px solid red; padding: 40px; min-width: 300px; box-shadow: 0 0 15px red;">
     <h2 style="font-size: 30px; margin-bottom: 20px; color: red; letter-spacing: 2px;">EN DESARROLLO</h2>
@@ -286,6 +298,7 @@
     <button class="btn-volver" onclick="cerrarPopupDesarrollo()">[ Cerrar ]</button>
   </div>
 
+  <script src="js/fnat-sesion.js"></script>
   <script src="js/logros.js"></script>
   <script>
     var fondoNormal = document.getElementById("fondo-normal");
@@ -312,6 +325,7 @@
     }, 13000);
 
     function nuevaPartida() {
+      FnatSesion.desactivarDificil();
       document.getElementById("menu").style.display = "none";
       document.getElementById("panel-noches").style.display = "block";
     }
@@ -319,6 +333,22 @@
     function volverMenu() {
       document.getElementById("panel-noches").style.display = "none";
       document.getElementById("menu").style.display = "block";
+    }
+
+    function modoDificil() {
+      document.getElementById("menu").style.display = "none";
+      document.getElementById("panel-dificil").style.display = "block";
+    }
+
+    function volverMenuDificil() {
+      document.getElementById("panel-dificil").style.display = "none";
+      document.getElementById("menu").style.display = "block";
+    }
+
+    function iniciarNocheDificil(num) {
+      FnatSesion.activarDificil();
+      if (num === 1) FnatSesion.ir("video_intro.html");
+      else if (num === 2) FnatSesion.ir("video_intro_noche2.html");
     }
 
     function mostrarLogros() {
@@ -339,6 +369,7 @@
     }
 
     function iniciarNoche(num) {
+      FnatSesion.desactivarDificil();
       if (num === 1) window.location.href = "video_intro.html";
       else if (num === 2) window.location.href = "video_intro_noche2.html";
       else alert("Iniciando Noche " + num + "...");
@@ -351,9 +382,6 @@
     function cerrarPopupDesarrollo() {
       document.getElementById("popup-desarrollo").style.display = "none";
     }
-
-    function continuar() { alert("continuando la partida"); }
-    function opciones() { alert("cargando opciones"); }
 
     // musica de fondo en bucle
     var musica = new Audio("assets/musica/musica-inicio.mp4");

@@ -8,10 +8,51 @@
   var LOGROS = {
     noche1: {
       key: "fnat_logro_noche1",
-      texto: "has completado la noche 1"
+      titulo: "Noche 1",
+      texto: "Has completado la noche 1",
+      descripcion: "Has sobrevivido hasta las 6:00 AM con Germán."
+    },
+    noche2: {
+      key: "fnat_logro_noche2",
+      titulo: "Noche 2",
+      texto: "Has superado la noche 2",
+      descripcion: "Has sobrevivido hasta las 6:00 AM con Alonso."
+    },
+    demasiadoVeloz: {
+      key: "fnat_logro_demasiado_veloz",
+      titulo: "Demasiado veloz",
+      texto: "Demasiado veloz",
+      descripcion:
+        "El personaje ha pasado por las salas 4, 3 y 2 en menos de veinte segundos. Se aleja y vuelve a acercarse a una velocidad imposible."
+    },
+    sinEnergia: {
+      key: "fnat_logro_sin_energia",
+      titulo: "A oscuras",
+      texto: "Sin energía",
+      descripcion:
+        "Te han matado al quedarte sin energía. Las cámaras y la puerta dejaron de funcionar."
+    },
+    muerteGerman: {
+      key: "fnat_logro_muerte_german",
+      titulo: "Visitado por Germán",
+      texto: "Germán te ha pillado",
+      descripcion: "Germán ha entrado en tu oficina con la puerta abierta."
+    },
+    muerteAlonso: {
+      key: "fnat_logro_muerte_alonso",
+      titulo: "Mantecoño",
+      texto: "Mantecoño",
+      descripcion: "Alonso ha entrado en tu oficina. Mantecoño."
+    },
+    energia20: {
+      key: "fnat_logro_energia_20",
+      titulo: "Ahorro energético",
+      texto: "Bien ahorrado",
+      descripcion: "Has ganado la noche con más del 20% de energía."
     }
   };
 
+  var historialMov = [];
   var estilosInyectados = false;
 
   function registro(id) {
@@ -21,6 +62,24 @@
   function estaDesbloqueado(id) {
     var r = registro(id);
     return r && localStorage.getItem(r.key) === "1";
+  }
+
+  function secuenciaEnVentana(patron, ventanaMs) {
+    for (var i = 0; i < historialMov.length; i++) {
+      if (historialMov[i].sala !== patron[0]) continue;
+      var ok = true;
+      for (var k = 0; k < patron.length; k++) {
+        if (!historialMov[i + k] || historialMov[i + k].sala !== patron[k]) {
+          ok = false;
+          break;
+        }
+      }
+      if (!ok) continue;
+      var t0 = historialMov[i].t;
+      var t1 = historialMov[i + patron.length - 1].t;
+      if (t1 - t0 <= ventanaMs) return true;
+    }
+    return false;
   }
 
   function inyectarEstilos() {
@@ -33,7 +92,8 @@
       "#logro-aviso{position:fixed;top:12px;right:12px;z-index:600;display:flex;flex-direction:column;align-items:flex-end;gap:6px;font-family:monospace;text-transform:uppercase;letter-spacing:2px;opacity:0;transform:translateX(20px);transition:opacity 1.5s,transform 1.5s;pointer-events:none}" +
       "#logro-aviso.visible{opacity:1;transform:translateX(0)}" +
       ".logro-aviso-titulo{font-size:.7rem;color:#888;letter-spacing:3px}" +
-      ".logro-aviso-texto{font-size:.9rem;color:#cc0000;text-shadow:2px 2px 20px #ff0000;background:rgba(0,0,0,.9);border:1px solid #cc0000;padding:12px 16px;max-width:260px;text-align:right;line-height:1.35}";
+      ".logro-aviso-texto{font-size:.9rem;color:#cc0000;text-shadow:2px 2px 20px #ff0000;background:rgba(0,0,0,.9);border:1px solid #cc0000;padding:12px 16px;max-width:280px;text-align:right;line-height:1.35}" +
+      ".logro-aviso-desc{font-size:.65rem;color:#aaa;text-transform:none;letter-spacing:0;margin-top:4px}";
     document.head.appendChild(estilo);
   }
 
@@ -68,7 +128,10 @@
     aviso.id = "logro-aviso";
     aviso.innerHTML =
       '<span class="logro-aviso-titulo">Logro desbloqueado</span>' +
-      '<span class="logro-aviso-texto">' + r.texto + "</span>";
+      '<span class="logro-aviso-texto">' + r.texto + "</span>" +
+      (r.descripcion
+        ? '<span class="logro-aviso-desc">' + r.descripcion + "</span>"
+        : "");
     document.body.appendChild(aviso);
 
     requestAnimationFrame(function () {
@@ -80,7 +143,7 @@
       setTimeout(function () {
         if (aviso.parentNode) aviso.remove();
       }, 1500);
-    }, 5500);
+    }, 6500);
 
     initEsquina();
   }
@@ -102,7 +165,13 @@
 
       var texto = document.createElement("span");
       texto.className = "logro-texto";
-      texto.textContent = desbloqueado ? r.texto : "???";
+      if (desbloqueado) {
+        texto.innerHTML =
+          "<strong>" + r.texto + "</strong>" +
+          (r.descripcion ? "<br><small>" + r.descripcion + "</small>" : "");
+      } else {
+        texto.textContent = "???";
+      }
 
       item.appendChild(icono);
       item.appendChild(texto);
@@ -119,6 +188,29 @@
       localStorage.setItem(r.key, "1");
       mostrarAviso(id);
       return true;
+    },
+
+    registrarMovimientoSala: function (sala) {
+      var s = Number(sala);
+      if (![1, 2, 3, 4].includes(s)) return;
+      var ahora = Date.now();
+      historialMov.push({ sala: s, t: ahora });
+      historialMov = historialMov.filter(function (e) {
+        return ahora - e.t <= 20000;
+      });
+      if (
+        secuenciaEnVentana([4, 3, 2], 20000) ||
+        secuenciaEnVentana([2, 3, 4], 20000)
+      ) {
+        window.Logros.desbloquear("demasiadoVeloz");
+      }
+    },
+
+    alMorir: function (opts) {
+      opts = opts || {};
+      if (opts.sinEnergia) return window.Logros.desbloquear("sinEnergia");
+      if (opts.noche === 2) return window.Logros.desbloquear("muerteAlonso");
+      return window.Logros.desbloquear("muerteGerman");
     },
 
     initEsquina: initEsquina,

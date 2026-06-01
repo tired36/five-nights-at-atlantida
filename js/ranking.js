@@ -5,6 +5,7 @@
   };
 
   let noche = 1;
+  let modo = "normal";
   let listo = false;
   let fin = false;
   let nombreUsuario = "";
@@ -15,6 +16,10 @@
   let ticks = 0;
 
   const reglas = () => REGLAS[noche] || REGLAS[1];
+
+  function idNocheRanking() {
+    return modo === "dificil" ? noche + "D" : noche;
+  }
 
   function puedeSubirPuntos() {
     return !pausaPorAudio && !pausaPorPuerta;
@@ -32,6 +37,11 @@
     if (el) el.textContent = calcularPuntos(false) + " pts";
   }
 
+  function mostrarBarraPuntos(visible) {
+    const bar = document.getElementById("rank-bar");
+    if (bar) bar.style.display = visible ? "flex" : "none";
+  }
+
   function avisoPenalizacion(texto) {
     const el = document.getElementById("rank-aviso");
     if (!el) return;
@@ -46,7 +56,7 @@
     nombreUsuario = nombre;
     localStorage.setItem("fnat_usuario", nombre);
     document.getElementById("rank-login").style.display = "none";
-    document.getElementById("rank-pts").style.display = "block";
+    mostrarBarraPuntos(true);
     listo = true;
     pintarPuntos();
   }
@@ -60,8 +70,9 @@
       "#rank-login,#rank-fin{position:fixed;inset:0;background:rgba(0,0,0,.9);display:flex;align-items:center;justify-content:center}" +
       "#rank-login form,#rank-fin .box{background:#111;border:1px solid #fff;padding:24px;text-align:center;min-width:220px}" +
       "#rank-login input,#rank-login button,#rank-fin button{width:100%;margin:8px 0;padding:10px;font-family:monospace}" +
-      "#rank-pts{position:fixed;top:12px;left:50%;transform:translateX(-50%);font-size:24px;color:#5f5;z-index:60;display:none}" +
-      "#rank-aviso{position:fixed;top:46px;left:50%;transform:translateX(-50%);color:#f88;font-size:14px;z-index:60;opacity:0;transition:opacity .8s}";
+      "#rank-bar{position:fixed;top:12px;left:50%;transform:translateX(-50%);z-index:60;display:none;align-items:center;gap:14px;flex-wrap:nowrap}" +
+      "#rank-pts{font-size:24px;color:#5f5;white-space:nowrap}" +
+      "#rank-aviso{position:fixed;top:50px;left:50%;transform:translateX(-50%);color:#f88;font-size:14px;z-index:60;opacity:0;transition:opacity .8s}";
     document.head.appendChild(estilo);
 
     const contenedor = document.createElement("div");
@@ -70,7 +81,7 @@
       '<div id="rank-login"><form>' +
       '<h3>Usuario</h3><input id="rank-nombre" maxlength="20" placeholder="Tu nombre">' +
       '<button type="button" id="rank-start">Jugar</button></form></div>' +
-      '<div id="rank-pts">0 pts</div><div id="rank-aviso"></div>' +
+      '<div id="rank-bar"><div id="rank-pts">0 pts</div></div><div id="rank-aviso"></div>' +
       '<div id="rank-fin" style="display:none"><div class="box">' +
       '<h3>Fin</h3><p id="rank-usuario" style="font-size:18px;color:#aaa"></p>' +
       '<p id="rank-total" style="font-size:32px">0 pts</p>' +
@@ -96,8 +107,10 @@
   }
 
   window.Ranking = {
-    init(numNoche) {
+    init(numNoche, opts) {
+      opts = opts || {};
       noche = numNoche;
+      modo = opts.modo === "dificil" ? "dificil" : "normal";
       listo = false;
       fin = false;
       hora = 0;
@@ -112,7 +125,7 @@
 
       document.getElementById("rank-login").style.display = "flex";
       document.getElementById("rank-fin").style.display = "none";
-      document.getElementById("rank-pts").style.display = "none";
+      mostrarBarraPuntos(false);
     },
 
     actualizar(h) {
@@ -164,7 +177,7 @@
       const usuario = leerNombre();
 
       if (!usuario) {
-        document.getElementById("rank-pts").style.display = "none";
+        mostrarBarraPuntos(false);
         document.getElementById("rank-fin").style.display = "none";
         document.getElementById("rank-login").style.display = "flex";
         alert("Escribe tu nombre (mínimo 2 letras) y pulsa Jugar antes de terminar.");
@@ -179,19 +192,35 @@
         if (window.Logros) Logros.desbloquear("noche1");
         else localStorage.setItem("fnat_logro_noche1", "1");
       }
+      if (victoria && typeof opts.energia === "number" && opts.energia > 20) {
+        if (window.Logros) Logros.desbloquear("energia20");
+        else localStorage.setItem("fnat_logro_energia_20", "1");
+      }
+      if (victoria && noche === 2) {
+        if (window.Logros) Logros.desbloquear("noche2");
+        else localStorage.setItem("fnat_logro_noche2", "1");
+      }
 
-      document.getElementById("rank-pts").style.display = "none";
+      mostrarBarraPuntos(false);
       document.getElementById("rank-usuario").textContent = usuario;
       document.getElementById("rank-total").textContent = total + " pts";
       document.getElementById("rank-save").textContent = "Guardando...";
       document.getElementById("rank-fin").style.display = "flex";
       document.getElementById("rank-ver").onclick = () => {
-        location.href = "ranking.html#noche" + noche;
+        location.href =
+          modo === "dificil"
+            ? "ranking.html#" + noche + "d"
+            : "ranking.html#noche" + noche;
       };
 
-      RankingApi.guardar(usuario, noche, total)
+      const idRank = idNocheRanking();
+      RankingApi.guardar(usuario, idRank, total)
         .then(() => {
-          document.getElementById("rank-save").textContent = "Guardado en el ranking.";
+          const donde =
+            modo === "dificil"
+              ? "Guardado en ranking modo difícil (Noche " + idRank + ")."
+              : "Guardado en ranking Noche " + idRank + ".";
+          document.getElementById("rank-save").textContent = donde;
         })
         .catch((e) => {
           document.getElementById("rank-save").textContent = "Error: " + (e.message || "sin conexión");

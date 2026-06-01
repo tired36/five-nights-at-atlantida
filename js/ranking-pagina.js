@@ -11,9 +11,9 @@ function mostrarError(tablaId, mensaje) {
     "<tr><td colspan='3'>" + esc(mensaje) + "</td></tr>";
 }
 
-function cargarTabla(noche, tablaId) {
+function cargarTabla(nocheId, tablaId) {
   mostrarError(tablaId, "Cargando...");
-  RankingApi.top10(noche)
+  RankingApi.top10(nocheId)
     .then((lista) => {
       if (!lista.length) {
         mostrarError(tablaId, "Sin partidas en el top 10");
@@ -35,9 +35,11 @@ fetch(apiBase + "/api/health")
 
     aviso.style.display = "block";
     if (!h.configured) {
-      aviso.textContent = h.error || "En Vercel: Settings → Environment Variables → MONGODB_URI, MONGODB_DB, MONGODB_COLLECTION → Redeploy";
+      aviso.textContent =
+        h.error ||
+        "Falta MONGODB_URI. Local: copia .env.example a .env y npm run dev. Vercel: Environment Variables.";
     } else if (h.error) {
-      aviso.textContent = "MongoDB: " + h.error + " (¿Atlas Network Access 0.0.0.0/0?)";
+      aviso.textContent = "MongoDB: " + h.error + " (local: revisa .env y reinicia npm run dev; Atlas: 0.0.0.0/0)";
     } else if (h.total === 0) {
       aviso.textContent = "Conectado a " + h.db + "." + h.coleccion + " pero vacío. Usa MONGODB_DB=FNAA";
     }
@@ -45,11 +47,22 @@ fetch(apiBase + "/api/health")
   .catch(() => {
     const aviso = document.getElementById("aviso");
     aviso.style.display = "block";
-    aviso.textContent = "No responde /api/health. ¿Desplegado en Vercel con la carpeta api/?";
+    aviso.textContent =
+      "No responde /api/health. Local: ejecuta npm run dev (o dev.bat) y usa http://localhost:3000. Internet: despliega en Vercel con api/.";
   });
 
 cargarTabla(1, "n1");
 cargarTabla(2, "n2");
+cargarTabla("1D", "d1");
+cargarTabla("2D", "d2");
 
-if (location.hash === "#noche2") document.getElementById("t2").scrollIntoView();
-if (location.hash === "#noche1") document.getElementById("t1").scrollIntoView();
+function irA(hash) {
+  var el = document.querySelector(hash);
+  if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+if (location.hash === "#noche2") irA("#t2");
+if (location.hash === "#noche1") irA("#t1");
+if (location.hash === "#2d" || location.hash === "#dificil-noche2") irA("#t2d");
+if (location.hash === "#1d" || location.hash === "#dificil-noche1") irA("#t1d");
+if (location.hash === "#dificil") irA("#dificil");

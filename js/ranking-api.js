@@ -11,9 +11,11 @@
     return respuesta.json();
   }
 
+  /** noche: 1, 2, "1D", "2D" */
   window.RankingApi = {
     top10(noche) {
-      const url = base + "/api/partidas?noche=" + noche + "&limit=10";
+      const id = encodeURIComponent(String(noche).toUpperCase());
+      const url = base + "/api/partidas?noche=" + id + "&limit=10";
       return fetch(url).then((r) =>
         leerJson(r).then((data) => {
           if (!r.ok) throw new Error((data && data.error) || "HTTP " + r.status);
@@ -23,10 +25,11 @@
     },
 
     guardar(usuario, noche, puntuacion) {
+      const id = String(noche).toUpperCase();
       return fetch(base + "/api/partidas", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ usuario, noche, puntuacion })
+        body: JSON.stringify({ usuario, noche: id, puntuacion })
       }).then((r) =>
         leerJson(r).then((data) => {
           if (!r.ok) throw new Error((data && data.error) || "HTTP " + r.status);

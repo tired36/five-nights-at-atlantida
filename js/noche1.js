@@ -1,6 +1,10 @@
 // === NOCHE 1: German ===
 var CONFIG_N1 = { probMovimiento: 0.3, probMovimiento5AM: 0.6, audioRetieneSeg: 20, audioRecargaSeg: 30, auraAvisoSeg: 10, auraDanoSeg: 13, auraDanoEnergia: 1, golpePuertaEnergia: 5, gasto: { base: 0.01, camaras: 0.02, linterna: 0.05, puerta: 0.75, retenido: 0.05 } };
 
+function esModoDificil() {
+  return window.ModoDificil && ModoDificil.esActivo();
+}
+
 function mostrarSub(texto, duracion) { Util.subtitulo(subtitulo, subTimer, texto, duracion); }
 function actualizarUIEnergia() { Util.pintarEnergia(textoEnergia, energia); }
 function detenerAudiosApagon() { Util.pararApagon(); }
@@ -120,9 +124,19 @@ function reproducirGolpes() { return Util.golpesEnPuerta(); }
     // funcion para iniciar el screamer de german
     // oculta todo, reproduce el video con luces y luego muestra el game over
     // =============================================
+    var ultimaPosRegistrada = germanPos;
+
     function iniciarScreamer(mensaje, usarEspecial) {
       if (juegoTerminado && !usarEspecial) return;
       juegoTerminado = true;
+
+      if (window.Logros) {
+        if (mensaje === "te has quedado sin energia..." || usarEspecial) {
+          Logros.alMorir({ sinEnergia: true });
+        } else {
+          Logros.alMorir({ noche: 1 });
+        }
+      }
 
       if (intervalParpadeo) {
         clearInterval(intervalParpadeo);
@@ -293,6 +307,7 @@ function reproducirGolpes() { return Util.golpesEnPuerta(); }
     // cambiar camara activa
     // =============================================
     function cambiarCam(num) {
+      if (esModoDificil()) return;
       camActual = num;
       linterna = false;
       segMirandoGerman = 0; // resetear contador de aura al cambiar
@@ -302,6 +317,7 @@ function reproducirGolpes() { return Util.golpesEnPuerta(); }
     }
 
     function abrirCamaras() {
+      if (esModoDificil()) return;
       if (energia <= 0 || camarasDestruidas) return;
       panelCamaras.style.display = "block";
       actualizarCamara();
@@ -488,6 +504,14 @@ function reproducirGolpes() { return Util.golpesEnPuerta(); }
       if (panelCamaras.style.display === "block") actualizarCamara();
 
     }, 10000);
+
+    setInterval(function () {
+      if (germanPos !== ultimaPosRegistrada) {
+        ultimaPosRegistrada = germanPos;
+        if (window.Logros) Logros.registrarMovimientoSala(germanPos);
+        if (esModoDificil() && germanPos < 4) ModoDificil.pistaMovimiento();
+      }
+    }, 250);
 
     setInterval(function () {
       if (germanPos !== 4 || germanRetenido || energia <= 0 || juegoTerminado) return;
@@ -678,7 +702,10 @@ function reproducirGolpes() { return Util.golpesEnPuerta(); }
       if (hora >= 6) {
         juegoTerminado = true;
 
-        if (window.Logros) Logros.desbloquear("noche1");
+        if (window.Logros) {
+          Logros.desbloquear("noche1");
+          if (energia > 20) Logros.desbloquear("energia20");
+        }
 
         // ocultar todo
         cerrarCamaras();
@@ -713,6 +740,7 @@ function reproducirGolpes() { return Util.golpesEnPuerta(); }
           mostrarSub("Â¡Son las 5 AM! German se ha vuelto extremadamente agresivo...", 5000);
 
           // evento: destruccion aleatoria de camaras en los proximos 30 segundos
+          if (esModoDificil()) return;
           var delayDestruccion = Math.random() * 30000;
           setTimeout(function () {
             camarasDestruidas = true;
@@ -815,6 +843,7 @@ function reproducirGolpes() { return Util.golpesEnPuerta(); }
     // fallo aleatorio de camaras (3 segundos con sonido)
     // =============================================
     setInterval(function () {
+      if (esModoDificil()) return;
       if (juegoTerminado || energia <= 0 || camaraFallo || panelCamaras.style.display !== "block") return;
 
       // probabilidad dinamica: aumenta a partir de las 3 AM
@@ -964,5 +993,15 @@ function reproducirGolpes() { return Util.golpesEnPuerta(); }
       }
     }, 60);
 
-    Ranking.init(1);
+    if (esModoDificil()) {
+      ModoDificil.aplicarSinCamaras({
+        noche: 1,
+        panelCamaras: panelCamaras,
+        btnCamaras: document.getElementById("btn-camaras"),
+        textoNoche: document.getElementById("texto-noche")
+      });
+      Ranking.init(1, { modo: "dificil" });
+    } else {
+      Ranking.init(1);
+    }
     if (window.Logros) Logros.initEsquina();
