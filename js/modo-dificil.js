@@ -28,7 +28,7 @@
     var s = document.createElement("style");
     s.id = "estilos-modo-dificil";
     s.textContent =
-      "#aviso-modo-dificil{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:800;max-width:520px;padding:24px 28px;font-family:monospace;text-align:center;color:#fff;background:rgba(40,0,0,.95);border:2px solid #f00;box-shadow:0 0 30px rgba(255,0,0,.5);text-transform:uppercase;letter-spacing:2px;line-height:1.5;transition:opacity 2s}" +
+      "#aviso-modo-dificil{position:fixed;top:50%;left:14px;transform:translateY(-50%);z-index:550;max-width:220px;padding:14px 16px;font-family:monospace;text-align:left;color:#fff;background:rgba(40,0,0,.92);border:2px solid #f00;box-shadow:0 0 20px rgba(255,0,0,.4);text-transform:uppercase;letter-spacing:1px;line-height:1.45;transition:opacity 2s;pointer-events:none}" +
       "#aviso-modo-dificil.md-fade{opacity:0}" +
       "#aviso-modo-dificil .md-sub{display:block;margin-top:12px;color:#f88;font-size:.85rem;text-transform:none;letter-spacing:1px}" +
       "#badge-modo-dificil{flex-shrink:0;padding:5px 10px;font-family:monospace;font-size:10px;line-height:1.3;color:#f55;background:rgba(0,0,0,.85);border:1px solid #a00;letter-spacing:2px;text-transform:uppercase;pointer-events:none;white-space:nowrap}";
