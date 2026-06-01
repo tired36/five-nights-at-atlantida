@@ -33,22 +33,14 @@
   }
 
   function mostrarAvisoSinCamaras(esDificil) {
+    if (!esDificil) return;
+
     var prev = document.getElementById("aviso-sin-camaras");
     if (prev) prev.remove();
 
     var aviso = document.createElement("div");
     aviso.id = "aviso-sin-camaras";
-    if (esDificil) {
-      aviso.innerHTML =
-        "<strong>MODO DIFÍCIL</strong><br>" +
-        "Sin cámaras. Sonidos y parpadeos en la oficina.<br>" +
-        "<span class='sc-sub'>Casi imposible. Mucha suerte.</span>";
-    } else {
-      aviso.innerHTML =
-        "<strong>SIN CÁMARAS</strong><br>" +
-        "Noche 1 y 2 iguales: guíate por sonidos y luces en la oficina.<br>" +
-        "<span class='sc-sub'>Puerta y audio son tu defensa.</span>";
-    }
+    aviso.innerHTML = "<strong>MODO DIFÍCIL</strong>";
     document.body.appendChild(aviso);
 
     setTimeout(function () {
@@ -56,7 +48,7 @@
       setTimeout(function () {
         if (aviso.parentNode) aviso.remove();
       }, 2000);
-    }, esDificil ? 9000 : 7000);
+    }, 5000);
   }
 
   function inyectarEstilos() {

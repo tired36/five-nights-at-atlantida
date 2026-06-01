@@ -151,7 +151,7 @@
       if (!listo) return;
       const n = reglas().penAudio;
       puntos = Math.max(0, puntos - n);
-      avisoPenalizacion("-" + n + " audio (no sube mientras activo)");
+      avisoPenalizacion("-" + n + " pts");
       pintarPuntos();
     },
 
@@ -162,7 +162,7 @@
       if (!listo) return;
       const n = reglas().penPuerta;
       puntos = Math.max(0, puntos - n);
-      avisoPenalizacion("-" + n + " puerta (no sube mientras cerrada)");
+      avisoPenalizacion("-" + n + " pts");
       pintarPuntos();
     },
 
@@ -223,14 +223,10 @@
 
       return promesaGuardado
         .then(() => {
-          const donde =
-            modo === "dificil"
-              ? "Guardado en ranking modo difícil (Noche " + idRank + ")."
-              : "Guardado en ranking Noche " + idRank + ".";
-          document.getElementById("rank-save").textContent = donde;
+          document.getElementById("rank-save").textContent = "Puntuación guardada.";
         })
-        .catch((e) => {
-          document.getElementById("rank-save").textContent = "Error: " + (e.message || "sin conexión");
+        .catch(() => {
+          document.getElementById("rank-save").textContent = "No se pudo guardar la puntuación.";
         });
     }
   };

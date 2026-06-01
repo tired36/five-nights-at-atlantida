@@ -23,33 +23,8 @@ function cargarTabla(nocheId, tablaId) {
         "<tr><td>" + (i + 1) + "</td><td>" + esc(fila.usuario) + "</td><td>" + fila.puntuacion + "</td></tr>"
       ).join("");
     })
-    .catch((e) => mostrarError(tablaId, e.message || "Error"));
+    .catch(() => mostrarError(tablaId, "No se pudo cargar el ranking"));
 }
-
-const apiBase = (window.API_URL || "").replace(/\/$/, "");
-fetch(apiBase + "/api/health")
-  .then((r) => r.json())
-  .then((h) => {
-    const aviso = document.getElementById("aviso");
-    if (h.ok && h.total > 0) return;
-
-    aviso.style.display = "block";
-    if (!h.configured) {
-      aviso.textContent =
-        h.error ||
-        "Falta MONGODB_URI. Local: copia .env.example a .env y npm run dev. Vercel: Environment Variables.";
-    } else if (h.error) {
-      aviso.textContent = "MongoDB: " + h.error + " (local: revisa .env y reinicia npm run dev; Atlas: 0.0.0.0/0)";
-    } else if (h.total === 0) {
-      aviso.textContent = "Conectado a " + h.db + "." + h.coleccion + " pero vacío. Usa MONGODB_DB=FNAA";
-    }
-  })
-  .catch(() => {
-    const aviso = document.getElementById("aviso");
-    aviso.style.display = "block";
-    aviso.textContent =
-      "No responde /api/health. Local: ejecuta npm run dev (o dev.bat) y usa http://localhost:3000. Internet: despliega en Vercel con api/.";
-  });
 
 cargarTabla(1, "n1");
 cargarTabla(2, "n2");

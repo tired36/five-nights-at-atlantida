@@ -5,7 +5,7 @@
     const tipo = respuesta.headers.get("content-type") || "";
     if (!tipo.includes("application/json")) {
       return respuesta.text().then(() => {
-        throw new Error("La API del ranking no responde. ¿Está desplegada en Vercel o node server.js en marcha?");
+        throw new Error("No se pudo conectar con el ranking.");
       });
     }
     return respuesta.json();

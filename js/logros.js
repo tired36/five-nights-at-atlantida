@@ -128,10 +128,7 @@
     aviso.id = "logro-aviso";
     aviso.innerHTML =
       '<span class="logro-aviso-titulo">Logro desbloqueado</span>' +
-      '<span class="logro-aviso-texto">' + r.texto + "</span>" +
-      (r.descripcion
-        ? '<span class="logro-aviso-desc">' + r.descripcion + "</span>"
-        : "");
+      '<span class="logro-aviso-texto">' + r.texto + "</span>";
     document.body.appendChild(aviso);
 
     requestAnimationFrame(function () {
@@ -166,9 +163,7 @@
       var texto = document.createElement("span");
       texto.className = "logro-texto";
       if (desbloqueado) {
-        texto.innerHTML =
-          "<strong>" + r.texto + "</strong>" +
-          (r.descripcion ? "<br><small>" + r.descripcion + "</small>" : "");
+        texto.innerHTML = "<strong>" + r.texto + "</strong>";
       } else {
         texto.textContent = "???";
       }

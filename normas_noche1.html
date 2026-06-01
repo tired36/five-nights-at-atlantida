@@ -65,9 +65,6 @@
     <h2>NORMAS DE SEGURIDAD</h2>
     <img src="assets/imagenes/lore/NORMAS 1.jpg" alt="normas del juego" class="lore-image">
     <p id="aviso-dificil-normas" style="display:none;max-width:600px;color:#f88;font-size:14px;line-height:1.4;margin:0 auto 20px;"></p>
-    <p style="max-width:600px;color:#a88;font-size:13px;line-height:1.4;margin:0 auto 16px;">
-      Noche 1 y 2: sin cámaras. Misma forma de jugar — sonidos y parpadeos en la oficina.
-    </p>
     <button onclick="FnatSesion.ir('juego_noche1.html')">AVANZAR</button>
   </div>
 
@@ -76,7 +73,7 @@
     if (FnatSesion.esDificil()) {
       var av = document.getElementById("aviso-dificil-normas");
       av.style.display = "block";
-      av.textContent = "MODO DIFÍCIL: sin cámaras. Escucha los pasos y mira los parpadeos en la oficina. Casi imposible.";
+      av.textContent = "MODO DIFÍCIL. Casi imposible.";
     }
     // musica de tension en bucle (se mantiene la misma para continuidad)
     var musica = new Audio("assets/musica/tension carta.mp3");
