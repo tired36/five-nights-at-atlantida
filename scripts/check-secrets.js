@@ -12,7 +12,7 @@ const { uriLooksLikeRealSecret, redactSecrets } = require("../api/lib/secrets");
 const root = path.join(__dirname, "..");
 const stagedOnly = process.argv.includes("--staged");
 
-const SKIP_DIRS = new Set(["node_modules", ".git", "five-nights-at-atlantida-master"]);
+const SKIP_DIRS = new Set(["node_modules", ".git"]);
 const SCAN_EXT = /\.(js|ts|json|html|md|bat|sh|yml|yaml|env|example|txt)$/i;
 const ALLOW_TRACKED = new Set([".env.example", "server/.env.example"]);
 

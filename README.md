@@ -13,7 +13,7 @@ Eres el vigilante nocturno del centro **Atlántida FP**. Debes **sobrevivir de l
 
 ### Cómo empezar
 
-1. Abre `index.html` en el navegador (intro en vídeo).
+1. Abre `index.html` en el navegador (redirige a `intro.html` con el vídeo inicial).
 2. En el menú: **Nueva partida** → elige la noche.
 3. Lee las **normas de seguridad** y pulsa **Avanzar**.
 4. Haz **clic** en la pantalla la primera vez para activar sonido y vídeo.

@@ -84,6 +84,20 @@ for (const js of ["js/noche1.js", "js/noche2.js"]) {
   }
 }
 
+const indexHtml = read("index.html");
+if (!/intro\.html/.test(indexHtml)) {
+  fail("index.html debe redirigir a intro.html");
+} else {
+  ok("index.html → intro.html");
+}
+
+const introMain = read("intro.html");
+if (!/menu\.html/.test(introMain) || !/assets\/videos\/intro\.mp4/.test(introMain)) {
+  fail("intro.html debe usar intro.mp4 y enlazar a menu.html");
+} else {
+  ok("intro.html → menu.html");
+}
+
 const intro1 = read("video_intro.html");
 if (intro1.includes("PERIODICO_FNFA.mp4.mov")) {
   fail("video_intro.html usa ruta incorrecta PERIODICO_FNFA.mp4.mov");

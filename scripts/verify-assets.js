@@ -15,7 +15,7 @@ const strRe = /["'](assets\/(?:musica|videos|imagenes)[^"']+)["']/gi;
 const files = [];
 function walk(dir) {
   for (const name of fs.readdirSync(dir)) {
-    if (name === "node_modules" || name === ".git" || name === "five-nights-at-atlantida-master") continue;
+    if (name === "node_modules" || name === ".git") continue;
     const p = path.join(dir, name);
     const st = fs.statSync(p);
     if (st.isDirectory()) walk(p);
