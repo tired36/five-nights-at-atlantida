@@ -63,7 +63,7 @@ Eres el vigilante nocturno del centro **Atlántida FP**. Debes **sobrevivir de l
 |-------|---------|--------|
 | **1** | **Germán** | Más lento; audio lo retiene **20 s** (recarga **30 s**); golpes de puerta **-10%** energía |
 | **2** | **Alonso** | Más rápido y agresivo; audio **15 s** (recarga **25 s**); golpes **-15%** energía |
-| **3–5** | Varios (incl. **la gordita**) | En desarrollo |
+| **3–5** | Varios (incl. **la gordita**) | Próximamente (no en el menú) |
 
 ### Consejos
 

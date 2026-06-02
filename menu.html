@@ -404,7 +404,6 @@
     <h2>SELECCIONAR NOCHE</h2>
     <button class="boton-noche" onclick="iniciarNoche(1)">&#9658; NOCHE 1</button>
     <button class="boton-noche" onclick="iniciarNoche(2)">&#9658; NOCHE 2</button>
-    <button class="boton-noche" onclick="mostrarPopupDesarrollo()">&#9658; NOCHE 3</button>
     <button class="btn-volver" onclick="volverMenu()">[ Volver al menu ]</button>
   </div>
 
@@ -417,13 +416,6 @@
     <button class="boton-noche" onclick="iniciarNocheDificil(1)">&#9658; NOCHE 1D</button>
     <button class="boton-noche" onclick="iniciarNocheDificil(2)">&#9658; NOCHE 2D</button>
     <button class="btn-volver" onclick="volverMenuDificil()">[ Volver al menu ]</button>
-  </div>
-
-  <div id="popup-desarrollo"
-    style="display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 10; text-align: center; background: rgba(10,0,0,0.95); border: 2px solid red; padding: 40px; min-width: 300px; box-shadow: 0 0 15px red;">
-    <h2 style="font-size: 30px; margin-bottom: 20px; color: red; letter-spacing: 2px;">EN DESARROLLO</h2>
-    <p style="margin-bottom: 30px;">esta noche aun no esta disponible.</p>
-    <button class="btn-volver" onclick="cerrarPopupDesarrollo()">[ Cerrar ]</button>
   </div>
 
   <script src="js/fnat-sesion.js"></script>
@@ -499,15 +491,6 @@
       FnatSesion.desactivarDificil();
       if (num === 1) FnatSesion.ir("video_intro.html");
       else if (num === 2) FnatSesion.ir("video_intro_noche2.html");
-      else alert("Iniciando Noche " + num + "...");
-    }
-
-    function mostrarPopupDesarrollo() {
-      document.getElementById("popup-desarrollo").style.display = "block";
-    }
-
-    function cerrarPopupDesarrollo() {
-      document.getElementById("popup-desarrollo").style.display = "none";
     }
 
     // musica de fondo en bucle
