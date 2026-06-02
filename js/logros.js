@@ -16,7 +16,6 @@
     noche1: {
       key: "fnat_logro_noche1",
       titulo: "Noche 1",
-      texto: "Has completado la noche 1",
       descripcion: "Has sobrevivido hasta las 6:00 AM con Germán.",
       comoConseguir: "Gana la noche 1 en modo normal llegando a las 6:00 AM.",
       dificultad: "media"
@@ -24,25 +23,22 @@
     noche2: {
       key: "fnat_logro_noche2",
       titulo: "Noche 2",
-      texto: "Has superado la noche 2",
       descripcion: "Has sobrevivido hasta las 6:00 AM con Alonso.",
       comoConseguir: "Gana la noche 2 en modo normal llegando a las 6:00 AM.",
       dificultad: "media"
     },
     noche1D: {
       key: "fnat_logro_noche1_dificil",
-      titulo: "A ciegas",
-      texto: "Noche 1D superada",
-      descripcion: "Has sobrevivido la primera noche sin cámaras.",
+      titulo: "Noche 1D",
+      descripcion: "Has sobrevivido la primera noche a ciegas, sin cámaras.",
       comoConseguir:
         "Completa la noche 1 en MODO DIFÍCIL (sin cámaras ni audio de retención, solo puerta) hasta las 6:00 AM.",
       dificultad: "extrema"
     },
     noche2D: {
       key: "fnat_logro_noche2_dificil",
-      titulo: "Sin red",
-      texto: "Noche 2D superada",
-      descripcion: "Alonso no te ha pillado sin cámaras.",
+      titulo: "Noche 2D",
+      descripcion: "Alonso no te ha pillado en la versión más dura de la noche 2.",
       comoConseguir:
         "Completa la noche 2 en MODO DIFÍCIL (sin cámaras ni audio de retención) hasta las 6:00 AM.",
       dificultad: "extrema"
@@ -50,7 +46,6 @@
     demasiadoVeloz: {
       key: "fnat_logro_demasiado_veloz",
       titulo: "Demasiado veloz",
-      texto: "Demasiado veloz",
       descripcion:
         "Has detectado un movimiento imposible entre salas en muy poco tiempo.",
       comoConseguir:
@@ -59,17 +54,15 @@
     },
     sinEnergia: {
       key: "fnat_logro_sin_energia",
-      titulo: "A oscuras",
-      texto: "Sin energía",
+      titulo: "Sin energía",
       descripcion:
-        "Te han matado al quedarte sin energía. Las cámaras y la puerta dejaron de funcionar.",
+        "Te han matado al quedarte sin energía. Todo a oscuras: cámaras y puerta fuera de servicio.",
       comoConseguir: "Muere al quedarte sin energía durante una partida.",
       dificultad: "media"
     },
     muerteGerman: {
       key: "fnat_logro_muerte_german",
       titulo: "Visitado por Germán",
-      texto: "Germán te ha pillado",
       descripcion: "Germán ha entrado en tu oficina con la puerta abierta.",
       comoConseguir: "Deja que Germán entre en la oficina en la noche 1.",
       dificultad: "facil"
@@ -77,7 +70,6 @@
     muerteAlonso: {
       key: "fnat_logro_muerte_alonso",
       titulo: "Mantecoño",
-      texto: "Mantecoño",
       descripcion: "Alonso ha entrado en tu oficina. Mantecoño.",
       comoConseguir: "Deja que Alonso entre en la oficina en la noche 2.",
       dificultad: "facil"
@@ -85,7 +77,6 @@
     energia20: {
       key: "fnat_logro_energia_20",
       titulo: "Ahorro energético",
-      texto: "Bien ahorrado",
       descripcion: "Has ganado la noche con más del 20% de energía.",
       comoConseguir: "Termina una noche con victoria y más del 20% de energía.",
       dificultad: "dificil"
@@ -93,7 +84,6 @@
     energiaCritica: {
       key: "fnat_logro_energia_critica",
       titulo: "Por los pelos",
-      texto: "Victoria al límite",
       descripcion: "Has llegado a las 6 AM con la batería casi muerta.",
       comoConseguir: "Gana una noche con un 10% de energía o menos.",
       dificultad: "dificil"
@@ -101,7 +91,6 @@
     silencioso: {
       key: "fnat_logro_silencioso",
       titulo: "Sin playlist",
-      texto: "Victoria en silencio",
       descripcion: "Has ganado sin usar el audio de retención ni una sola vez.",
       comoConseguir:
         "Gana una noche en modo normal sin pulsar ♫ Usar Audio en toda la partida.",
@@ -110,7 +99,6 @@
     audioMaestro: {
       key: "fnat_logro_audio_maestro",
       titulo: "DJ de la muerte",
-      texto: "Audio activado",
       descripcion: "Has usado el altavoz de las cámaras para frenar al enemigo.",
       comoConseguir: "Pulsa ♫ Usar Audio al menos una vez en una partida.",
       dificultad: "facil"
@@ -118,7 +106,6 @@
     ultimoRecurso: {
       key: "fnat_logro_ultimo_recurso",
       titulo: "Último recurso",
-      texto: "Pánico en sala 3",
       descripcion: "Has disparado el audio cuando el enemigo ya estaba muy cerca.",
       comoConseguir:
         "Usa el audio de retención con el enemigo en la sala 3 (justo antes del pasillo).",
@@ -126,35 +113,32 @@
     },
     glitch5am: {
       key: "fnat_logro_glitch_5am",
-      titulo: "Ojos en la oscuridad",
-      texto: "SI NOS MIRAS MORIRAS",
-      descripcion: "Los botones de cámara te han hablado a las 5 AM.",
+      titulo: "Si nos miras, morirás",
+      descripcion: "Los botones de cámara te han mostrado el mensaje a las 5 AM.",
       comoConseguir:
-        "Sobrevive hasta las 5 AM con cámaras y presencia el glitch de los botones CAM.",
+        "Sobrevive hasta las 5 AM con cámaras y presencia el glitch SI NOS MIRAS MORIRAS en los botones CAM.",
       dificultad: "media"
     },
     hastaLas5: {
       key: "fnat_logro_hasta_las_5",
       titulo: "La hora bruja",
-      texto: "Has visto las 5 AM",
       descripcion: "Has aguantado hasta el tramo más peligroso de la noche.",
-      comoConseguir: "Llega viv@ a las 5:00 AM en cualquier noche.",
+      comoConseguir: "Llega con vida a las 5:00 AM en cualquier noche.",
       dificultad: "media"
     },
     senalPerdida: {
       key: "fnat_logro_senal_perdida",
       titulo: "Fuera de emisión",
-      texto: "Sistema corrupto",
       descripcion: "El panel de cámaras se ha caído en plena madrugada.",
       comoConseguir:
-        "Está en una partida normal cuando a las 5 AM el sistema de cámaras se corrompe.",
+        "Juega una partida normal y vive el fallo del sistema de cámaras a las 5 AM.",
       dificultad: "media"
     },
     auraVictima: {
       key: "fnat_logro_aura",
       titulo: "Mirada letal",
-      texto: "Aura absorbida",
-      descripcion: "Has mirado demasiado tiempo la cámara del enemigo y te ha drenado energía.",
+      descripcion:
+        "Has mirado demasiado tiempo la cámara del enemigo y te ha drenado energía.",
       comoConseguir:
         "Recibe daño por el aura (mirar demasiado la cámara donde está el enemigo).",
       dificultad: "facil"
@@ -162,8 +146,7 @@
     golpePuerta: {
       key: "fnat_logro_golpe_puerta",
       titulo: "Toc, toc",
-      texto: "Golpe en la puerta",
-      descripcion: "El enemigo ha reventado la puerta cerrada y te ha costado energía.",
+      descripcion: "El enemigo ha golpeado la puerta cerrada y te ha costado energía.",
       comoConseguir:
         "Que Germán o Alonso golpee la puerta estando cerrada (en la oficina o al cerrar tarde).",
       dificultad: "media"
@@ -171,7 +154,6 @@
     apagonTotal: {
       key: "fnat_logro_apagon_puerta",
       titulo: "Apagón blindado",
-      texto: "Oscuridad con puerta",
       descripcion: "Te has quedado sin luz con el portón bajado. Mala combinación.",
       comoConseguir:
         "Muere sin energía mientras la puerta está cerrada (screamer especial).",
@@ -180,7 +162,6 @@
     dobleCorona: {
       key: "fnat_logro_doble_corona",
       titulo: "Doble turno",
-      texto: "Dos noches, un guardia",
       descripcion: "Has completado la noche 1 y la noche 2 en modo normal.",
       comoConseguir: "Gana la noche 1 y después la noche 2 en modo normal.",
       dificultad: "dificil"
@@ -188,7 +169,6 @@
     leyendaAtlantida: {
       key: "fnat_logro_leyenda",
       titulo: "Leyenda de Atlántida",
-      texto: "Rey del miedo",
       descripcion: "Has sobrevivido las dos noches en modo difícil. Pocos lo consiguen.",
       comoConseguir: "Gana la noche 1D y la noche 2D.",
       dificultad: "extrema"
@@ -196,7 +176,6 @@
     puntuazo: {
       key: "fnat_logro_puntuazo",
       titulo: "Puntuación legendaria",
-      texto: "Marcador alto",
       descripcion: "Has firmado una de las mejores puntuaciones posibles al ganar.",
       comoConseguir: "Gana una noche con 400 puntos o más al finalizar.",
       dificultad: "dificil"
@@ -204,7 +183,6 @@
     coleccionista: {
       key: "fnat_logro_coleccionista",
       titulo: "Museo del miedo",
-      texto: "Medio catálogo",
       descripcion: "Ya dominas una buena parte de los secretos del Atlántida.",
       comoConseguir: "Desbloquea al menos la mitad de todos los logros.",
       dificultad: "media"
@@ -220,6 +198,19 @@
 
   function registro(id) {
     return LOGROS[id] || null;
+  }
+
+  /** Nombre único del logro (lista, detalle y toast). */
+  function nombreLogro(r) {
+    return r.titulo || "";
+  }
+
+  function escaparHtml(s) {
+    return String(s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
   }
 
   function estaDesbloqueado(id) {
@@ -344,7 +335,7 @@
     aviso.id = "logro-aviso";
     aviso.innerHTML =
       '<span class="logro-aviso-titulo">Logro desbloqueado</span>' +
-      '<span class="logro-aviso-texto">' + r.texto + "</span>";
+      '<span class="logro-aviso-texto">' + escaparHtml(nombreLogro(r)) + "</span>";
     document.body.appendChild(aviso);
 
     requestAnimationFrame(function () {
@@ -375,7 +366,7 @@
     if (!r || !panel) return;
 
     seleccionActual = id;
-    panel.className = "";
+    panel.className = "logro-detalle--activo";
     var desbloqueado = estaDesbloqueado(id);
     var dif = r.dificultad || "media";
     var etiquetaDif = ETIQUETA_DIFICULTAD[dif] || dif;
@@ -388,7 +379,7 @@
       etiquetaDif +
       "</span>" +
       "<h3 class=\"logro-detalle-titulo\">" +
-      (desbloqueado ? r.titulo : "???") +
+      escaparHtml(nombreLogro(r)) +
       "</h3>" +
       '<p class="logro-detalle-como"><strong>Cómo conseguirlo:</strong> ' +
       r.comoConseguir +
@@ -429,7 +420,7 @@
       var texto = document.createElement("span");
       texto.className = "logro-texto";
       if (desbloqueado) {
-        texto.innerHTML = "<strong>" + r.texto + "</strong>";
+        texto.innerHTML = "<strong>" + escaparHtml(nombreLogro(r)) + "</strong>";
       } else {
         texto.textContent = "???";
       }
@@ -437,7 +428,15 @@
       item.appendChild(icono);
       item.appendChild(texto);
 
-      function seleccionar() {
+      function seleccionar(e) {
+        if (e) {
+          e.preventDefault();
+          e.stopPropagation();
+        }
+        if (seleccionActual === id) {
+          mostrarDetalle(id, detalleId);
+          return;
+        }
         lista.querySelectorAll(".logro-item").forEach(function (el) {
           el.classList.remove("seleccionado");
         });
@@ -448,8 +447,7 @@
       item.addEventListener("click", seleccionar);
       item.addEventListener("keydown", function (e) {
         if (e.key === "Enter" || e.key === " ") {
-          e.preventDefault();
-          seleccionar();
+          seleccionar(e);
         }
       });
 
@@ -492,9 +490,14 @@
     mostrarDetalle: mostrarDetalle,
     limpiarDetalle: limpiarDetalle,
 
-    texto: function (id) {
+    nombre: function (id) {
       var r = registro(id);
-      return r ? r.texto : "";
+      return r ? nombreLogro(r) : "";
+    },
+
+    /** @deprecated Usar Logros.nombre */
+    texto: function (id) {
+      return window.Logros.nombre(id);
     }
   };
 })();
