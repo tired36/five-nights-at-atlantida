@@ -131,6 +131,121 @@
       text-decoration: underline;
     }
 
+    #panel-logros {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #000;
+      z-index: 20;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      font-family: monospace;
+      user-select: none;
+    }
+
+    .logros-titulo {
+      color: #cc0000;
+      font-size: 2.5rem;
+      text-transform: uppercase;
+      letter-spacing: 5px;
+      text-shadow: 2px 2px 20px #ff0000;
+      margin-bottom: 50px;
+    }
+
+    .logros-lista {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 50px;
+      width: 100%;
+      max-width: 700px;
+    }
+
+    .logro-item {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      font-size: 1.4rem;
+      text-transform: uppercase;
+      letter-spacing: 3px;
+      padding: 18px 24px;
+      margin: 12px 0;
+      border: 1px solid #330000;
+      transition: opacity 1.5s, color 1.5s, text-shadow 1.5s, border-color 1.5s;
+    }
+
+    .logro-icono {
+      width: 52px;
+      height: 52px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid #333;
+      background: rgba(20, 0, 0, 0.5);
+      position: relative;
+    }
+
+    .logro-icono svg {
+      width: 26px;
+      height: 26px;
+      fill: currentColor;
+    }
+
+    .logro-texto {
+      flex: 1;
+      text-align: left;
+    }
+
+    .logro-item.desbloqueado .logro-icono {
+      color: #cc0000;
+      border-color: #cc0000;
+      box-shadow: 0 0 12px rgba(255, 0, 0, 0.35);
+    }
+
+    .logro-item.desbloqueado .logro-texto {
+      color: #cc0000;
+      text-shadow: 2px 2px 20px #ff0000;
+    }
+
+    .logro-item.desbloqueado {
+      border-color: #cc0000;
+    }
+
+    .logro-item.bloqueado .logro-icono {
+      color: #444;
+      border-color: #2a2a2a;
+    }
+
+    .logro-item.bloqueado .logro-texto {
+      color: #333;
+      text-shadow: none;
+    }
+
+    .logro-item.bloqueado {
+      border-color: #222;
+    }
+
+    .btn-volver-logros {
+      background: transparent;
+      border: none;
+      color: #666;
+      font-family: monospace;
+      font-size: 1rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: color 0.3s;
+    }
+
+    .btn-volver-logros:hover {
+      color: #cc0000;
+      text-shadow: 0 0 10px #ff0000;
+    }
+
   </style>
 </head>
 
@@ -144,9 +259,15 @@
   <div id="menu">
     <h1>Five Nights at Atlantida</h1>
     <button onclick="nuevaPartida()">&#9658; NUEVA PARTIDA</button>
-    <button onclick="continuar()">CONTINUAR</button>
-    <button onclick="opciones()">OPCIONES</button>
     <button onclick="location.href='ranking.html'">RANKING</button>
+    <button onclick="mostrarLogros()">LOGROS</button>
+    <button onclick="modoDificil()" style="color:#f55;">MODO DIFICIL</button>
+  </div>
+
+  <div id="panel-logros">
+    <h2 class="logros-titulo">Logros</h2>
+    <ul class="logros-lista" id="logros-lista"></ul>
+    <button class="btn-volver-logros" onclick="volverMenuLogros()">[ Volver al menu ]</button>
   </div>
 
   <div id="panel-noches">
@@ -157,6 +278,16 @@
     <button class="btn-volver" onclick="volverMenu()">[ Volver al menu ]</button>
   </div>
 
+  <div id="panel-dificil" style="display:none;position:absolute;top:30%;left:5%;z-index:5;text-align:center;background:rgba(10,0,0,0.92);border:2px solid #a00;padding:40px;min-width:420px;">
+    <h2 style="color:#f44;letter-spacing:2px;margin-bottom:16px;">MODO DIFICIL</h2>
+    <p style="color:#ccc;font-size:14px;line-height:1.5;margin-bottom:24px;text-transform:none;letter-spacing:0;">
+      <span style="color:#f66;">Casi imposible de ganar. Muy difícil.</span>
+    </p>
+    <button class="boton-noche" onclick="iniciarNocheDificil(1)">&#9658; NOCHE 1D</button>
+    <button class="boton-noche" onclick="iniciarNocheDificil(2)">&#9658; NOCHE 2D</button>
+    <button class="btn-volver" onclick="volverMenuDificil()">[ Volver al menu ]</button>
+  </div>
+
   <div id="popup-desarrollo"
     style="display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 10; text-align: center; background: rgba(10,0,0,0.95); border: 2px solid red; padding: 40px; min-width: 300px; box-shadow: 0 0 15px red;">
     <h2 style="font-size: 30px; margin-bottom: 20px; color: red; letter-spacing: 2px;">EN DESARROLLO</h2>
@@ -164,6 +295,8 @@
     <button class="btn-volver" onclick="cerrarPopupDesarrollo()">[ Cerrar ]</button>
   </div>
 
+  <script src="js/fnat-sesion.js"></script>
+  <script src="js/logros.js"></script>
   <script>
     var fondoNormal = document.getElementById("fondo-normal");
     var esAlonso = false;
@@ -189,6 +322,7 @@
     }, 13000);
 
     function nuevaPartida() {
+      FnatSesion.desactivarDificil();
       document.getElementById("menu").style.display = "none";
       document.getElementById("panel-noches").style.display = "block";
     }
@@ -198,7 +332,41 @@
       document.getElementById("menu").style.display = "block";
     }
 
+    function modoDificil() {
+      document.getElementById("menu").style.display = "none";
+      document.getElementById("panel-dificil").style.display = "block";
+    }
+
+    function volverMenuDificil() {
+      document.getElementById("panel-dificil").style.display = "none";
+      document.getElementById("menu").style.display = "block";
+    }
+
+    function iniciarNocheDificil(num) {
+      FnatSesion.activarDificil();
+      if (num === 1) FnatSesion.ir("video_intro.html");
+      else if (num === 2) FnatSesion.ir("video_intro_noche2.html");
+    }
+
+    function mostrarLogros() {
+      document.getElementById("menu").style.display = "none";
+      document.getElementById("panel-logros").style.display = "flex";
+      renderLogros();
+    }
+
+    function renderLogros() {
+      Logros.renderLista("logros-lista");
+    }
+
+    Logros.initEsquina();
+
+    function volverMenuLogros() {
+      document.getElementById("panel-logros").style.display = "none";
+      document.getElementById("menu").style.display = "block";
+    }
+
     function iniciarNoche(num) {
+      FnatSesion.desactivarDificil();
       if (num === 1) window.location.href = "video_intro.html";
       else if (num === 2) window.location.href = "video_intro_noche2.html";
       else alert("Iniciando Noche " + num + "...");
@@ -211,9 +379,6 @@
     function cerrarPopupDesarrollo() {
       document.getElementById("popup-desarrollo").style.display = "none";
     }
-
-    function continuar() { alert("continuando la partida"); }
-    function opciones() { alert("cargando opciones"); }
 
     // musica de fondo en bucle
     var musica = new Audio("assets/musica/musica-inicio.mp4");

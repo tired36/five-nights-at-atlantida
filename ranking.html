@@ -1,47 +1,129 @@
 <!DOCTYPE html>
+
 <html lang="es">
+
 <head>
+
   <meta charset="UTF-8">
+
   <title>Ranking</title>
+
   <style>
+
     body {
+
       margin: 0;
+
       min-height: 100vh;
+
       color: #fff;
+
       font-family: monospace;
+
       background: #000 url("assets/imagenes/ranking.png") center / cover no-repeat fixed;
+
     }
+
     .contenido {
+
       max-width: 600px;
+
       margin: 0 auto;
+
       padding: 30px;
+
       background: rgba(0, 0, 0, 0.75);
+
       min-height: 100vh;
+
       box-sizing: border-box;
+
     }
-    h1, h2 { text-align: center; }
+
+    h1, h2, h3 { text-align: center; }
+
+    h3 {
+
+      color: #f66;
+
+      margin-top: 40px;
+
+      letter-spacing: 2px;
+
+      text-transform: uppercase;
+
+    }
+
     table { width: 100%; border-collapse: collapse; margin: 16px 0 32px; }
+
     th, td { border: 1px solid #444; padding: 8px; text-align: center; background: rgba(0, 0, 0, 0.5); }
+
     a { color: #aaa; display: block; text-align: center; margin-top: 20px; }
-    #aviso { background: #222; border: 1px solid #666; padding: 10px; margin-bottom: 16px; text-align: center; display: none; }
+
+    .seccion-dificil {
+      margin-top: 48px;
+      padding-top: 24px;
+      border-top: 3px solid #a00;
+      background: rgba(40, 0, 0, 0.25);
+      border-radius: 4px;
+      padding-left: 8px;
+      padding-right: 8px;
+      padding-bottom: 8px;
+    }
+    .seccion-dificil > h2 { color: #f44; margin-bottom: 8px; }
+    .ranking-normal h2 { color: #fff; }
+
   </style>
+
 </head>
+
 <body>
+
   <div class="contenido">
-    <div id="aviso"></div>
+
     <h1>Ranking</h1>
 
+    <div class="ranking-normal">
     <h2 id="t1">Noche 1</h2>
+
     <table><thead><tr><th>#</th><th>Usuario</th><th>Pts</th></tr></thead><tbody id="n1"></tbody></table>
 
+
+
     <h2 id="t2">Noche 2</h2>
+
     <table><thead><tr><th>#</th><th>Usuario</th><th>Pts</th></tr></thead><tbody id="n2"></tbody></table>
+    </div>
+
+    <div class="seccion-dificil" id="dificil">
+
+      <h2>Modo difícil</h2>
+
+      <h3 id="t1d">Noche 1D</h3>
+
+      <table><thead><tr><th>#</th><th>Usuario</th><th>Pts</th></tr></thead><tbody id="d1"></tbody></table>
+
+      <h3 id="t2d">Noche 2D</h3>
+
+      <table><thead><tr><th>#</th><th>Usuario</th><th>Pts</th></tr></thead><tbody id="d2"></tbody></table>
+
+    </div>
+
+
 
     <a href="menu.html">← Menú</a>
+
   </div>
 
-  <script src="js/supabase-config.js"></script>
-  <script src="js/supabase-api.js"></script>
+
+
+  <script src="js/api-config.js"></script>
+
+  <script src="js/ranking-api.js"></script>
+
   <script src="js/ranking-pagina.js"></script>
+
 </body>
+
 </html>
+

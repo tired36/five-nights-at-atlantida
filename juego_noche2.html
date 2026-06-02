@@ -335,8 +335,12 @@
   </video>
 
   <!-- screamer de alonso -->
-  <video id="video-screamer" src="assets/videos/screamer_alonso.mp4" playsinline webkit-playsinline
-    style="display:none; position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover; z-index:90;">
+  <video id="video-screamer" src="assets/videos/screamer_alonso.mp4" preload="auto" playsinline webkit-playsinline
+    style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; object-fit:cover; z-index:99;">
+  </video>
+  <video id="video-screamer-especial" src="assets/videos/sin energia puerta cerrada.mp4" preload="auto" playsinline
+    webkit-playsinline
+    style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; object-fit:cover; z-index:99;">
   </video>
 
   <!-- video de ganar -->
@@ -345,7 +349,7 @@
   </video>
 
   <div id="pantalla-flashes"
-    style="display:none; position:absolute; top:0; left:0; width:100%; height:100%; background:white; opacity:0; z-index:95; pointer-events:none;">
+    style="display:none; position:absolute; top:0; left:0; width:100%; height:100%; background:black; opacity:0; z-index:95; pointer-events:none;">
   </div>
 
   <div id="pantalla-parpadeo"
@@ -366,7 +370,36 @@
   <audio id="audio-alonso" src="assets/musica/audioalonso.mp3" preload="auto"></audio>
 
   <!-- musica de fondo: tension -->
-  <audio id="musica-tension" src="assets/musica/TENSION.mp3" loop></audio>
+  <audio id="musica-tension" src="assets/musica/sonido de fondo.mp3" loop></audio>
+
+  <!-- audio de pasos cuando llega a camara 4 -->
+  <audio id="audio-pasos" src="assets/musica/pasos.mp3" preload="auto"></audio>
+
+  <!-- audio de pasos corriendo para cuando falla la camara -->
+  <audio id="audio-pasos-corriendo" src="assets/musica/PASOS CORRIENDO.mp3" preload="auto"></audio>
+
+  <!-- audio de risa de niño ambiente -->
+  <audio id="audio-risa" src="assets/musica/risa de niño.mp3" preload="auto"></audio>
+
+  <!-- audio de risa de demonio para bloqueo de camara -->
+  <audio id="audio-demonio" src="assets/musica/demonio risa .mp3" preload="auto"></audio>
+
+  <!-- audio de respiracion ambiental -->
+  <audio id="audio-respiracion-amb" src="assets/musica/respiracion profunda.mp3" preload="auto"></audio>
+
+  <!-- audio de respiracion de alonso en cam 4 -->
+  <audio id="audio-respiracion" src="assets/musica/respiracion_alonso.mp3" preload="auto"></audio>
+
+  <!-- audio de respiracion fnaf (ambiente) -->
+  <audio id="audio-respiracion-fnaf" src="assets/musica/RESPIRACION ALONSO fnaf.mp3" preload="auto"></audio>
+
+  <!-- caja de musica de alonso -->
+  <audio id="audio-caja" src="assets/musica/caja de musica de alonso.mp3" preload="auto"></audio>
+
+  <!-- audios de falta de energia -->
+  <audio id="audio-powerdown" src="assets/musica/powerdown.mp3" preload="auto"></audio>
+  <audio id="audio-sevalaluz" src="assets/musica/se va la luz.mp3" preload="auto"></audio>
+  <audio id="audio-linterna" src="assets/musica/linterna.mp3" preload="auto"></audio>
 
   <!-- ui de textos -->
   <div id="texto-hora" class="ui-texto">12:00 PM</div>
@@ -414,15 +447,21 @@
       style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: url('assets/imagenes/escenarios/sala_principal/oficina.png') center/cover no-repeat; z-index: -1;">
     </div>
     <h1 style="text-shadow: 2px 2px 5px black;">GAME OVER</h1>
+    <p id="mensaje-gameover" style="text-shadow: 1px 1px 3px black; color: white; font-size: 24px;">alonso ha entrado a
+      la oficina...</p>
     <div style="display: flex; gap: 20px; justify-content: center; margin-top: 20px;">
       <button onclick="window.location.href='juego_noche2.html'">volver a intentarlo</button>
       <button onclick="window.location.href='menu.html'">volver al menu</button>
     </div>
   </div>
 
-  <script src="js/supabase-config.js"></script>
-  <script src="js/supabase-api.js"></script>
+  <script src="js/fnat-sesion.js"></script>
+  <script src="js/sin-camaras.js"></script>
+  <script src="js/modo-dificil.js"></script>
+  <script src="js/api-config.js"></script>
+  <script src="js/ranking-api.js"></script>
   <script src="js/utilidades.js"></script>
+  <script src="js/logros.js"></script>
   <script src="js/ranking.js"></script>
   <script src="js/noche2.js"></script>
 

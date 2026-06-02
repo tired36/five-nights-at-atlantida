@@ -79,13 +79,80 @@ Eres el vigilante nocturno del centro **Atlántida FP**. Debes **sobrevivir de l
 
 > **Nota:** el juego está pensado para **5 noches**; en el menú solo están jugables la **1** y la **2** por ahora.
 
-## Ranking (Supabase)
+## Ranking (MongoDB)
 
-1. Ejecuta `supabase-setup.sql` en Supabase (tabla + datos iniciales).
-2. Abre el juego como siempre (`index.html` con doble clic).
-3. Al terminar partida se guarda en Supabase; menú → **RANKING** lee el top 10 compartido.
+Al terminar una partida se guarda en **FNAA → usuarios** (MongoDB Atlas). En **RANKING** ves el top 10 por noche (y **1D / 2D** en modo difícil).
 
-La tabla necesita las columnas **`usuario`**, **`noche`** y **`puntuacion`** (más `id`). `created_at` es opcional.
+### Una sola base de datos (local + Vercel)
+
+No hay dos rankings separados: **local y Vercel usan la misma BD en Atlas**. Si guardas una partida en tu PC, aparece en la web de Vercel al instante, y al revés.
+
+| Dónde | Qué usa |
+|-------|---------|
+| **Vercel** | Variables en el panel → carpeta `api/` |
+| **Local** | Archivo `.env` en la raíz → `npm run dev` |
+
+Las **tres variables deben ser idénticas** en ambos sitios:
+
+- `MONGODB_URI`
+- `MONGODB_DB` → `FNAA`
+- `MONGODB_COLLECTION` → `usuarios`
+
+Comprobar conexión local:
+
+```bash
+npm run check-db
+```
+
+Si en local el `total` de `/api/health` es el mismo que en Vercel, estás en la misma base de datos.
+
+**Vercel no se rompe:** en producción solo se ejecuta la carpeta `api/` (serverless). El archivo `server/server.js` es solo para desarrollo en tu PC y no se despliega como servidor en Vercel.
+
+### Desplegar en Vercel (recomendado, funciona en internet)
+
+1. **Sube el proyecto a GitHub** (toda la carpeta del juego).
+
+2. Entra en [vercel.com](https://vercel.com) → **Add New Project** → importa tu repo de GitHub.
+
+3. **Variables de entorno** (Settings → Environment Variables). Añade estas tres (marca Production, Preview y Development):
+
+   | Nombre | Valor |
+   |--------|--------|
+   | `MONGODB_URI` | `mongodb+srv://usuario:contraseña@fnat.mk0pu0b.mongodb.net/` |
+   | `MONGODB_DB` | `FNAA` |
+   | `MONGODB_COLLECTION` | `usuarios` |
+
+4. **MongoDB Atlas** → **Network Access** → **Add IP Address** → `0.0.0.0/0` (permite que Vercel se conecte).
+
+5. Pulsa **Deploy**. Cuando termine, abre la URL que te da Vercel (ej. `https://tu-proyecto.vercel.app`).
+
+6. Prueba:
+   - `https://tu-proyecto.vercel.app/api/health` → debe mostrar `"total": 20` (o más).
+   - Juega una noche, termina partida → debe decir "Guardado en el ranking".
+   - `https://tu-proyecto.vercel.app/ranking.html` → tablas con datos.
+
+**Importante:** en Vercel no hace falta `node server.js`; la carpeta `api/` es el servidor automático.
+
+### Probar en local (misma BD y misma API que Vercel)
+
+1. Copia `.env.example` a **`.env`** en la **raíz** del proyecto.
+2. Pega en `.env` la **misma** `MONGODB_URI` (y DB/colección) que tienes en Vercel → Settings → Environment Variables.
+3. En la raíz:
+   ```bash
+   npm install
+   npm run check-db
+   npm run dev
+   ```
+   O doble clic en **`dev.bat`** (comprueba la BD antes de arrancar).
+4. Abre **http://localhost:3000/menu.html**.
+
+Si usas **Live Server**, deja `npm run dev` en marcha: el juego llama a `http://localhost:3000/api/...`.
+
+Comprueba: **http://localhost:3000/api/health** → `"ok": true` y el mismo `"total"` que en tu URL de Vercel.
+
+### Modo difícil
+
+En el menú: **MODO DIFICIL** → mismas noches 1 y 2 **sin cámaras** (solo sonidos y parpadeos). En el ranking se guardan como **1D** y **2D** (sección aparte en `ranking.html`).
 
 ## Código del juego
 
@@ -93,7 +160,11 @@ La tabla necesita las columnas **`usuario`**, **`noche`** y **`puntuacion`** (m�
 |---------|----------|
 | `js/utilidades.js` | Subtítulos, energía, golpes en puerta (común) |
 | `js/ranking.js` | Puntuación y pantallas de usuario |
+| `js/ranking-api.js` | Peticiones al servidor (guardar / top 10) |
+| `js/ranking-pagina.js` | Pantalla de ranking |
+| `api/partidas.js` | API en Vercel (guardar / leer ranking) |
+| `lib/mongodb.js` | Conexión a MongoDB (Vercel y local) |
+| `server/server.js` | Servidor local (`npm run dev`); usa los mismos handlers que `api/` en Vercel |
 | `js/noche1.js` / `js/noche2.js` | Lógica de cada noche (config arriba del archivo) |
-| `js/supabase-api.js` | Guardar y leer ranking online |
 
 **Puntos:** +3 cada segundo; puerta −40 (pausa mientras cerrada); audio −28/−32 (pausa hasta que acabe retención + recarga).

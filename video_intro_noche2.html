@@ -51,11 +51,12 @@
 
   <button id="saltar" onclick="irAlJuego()">Saltar</button>
 
+  <script src="js/fnat-sesion.js"></script>
   <script>
     var video = document.getElementById("video-intro");
 
     function irAlJuego() {
-      window.location.href = "normas_noche2.html";
+      FnatSesion.ir("normas_noche2.html");
     }
 
     video.addEventListener("ended", irAlJuego);
