@@ -1,5 +1,6 @@
 const { getDb } = require("./lib/mongodb");
 const { aplicarCors } = require("./lib/cors");
+const { safeErrorForClient, safeLogError } = require("./lib/secrets");
 
 function leerBody(req) {
   if (!req.body) return {};
@@ -99,7 +100,7 @@ module.exports = async function handler(req, res) {
 
     return res.status(405).json({ error: "Método no permitido" });
   } catch (err) {
-    console.error(err);
-    return res.status(500).json({ error: err.message || "Error del servidor" });
+    safeLogError("[partidas]", err);
+    return res.status(500).json({ error: safeErrorForClient(err) });
   }
 };

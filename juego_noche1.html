@@ -4,258 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <title>Partida - Noche 1</title>
-  <style>
-    body {
-      margin: 0;
-      background: black url('assets/imagenes/escenarios/sala_principal/oficina.png') center/cover no-repeat;
-      height: 100vh;
-      width: 100vw;
-      overflow: hidden;
-      user-select: none;
-    }
-
-    /* textos de ui en esquina superior derecha */
-    .ui-texto {
-      position: absolute;
-      right: 30px;
-      color: white;
-      font-family: monospace;
-      font-size: 18px;
-      z-index: 10;
-    }
-
-    #texto-hora {
-      top: 20px;
-      font-size: 24px;
-    }
-
-    #texto-noche {
-      top: 50px;
-    }
-
-    #texto-energia {
-      top: 80px;
-    }
-
-    /* botones principales abajo */
-    #ui-botones {
-      position: absolute;
-      bottom: 20px;
-      left: 0;
-      width: 100%;
-      display: flex;
-      justify-content: space-around;
-      z-index: 10;
-    }
-
-    .btn {
-      background: rgba(255, 255, 255, 0.2);
-      border: 2px solid white;
-      color: white;
-      padding: 15px 30px;
-      font-size: 20px;
-      font-family: monospace;
-      cursor: pointer;
-      text-transform: uppercase;
-      transition: background 0.3s;
-      width: 300px;
-    }
-
-    .btn:hover {
-      background: rgba(255, 255, 255, 0.6);
-      color: black;
-    }
-
-    /* pantalla de camaras */
-    #camaras {
-      display: none;
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: #111;
-      z-index: 20;
-    }
-
-    /* imagen de camara */
-    #vista-camara {
-      width: 100%;
-      height: 100%;
-      background: center/cover no-repeat;
-      cursor: crosshair;
-    }
-
-    /* scanlines */
-    #scanlines {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      pointer-events: none;
-      background: repeating-linear-gradient(0deg,
-          rgba(0, 0, 0, 0.15) 0px, rgba(0, 0, 0, 0.15) 2px,
-          transparent 2px, transparent 4px);
-    }
-
-    #instruccion {
-      position: absolute;
-      top: 20px;
-      left: 20px;
-      color: white;
-      font-family: monospace;
-      font-size: 16px;
-      background: rgba(0, 0, 0, 0.5);
-      padding: 10px;
-      border: 1px dotted white;
-      pointer-events: none;
-      z-index: 25;
-    }
-
-    /* botones de camara */
-    #lista-camaras {
-      position: absolute;
-      bottom: 120px;
-      right: 30px;
-      display: flex;
-      flex-direction: column;
-      gap: 15px;
-      z-index: 25;
-    }
-
-    .btn-cam {
-      background: #333;
-      border: 1px solid white;
-      color: white;
-      padding: 10px 20px;
-      font-family: monospace;
-      font-size: 16px;
-      cursor: pointer;
-    }
-
-    .btn-cam:hover {
-      background: #555;
-    }
-
-    .btn-cam.activo {
-      background: white;
-      color: black;
-      font-weight: bold;
-    }
-
-    #btn-bajar-cam {
-      position: absolute;
-      bottom: 30px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 400px;
-      z-index: 25;
-    }
-
-    /* boton de audio de german */
-    #btn-audio {
-      display: none;
-      position: absolute;
-      top: 20px;
-      right: 20px;
-      z-index: 30;
-      background: rgba(0, 60, 0, 0.85);
-      border: 2px solid #44ff44;
-      color: #44ff44;
-      padding: 12px 22px;
-      font-family: monospace;
-      font-size: 17px;
-      cursor: pointer;
-    }
-
-    #btn-audio:disabled {
-      border-color: #555;
-      color: #555;
-      cursor: not-allowed;
-      background: #111;
-    }
-
-    /* contador de retencion */
-    #contador-retencion {
-      display: none;
-      position: absolute;
-      top: 70px;
-      right: 20px;
-      z-index: 30;
-      color: #44ff44;
-      font-family: monospace;
-      font-size: 15px;
-      background: rgba(0, 0, 0, 0.6);
-      padding: 6px 12px;
-      border: 1px solid #44ff44;
-    }
-
-    /* subtitulo estilo netflix: aparece abajo centrado */
-    #subtitulo {
-      display: none;
-      position: fixed;
-      bottom: 80px;
-      left: 50%;
-      transform: translateX(-50%);
-      z-index: 50;
-      background: rgba(0, 0, 0, 0.72);
-      color: white;
-      font-family: monospace;
-      font-size: 17px;
-      padding: 8px 22px;
-      border-radius: 4px;
-      white-space: nowrap;
-      text-align: center;
-      pointer-events: none;
-      transition: opacity 0.4s;
-    }
-
-    /* game over */
-    #pantalla-gameover {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.93);
-      z-index: 100;
-      justify-content: center;
-      align-items: center;
-      flex-direction: column;
-      font-family: monospace;
-      color: white;
-      text-align: center;
-    }
-
-    #pantalla-gameover h1 {
-      font-size: 58px;
-      color: #ff2222;
-      margin-bottom: 16px;
-    }
-
-    #pantalla-gameover p {
-      font-size: 20px;
-      margin-bottom: 36px;
-      color: #aaa;
-    }
-
-    #pantalla-gameover button {
-      padding: 14px 38px;
-      font-size: 19px;
-      font-family: monospace;
-      background: transparent;
-      border: 2px solid white;
-      color: white;
-      cursor: pointer;
-    }
-
-    #pantalla-gameover button:hover {
-      background: white;
-      color: black;
-    }
-  </style>
+  <link rel="stylesheet" href="css/juego.css">
 </head>
 
 <body>
@@ -266,10 +15,10 @@
   </video>
 
   <!-- video de golpes en la puerta -->
-  <video id="video-golpes" src="assets/videos/golpes en la puerta.mp4" playsinline
+  <video id="video-golpes" src="assets/videos/golpes_en_la_puerta.mp4" playsinline
     style="display:none; position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover; z-index:6; pointer-events:none;">
   </video>
-  <video id="video-golpes-2" src="assets/videos/golpes en la puerta 2 .mp4" playsinline
+  <video id="video-golpes-2" src="assets/videos/golpes_en_la_puerta_2.mp4" playsinline
     style="display:none; position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover; z-index:6; pointer-events:none;">
   </video>
 
@@ -278,17 +27,17 @@
   </div>
 
   <!-- screamer de german -->
-  <video id="video-screamer" src="assets/videos/SCREAMER GERMAN.mp4" preload="auto" playsinline webkit-playsinline
+  <video id="video-screamer" src="assets/videos/SCREAMER_GERMAN.mp4" preload="auto" playsinline webkit-playsinline
     style="display:none; position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover; z-index:90;">
   </video>
 
   <!-- screamer de german numero 2 -->
-  <video id="video-screamer-2" src="assets/videos/screamer german numero 2.mp4" preload="auto" playsinline webkit-playsinline
+  <video id="video-screamer-2" src="assets/videos/screamer_german_numero_2.mp4" preload="auto" playsinline webkit-playsinline
     style="display:none; position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover; z-index:90;">
   </video>
 
   <!-- screamer especial sin energia puerta cerrada -->
-  <video id="video-screamer-especial" src="assets/videos/sin energia puerta cerrada.mp4" preload="auto" playsinline webkit-playsinline
+  <video id="video-screamer-especial" src="assets/videos/sin_energia_puerta_cerrada.mp4" preload="auto" playsinline webkit-playsinline
     style="display:none; position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover; z-index:90;">
   </video>
 
@@ -297,7 +46,7 @@
     style="display:none; position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover; z-index:100;">
   </video>
 
-  <audio id="audio-gameover" src="assets/musica/musica_mickey.mp4"></audio>
+  <audio id="audio-gameover" src="assets/musica/musica_mickey.mp4" preload="auto" style="display:none"></audio>
 
   <!-- estatica al cerrar camaras -->
   <div id="pantalla-estatica"
@@ -305,30 +54,30 @@
   </div>
 
   <!-- audio de german para la mecanica de retencion -->
-  <audio id="audio-german" src="assets/musica/german_audio.mp4" preload="auto"></audio>
+  <audio id="audio-german" src="assets/musica/german_audio.mp4" preload="auto" style="display:none"></audio>
 
   <!-- musica de fondo: tension -->
-  <audio id="musica-tension" src="assets/musica/sonido de fondo.mp3" loop></audio>
+  <audio id="musica-tension" src="assets/musica/sonido_de_fondo.mp3" loop preload="auto" style="display:none"></audio>
 
   <!-- audio de pasos cuando llega a camara 4 -->
-  <audio id="audio-pasos" src="assets/musica/pasos.mp3" preload="auto"></audio>
+  <audio id="audio-pasos" src="assets/musica/pasos.mp3" preload="auto" style="display:none"></audio>
 
   <!-- audio de pasos corriendo para cuando falla la camara -->
-  <audio id="audio-pasos-corriendo" src="assets/musica/PASOS CORRIENDO.mp3" preload="auto"></audio>
+  <audio id="audio-pasos-corriendo" src="assets/musica/PASOS_CORRIENDO.mp3" preload="auto" style="display:none"></audio>
 
   <!-- audio de risa de nino ambiente -->
-  <audio id="audio-risa" src="assets/musica/risa_de_niño.mp3" preload="auto"></audio>
+  <audio id="audio-risa" src="assets/musica/risa_de_niño.mp3" preload="auto" style="display:none"></audio>
 
   <!-- audio de risa de demonio para bloqueo de camara -->
-  <audio id="audio-demonio" src="assets/musica/demonio risa .mp3" preload="auto"></audio>
+  <audio id="audio-demonio" src="assets/musica/demonio_risa.mp3" preload="auto" style="display:none"></audio>
 
   <!-- audio de respiracion ambiental -->
-  <audio id="audio-respiracion-amb" src="assets/musica/respiracion profunda.mp3" preload="auto"></audio>
+  <audio id="audio-respiracion-amb" src="assets/musica/respiracion_profunda.mp3" preload="auto" style="display:none"></audio>
 
   <!-- audios de falta de energia -->
-  <audio id="audio-powerdown" src="assets/musica/powerdown.mp3" preload="auto"></audio>
-  <audio id="audio-sevalaluz" src="assets/musica/se va la luz.mp3" preload="auto"></audio>
-  <audio id="audio-linterna" src="assets/musica/linterna.mp3" preload="auto"></audio>
+  <audio id="audio-powerdown" src="assets/musica/powerdown.mp3" preload="auto" style="display:none"></audio>
+  <audio id="audio-sevalaluz" src="assets/musica/se_va_la_luz.mp3" preload="auto" style="display:none"></audio>
+  <audio id="audio-linterna" src="assets/musica/linterna.mp3" preload="auto" style="display:none"></audio>
 
   <!-- ui de textos -->
   <div id="texto-hora" class="ui-texto">12:00 PM</div>
@@ -348,12 +97,12 @@
     <div id="instruccion">Manten clic en la pantalla para usar la linterna</div>
 
     <!-- video de animacion de german saliendo de sala 1 -->
-    <video id="video-animacion-german" src="assets/videos/animaciones de camaras/germansala1.mp4" playsinline
+    <video id="video-animacion-german" src="assets/videos/animaciones_de_camaras/germansala1.mp4" playsinline
       style="display:none; position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover; z-index:22; pointer-events:none;">
     </video>
 
     <!-- video de animacion de german saliendo de sala 2 -->
-    <video id="video-animacion-german-sala2" src="assets/videos/animaciones de camaras/germansala2.mp4" playsinline
+    <video id="video-animacion-german-sala2" src="assets/videos/animaciones_de_camaras/germansala2.mp4" playsinline
       style="display:none; position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover; z-index:22; pointer-events:none;">
     </video>
 
@@ -385,12 +134,13 @@
     <p id="mensaje-gameover" style="text-shadow: 1px 1px 3px black; color: white; font-size: 24px;">german ha entrado a
       la oficina...</p>
     <div style="display: flex; gap: 20px; justify-content: center; margin-top: 20px;">
-      <button onclick="window.location.href='juego_noche1.html'" style="background: rgba(0,0,0,0.7);">volver a
+      <button onclick="FnatSesion.ir('juego_noche1.html')" style="background: rgba(0,0,0,0.7);">volver a
         intentarlo</button>
-      <button onclick="window.location.href='menu.html'" style="background: rgba(0,0,0,0.7);">volver al menu</button>
+      <button onclick="FnatSesion.ir('menu.html')" style="background: rgba(0,0,0,0.7);">volver al menu</button>
     </div>
   </div>
 
+  <script src="js/assets.js"></script>
   <script src="js/fnat-sesion.js"></script>
   <script src="js/sin-camaras.js"></script>
   <script src="js/modo-dificil.js"></script>

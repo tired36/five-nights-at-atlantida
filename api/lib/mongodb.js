@@ -1,5 +1,6 @@
 const dns = require("dns");
 const { MongoClient } = require("mongodb");
+const { safeLogError } = require("./secrets");
 
 dns.setServers(["8.8.8.8", "1.1.1.1"]);
 
@@ -31,6 +32,10 @@ async function getDb() {
     cache.promise = client.connect().then((c) => {
       cache.client = c;
       return c;
+    }).catch((err) => {
+      cache.promise = null;
+      safeLogError("[mongodb] conexión fallida:", err);
+      throw new Error("No se pudo conectar a la base de datos");
     });
   }
 

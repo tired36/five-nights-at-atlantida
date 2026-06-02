@@ -46,7 +46,7 @@ Eres el vigilante nocturno del centro **Atlántida FP**. Debes **sobrevivir de l
 **Cámaras y linterna**
 
 - Las salas se ven oscuras hasta que mantienes la linterna.
-- El botón de la cámara donde está el enemigo se marca en **rojo** (pista visual).
+- Debes revisar las cámaras con la linterna para ver al enemigo; no hay indicador de sala en los botones CAM.
 
 **Audio**
 
@@ -78,6 +78,13 @@ Eres el vigilante nocturno del centro **Atlántida FP**. Debes **sobrevivir de l
 - **Derrota**: el enemigo entra en la oficina, o te quedas sin energía en el momento crítico.
 
 > **Nota:** el juego está pensado para **5 noches**; en el menú solo están jugables la **1** y la **2** por ahora.
+
+## Seguridad de la base de datos
+
+La contraseña de MongoDB **no debe estar en el código ni en GitHub**. Solo en `.env` (local, ignorado por Git) y en las variables de entorno de Vercel.
+
+- Antes de cada commit: `npm run check-secrets`
+- Guía completa: [SECURITY.md](SECURITY.md)
 
 ## Ranking (MongoDB)
 
@@ -118,7 +125,7 @@ Si en local el `total` de `/api/health` es el mismo que en Vercel, estás en la 
 
    | Nombre | Valor |
    |--------|--------|
-   | `MONGODB_URI` | `mongodb+srv://usuario:contraseña@fnat.mk0pu0b.mongodb.net/` |
+   | `MONGODB_URI` | `mongodb+srv://USUARIO:PASSWORD@tu-cluster.mongodb.net/` (tu cadena real de Atlas, no la subas al repo) |
    | `MONGODB_DB` | `FNAA` |
    | `MONGODB_COLLECTION` | `usuarios` |
 
@@ -152,7 +159,7 @@ Comprueba: **http://localhost:3000/api/health** → `"ok": true` y el mismo `"to
 
 ### Modo difícil
 
-En el menú: **MODO DIFICIL** → mismas noches 1 y 2 **sin cámaras** (solo sonidos y parpadeos). En el ranking se guardan como **1D** y **2D** (sección aparte en `ranking.html`).
+En el menú: **MODO DIFICIL** → mismas noches 1 y 2 **sin cámaras** y **sin botón de audio** (solo puerta, sonidos ambientales y parpadeos). En el ranking se guardan como **1D** y **2D** (sección aparte en `ranking.html`).
 
 ## Código del juego
 

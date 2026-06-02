@@ -1,6 +1,19 @@
 node_modules/
 server/node_modules/
-.env
-.env.local
-server/.env
 .vercel
+
+# Credenciales — NUNCA subir (ver SECURITY.md)
+.env
+.env.*
+!.env.example
+!server/.env.example
+server/.env
+.env.local
+.env.*.local
+
+# Otros secretos habituales
+*.pem
+*.key
+credentials.json
+secrets.json
+serviceAccount*.json

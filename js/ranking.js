@@ -70,9 +70,9 @@
       "#rank-login,#rank-fin{position:fixed;inset:0;background:rgba(0,0,0,.9);display:flex;align-items:center;justify-content:center}" +
       "#rank-login form,#rank-fin .box{background:#111;border:1px solid #fff;padding:24px;text-align:center;min-width:220px}" +
       "#rank-login input,#rank-login button,#rank-fin button{width:100%;margin:8px 0;padding:10px;font-family:monospace}" +
-      "#rank-bar{position:fixed;top:12px;left:50%;transform:translateX(-50%);z-index:60;display:none;align-items:center;gap:14px;flex-wrap:nowrap}" +
-      "#rank-pts{font-size:24px;color:#5f5;white-space:nowrap}" +
-      "#rank-aviso{position:fixed;top:50px;left:50%;transform:translateX(-50%);color:#f88;font-size:14px;z-index:60;opacity:0;transition:opacity .8s}";
+      "#rank-bar{position:fixed;top:12px;left:20px;z-index:60;display:none;align-items:center;gap:14px;flex-wrap:nowrap}" +
+      "#rank-pts{font-size:22px;color:#5f5;white-space:nowrap;text-shadow:0 0 8px rgba(0,0,0,.9)}" +
+      "#rank-aviso{position:fixed;top:44px;left:20px;color:#f88;font-size:14px;z-index:60;opacity:0;transition:opacity .8s}";
     document.head.appendChild(estilo);
 
     const contenedor = document.createElement("div");
@@ -98,7 +98,10 @@
       empezarPartida();
     });
 
-    document.getElementById("rank-menu").onclick = () => { location.href = "menu.html"; };
+    document.getElementById("rank-menu").onclick = () => {
+      if (window.FnatSesion) FnatSesion.ir("menu.html");
+      else location.href = "menu.html";
+    };
   }
 
   function leerNombre() {
@@ -155,7 +158,11 @@
       pintarPuntos();
     },
 
-    audioTerminado() {},
+    audioTerminado() {
+      if (!listo) return;
+      pausaPorAudio = false;
+      pintarPuntos();
+    },
 
     /** Cierras la puerta: -40 y no sube mientras esté bajada o bajando */
     puertaCerrada() {
@@ -200,6 +207,22 @@
         if (window.Logros) Logros.desbloquear("noche2");
         else localStorage.setItem("fnat_logro_noche2", "1");
       }
+      if (victoria && noche === 1 && modo === "dificil") {
+        if (window.Logros) Logros.desbloquear("noche1D");
+        else localStorage.setItem("fnat_logro_noche1_dificil", "1");
+      }
+      if (victoria && noche === 2 && modo === "dificil") {
+        if (window.Logros) Logros.desbloquear("noche2D");
+        else localStorage.setItem("fnat_logro_noche2_dificil", "1");
+      }
+      if (victoria && window.Logros && Logros.alVictoria) {
+        Logros.alVictoria({
+          noche: noche,
+          modo: modo,
+          energia: opts.energia,
+          puntos: total
+        });
+      }
 
       mostrarBarraPuntos(false);
 
@@ -215,10 +238,12 @@
       document.getElementById("rank-save").textContent = "Guardando...";
       document.getElementById("rank-fin").style.display = "flex";
       document.getElementById("rank-ver").onclick = () => {
-        location.href =
+        var url =
           modo === "dificil"
             ? "ranking.html#" + noche + "d"
             : "ranking.html#noche" + noche;
+        if (window.FnatSesion) FnatSesion.ir(url);
+        else location.href = url;
       };
 
       return promesaGuardado

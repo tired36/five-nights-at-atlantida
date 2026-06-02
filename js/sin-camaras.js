@@ -58,36 +58,63 @@
     s.textContent =
       "#aviso-sin-camaras{position:fixed;top:50%;left:14px;transform:translateY(-50%);z-index:550;max-width:220px;padding:14px 16px;font-family:monospace;text-align:left;color:#fff;background:rgba(20,0,0,.92);border:2px solid #a55;box-shadow:0 0 16px rgba(255,80,0,.35);letter-spacing:1px;line-height:1.45;transition:opacity 2s;pointer-events:none}" +
       "#aviso-sin-camaras.sc-fade{opacity:0}" +
-      "#aviso-sin-camaras .sc-sub{display:block;margin-top:10px;color:#c96;font-size:.8rem;letter-spacing:0}" +
-      "#ui-botones #btn-audio{display:block!important;position:static;width:auto;max-width:280px;flex:1;min-width:140px;background:rgba(0,60,0,.85);border:2px solid #4f4;color:#4f4}" +
-      "#contador-retencion-oficina{position:fixed;bottom:78px;left:50%;transform:translateX(-50%);z-index:11;color:#4f4;font-family:monospace;font-size:14px;background:rgba(0,0,0,.7);padding:6px 12px;display:none}";
+      "#aviso-sin-camaras .sc-sub{display:block;margin-top:10px;color:#c96;font-size:.8rem;letter-spacing:0}";
     document.head.appendChild(s);
   }
 
-  function moverAudioAOficina() {
+  /** En modo difícil no hay audio de retención: solo puerta y pistas ambientales. */
+  function ocultarControlAudio() {
     var btnAudio = document.getElementById("btn-audio");
-    var uiBotones = document.getElementById("ui-botones");
-    var contadorRet = document.getElementById("contador-retencion");
-    if (!btnAudio || !uiBotones || btnAudio.dataset.enOficina === "1") return;
+    var contadorRet =
+      document.getElementById("contador-retencion-oficina") ||
+      document.getElementById("contador-retencion");
+    if (btnAudio) {
+      btnAudio.style.display = "none";
+      btnAudio.disabled = true;
+    }
+    if (contadorRet) contadorRet.style.display = "none";
+  }
 
-    btnAudio.dataset.enOficina = "1";
-    btnAudio.style.display = "block";
-    uiBotones.appendChild(btnAudio);
-
+  function restaurarControlAudio() {
+    var btnAudio = document.getElementById("btn-audio");
+    var contadorRet =
+      document.getElementById("contador-retencion-oficina") ||
+      document.getElementById("contador-retencion");
+    if (btnAudio) {
+      btnAudio.style.display = "none";
+      btnAudio.disabled = false;
+    }
     if (contadorRet) {
-      contadorRet.id = "contador-retencion-oficina";
+      if (contadorRet.id === "contador-retencion-oficina") {
+        contadorRet.id = "contador-retencion";
+      }
       contadorRet.style.display = "none";
-      document.body.appendChild(contadorRet);
     }
   }
 
   window.SinCamaras = {
-    activo: true,
+    activo: false,
 
     aplicarConfig: aplicarConfigUnificada,
 
+    revertir: function () {
+      var panel = document.getElementById("camaras");
+      var btnCamaras = document.getElementById("btn-camaras");
+      restaurarControlAudio();
+      if (panel) panel.style.display = "none";
+      if (btnCamaras) btnCamaras.style.display = "";
+      window.SinCamaras.activo = false;
+    },
+
     aplicar: function (cfg) {
       cfg = cfg || {};
+
+      if (!(window.FnatSesion && FnatSesion.esDificil())) {
+        window.SinCamaras.revertir();
+        return;
+      }
+
+      window.SinCamaras.activo = true;
       inyectarEstilos();
 
       if (cfg.config) aplicarConfigUnificada(cfg.config);
@@ -97,8 +124,8 @@
       if (panel) panel.style.display = "none";
       if (btn) btn.style.display = "none";
 
-      moverAudioAOficina();
-      mostrarAvisoSinCamaras(!!(window.FnatSesion && FnatSesion.esDificil()));
+      ocultarControlAudio();
+      mostrarAvisoSinCamaras(true);
     },
 
     pistaMovimiento: function () {

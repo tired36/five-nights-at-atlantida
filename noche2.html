@@ -6,7 +6,7 @@
   <style>
     body {
       margin: 0;
-      background: black url('assets/imagenes/escenarios/sala3/sala3_oscura.jpeg') center/cover no-repeat;
+      background: black url('assets/imagenes/escenarios/sala3/sala3_oscura.png') center/cover no-repeat;
       color: white;
       font-family: monospace;
       text-align: center;
@@ -32,8 +32,9 @@
 <body>
 
   <h1>Noche 2</h1>
-  <button onclick="window.location.href='menu.html'">Volver al Menu</button>
-  <button onclick="window.location.href='noche2_lore.html'">Quiero continuar</button>
+  <script src="js/fnat-sesion.js"></script>
+  <button onclick="FnatSesion.ir('menu.html')">Volver al Menu</button>
+  <button onclick="FnatSesion.ir('noche2_lore.html')">Quiero continuar</button>
 
 </body>
 </html>

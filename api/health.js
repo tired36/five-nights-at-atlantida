@@ -1,5 +1,6 @@
 const { getDb, getMongoUri, getMongoConfig } = require("./lib/mongodb");
 const { aplicarCors } = require("./lib/cors");
+const { safeErrorForClient, safeLogError } = require("./lib/secrets");
 
 module.exports = async function handler(req, res) {
   aplicarCors(res);
@@ -42,14 +43,14 @@ module.exports = async function handler(req, res) {
         "Misma BD Atlas en local y Vercel si MONGODB_URI, MONGODB_DB y MONGODB_COLLECTION coinciden."
     });
   } catch (err) {
-    console.error(err);
+    safeLogError("[health]", err);
     return res.status(200).json({
       ok: false,
       configured: true,
       db: MONGODB_DB,
       coleccion: COLECCION,
       total: 0,
-      error: err.message
+      error: safeErrorForClient(err)
     });
   }
 };

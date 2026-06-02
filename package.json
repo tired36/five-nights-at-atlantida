@@ -6,7 +6,10 @@
     "start": "node server/server.js",
     "dev:watch": "node --watch server/server.js",
     "check-db": "node scripts/check-db.js",
-    "test:ranking": "node scripts/test-ranking-dificil.js"
+    "test:ranking": "node scripts/test-ranking-dificil.js",
+    "verify-assets": "node scripts/verify-assets.js",
+    "check-secrets": "node scripts/check-secrets.js",
+    "smoke": "node scripts/smoke-check.js"
   },
   "dependencies": {
     "cors": "^2.8.5",

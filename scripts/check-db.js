@@ -16,7 +16,7 @@ async function main() {
     process.exit(1);
   }
 
-  console.log("URI:        " + (uri.includes("PASSWORD") ? "(ejemplo — pon tu .env real)" : "configurada"));
+  console.log("URI:        (oculta — solo en .env / Vercel, no se muestra por seguridad)");
   console.log("Base:       " + cfg.MONGODB_DB);
   console.log("Colección:  " + cfg.COLECCION);
   console.log("");
@@ -42,8 +42,9 @@ async function main() {
     console.log("\nLocal y Vercel comparten esta misma BD si usan las mismas variables.");
     console.log("Health: http://localhost:3000/api/health (con npm run dev)");
   } catch (err) {
-    console.error("Error:", err.message);
-    console.error("\nRevisa Atlas Network Access (0.0.0.0/0) y la URI en .env");
+    const { safeErrorForClient } = require("../api/lib/secrets");
+    console.error("Error:", safeErrorForClient(err));
+    console.error("\nRevisa Atlas Network Access (0.0.0.0/0) y MONGODB_URI en .env (sin compartir la contraseña)");
     process.exit(1);
   }
 }
