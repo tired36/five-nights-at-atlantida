@@ -70,9 +70,9 @@
       "#rank-login,#rank-fin{position:fixed;inset:0;background:rgba(0,0,0,.9);display:flex;align-items:center;justify-content:center}" +
       "#rank-login form,#rank-fin .box{background:#111;border:1px solid #fff;padding:24px;text-align:center;min-width:220px}" +
       "#rank-login input,#rank-login button,#rank-fin button{width:100%;margin:8px 0;padding:10px;font-family:monospace}" +
-      "#rank-bar{position:fixed;top:12px;left:20px;z-index:60;display:none;align-items:center;gap:14px;flex-wrap:nowrap}" +
+      "#rank-bar{position:fixed;bottom:12px;left:20px;z-index:60;display:none;align-items:center;gap:14px;flex-wrap:nowrap}" +
       "#rank-pts{font-size:22px;color:#5f5;white-space:nowrap;text-shadow:0 0 8px rgba(0,0,0,.9)}" +
-      "#rank-aviso{position:fixed;top:44px;left:20px;color:#f88;font-size:14px;z-index:60;opacity:0;transition:opacity .8s}";
+      "#rank-aviso{position:fixed;bottom:44px;left:20px;color:#f88;font-size:14px;z-index:60;opacity:0;transition:opacity .8s}";
     document.head.appendChild(estilo);
 
     const contenedor = document.createElement("div");
