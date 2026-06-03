@@ -668,6 +668,7 @@ function reproducirGolpes() { return Util.golpesEnPuerta(); }
       apagonIniciado = true;
       mostrarSub("¡No tienes energía!", 4000);
 
+      var puertaAntes = puertaCerrada;
       panelCamaras.style.display = "none";
       if (cancelarVideoPuerta) {
         cancelarVideoPuerta();
@@ -717,17 +718,17 @@ function reproducirGolpes() { return Util.golpesEnPuerta(); }
             // El screamer salta DURANTE la musica de "se va la luz"
             var tiempoParaSusto = 4000 + Math.random() * 4000;
             setTimeout(function () {
-              iniciarScreamer("te has quedado sin energia...", true);
+              iniciarScreamer("te has quedado sin energia...", puertaAntes);
             }, tiempoParaSusto);
           } else {
             setTimeout(function () {
-              iniciarScreamer("te has quedado sin energia...", true);
+              iniciarScreamer("te has quedado sin energia...", puertaAntes);
             }, 3000);
           }
         };
       } else {
         setTimeout(function () {
-          iniciarScreamer("te has quedado sin energia...", true);
+          iniciarScreamer("te has quedado sin energia...", puertaAntes);
         }, 3000);
       }
     }

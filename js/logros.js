@@ -316,10 +316,10 @@
     estilosInyectados = true;
     var estilo = document.createElement("style");
     estilo.textContent =
-      "#logro-aviso{position:fixed;top:12px;right:12px;z-index:600;max-width:min(280px,calc(100vw - 140px));display:flex;flex-direction:column;align-items:flex-end;gap:6px;font-family:monospace;text-transform:uppercase;letter-spacing:2px;opacity:0;transform:translateX(20px);transition:opacity 1.5s,transform 1.5s;pointer-events:none}" +
-      "#logro-aviso.visible{opacity:1;transform:translateX(0)}" +
+      "#logro-aviso{position:fixed;top:12px;left:50%;z-index:600;max-width:min(220px,calc(100vw - 40px));display:flex;flex-direction:column;align-items:center;gap:6px;font-family:monospace;text-transform:uppercase;letter-spacing:2px;opacity:0;transform:translate(-50%,-20px);transition:opacity 1.5s,transform 1.5s;pointer-events:none}" +
+      "#logro-aviso.visible{opacity:1;transform:translate(-50%,0)}" +
       ".logro-aviso-titulo{font-size:.7rem;color:#888;letter-spacing:3px}" +
-      ".logro-aviso-texto{font-size:.9rem;color:#cc0000;text-shadow:2px 2px 20px #ff0000;background:rgba(0,0,0,.9);border:1px solid #cc0000;padding:12px 16px;max-width:280px;text-align:right;line-height:1.35}";
+      ".logro-aviso-texto{font-size:.85rem;color:#cc0000;text-shadow:2px 2px 20px #ff0000;background:rgba(0,0,0,.9);border:1px solid #cc0000;padding:10px 14px;max-width:220px;text-align:center;line-height:1.35;border-radius:8px;}";
     document.head.appendChild(estilo);
   }
 
